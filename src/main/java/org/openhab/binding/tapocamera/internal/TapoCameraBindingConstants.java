@@ -27,8 +27,21 @@ public class TapoCameraBindingConstants {
     private static final String BINDING_ID = "tapocamera";
 
     // List of all Thing Type UIDs
-    public static final ThingTypeUID THING_TYPE_SAMPLE = new ThingTypeUID(BINDING_ID, "sample");
+    public static final ThingTypeUID THING_TYPE_CAMERA = new ThingTypeUID(BINDING_ID, "camera");
 
     // List of all Channel ids
-    public static final String CHANNEL_1 = "channel1";
+    public static final String CHANNEL_LED_STATUS = "led-status";
+
+    public static final String CHANNEL_ALARM_ENABLED = "alarm-enabled";
+    public static final String CHANNEL_ALARM_TYPE = "alarm-type";
+    public static final String CHANNEL_ALARM_MODE = "alarm-mode";
+    public static final String CHANNEL_ALARM_LIGHT_TYPE = "alarm-light-type";
+
+    public static final String CHANNEL_MOTION_DETECTION_ENABLED = "motion-detection-enabled";
+    public static final String CHANNEL_MOTION_DETECTION_SENSITIVITY = "motion-detection-sensitivity";
+    public static final String CHANNEL_MOTION_DETECTION_DIGITAL_SENSITIVITY = "motion-detection-digital-sensitivity";
+
+    public static final String CHANNEL_PEOPLE_DETECTION_ENABLED = "people-detection-enabled";
+    public static final String CHANNEL_PEOPLE_DETECTION_SENSITIVITY = "people-detection-sensitivity";
+    public static final String CHANNEL_MANUAL_ALARM = "manual-alarm";
 }

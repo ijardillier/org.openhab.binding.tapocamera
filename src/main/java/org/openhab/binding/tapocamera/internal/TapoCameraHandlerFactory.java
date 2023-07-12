@@ -12,7 +12,7 @@
  */
 package org.openhab.binding.tapocamera.internal;
 
-import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.*;
+import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.THING_TYPE_CAMERA;
 
 import java.util.Set;
 
@@ -23,7 +23,12 @@ import org.openhab.core.thing.ThingTypeUID;
 import org.openhab.core.thing.binding.BaseThingHandlerFactory;
 import org.openhab.core.thing.binding.ThingHandler;
 import org.openhab.core.thing.binding.ThingHandlerFactory;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import org.openhab.binding.tapocamera.internal.api.ApiException;
+import org.openhab.binding.tapocamera.internal.api.TapoCameraApiFactory;
 
 /**
  * The {@link TapoCameraHandlerFactory} is responsible for creating things and thing
@@ -35,7 +40,14 @@ import org.osgi.service.component.annotations.Component;
 @Component(configurationPid = "binding.tapocamera", service = ThingHandlerFactory.class)
 public class TapoCameraHandlerFactory extends BaseThingHandlerFactory {
 
-    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_SAMPLE);
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_CAMERA);
+
+    private final TapoCameraApiFactory apiFactory;
+
+    @Activate
+    public TapoCameraHandlerFactory(@Reference TapoCameraApiFactory apiFactory) {
+        this.apiFactory = apiFactory;
+    }
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -46,8 +58,12 @@ public class TapoCameraHandlerFactory extends BaseThingHandlerFactory {
     protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (THING_TYPE_SAMPLE.equals(thingTypeUID)) {
-            return new TapoCameraHandler(thing);
+        if (THING_TYPE_CAMERA.equals(thingTypeUID)) {
+            try {
+                return new TapoCameraHandler(thing, apiFactory.getApi());
+            } catch (ApiException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         return null;

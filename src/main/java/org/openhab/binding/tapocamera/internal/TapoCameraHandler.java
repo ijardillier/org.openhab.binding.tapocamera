@@ -12,16 +12,45 @@
  */
 package org.openhab.binding.tapocamera.internal;
 
-import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.*;
+import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_ALARM_ENABLED;
+import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_ALARM_LIGHT_TYPE;
+import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_ALARM_MODE;
+import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_ALARM_TYPE;
+import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_LED_STATUS;
+import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_MANUAL_ALARM;
+import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_MOTION_DETECTION_DIGITAL_SENSITIVITY;
+import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_MOTION_DETECTION_ENABLED;
+import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_MOTION_DETECTION_SENSITIVITY;
+import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_PEOPLE_DETECTION_ENABLED;
+import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_PEOPLE_DETECTION_SENSITIVITY;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.core.library.types.OnOffType;
+import org.openhab.core.library.types.PercentType;
+import org.openhab.core.library.types.StringType;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.ThingStatusDetail;
 import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
+
+import org.openhab.binding.tapocamera.internal.api.ApiException;
+import org.openhab.binding.tapocamera.internal.api.TapoCameraApi;
+import org.openhab.binding.tapocamera.internal.api.response.ApiDeviceInfo;
+import org.openhab.binding.tapocamera.internal.dto.AlarmInfo;
+import org.openhab.binding.tapocamera.internal.dto.CameraState;
+import org.openhab.binding.tapocamera.internal.dto.MotionDetection;
+import org.openhab.binding.tapocamera.internal.dto.PeopleDetection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,67 +67,247 @@ public class TapoCameraHandler extends BaseThingHandler {
 
     private @Nullable TapoCameraConfiguration config;
 
-    public TapoCameraHandler(Thing thing) {
+    private @Nullable Future<?> initJob;
+    private @Nullable Future<?> pollingJob;
+    private final TapoCameraApi api;
+
+    private CameraState cameraState = new CameraState();
+
+    public TapoCameraHandler(Thing thing, TapoCameraApi api) {
         super(thing);
+        this.api = api;
     }
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        if (CHANNEL_1.equals(channelUID.getId())) {
+        if (CHANNEL_MANUAL_ALARM.equals(channelUID.getId())) {
+            if (command instanceof OnOffType) {
+                try {
+                    api.setManualAlarm(command.equals(OnOffType.ON) ? "start" : " stop");
+                } catch (ApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } else if (CHANNEL_LED_STATUS.equals(channelUID.getId())) {
             if (command instanceof RefreshType) {
                 // TODO: handle data refresh
+            } else if (command instanceof OnOffType) {
+                cameraState.setLedStatus(command.toString().toLowerCase());
+                try {
+                    api.setLedStatus(cameraState.getLedStatus());
+                } catch (ApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } else if (CHANNEL_ALARM_ENABLED.equals(channelUID.getId())) {
+            if (command instanceof OnOffType) {
+                cameraState.getAlarmInfo().setEnabled(command.toString().toLowerCase());
+                try {
+                    api.setAlarmInfoEnabled(cameraState.getAlarmInfo().getEnabled());
+                } catch (ApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } else if (CHANNEL_ALARM_MODE.equals(channelUID.getId())) {
+            if (command instanceof StringType) {
+                List<String> modes = new ArrayList<>();
+                if (command.toString().equals("off")) {
+
+                } else if (command.toString().equals("both")) {
+                    modes.add("sound");
+                    modes.add("light");
+                } else if (command.toString().equals("sound")) {
+                    modes.add("sound");
+                } else if (command.toString().equals("light")) {
+                    modes.add("light");
+                }
+                cameraState.getAlarmInfo().setAlarmMode(modes);
+                try {
+                    api.setAlarmInfoMode(modes);
+                } catch (ApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } else if (CHANNEL_ALARM_TYPE.equals(channelUID.getId())) {
+            if (command instanceof StringType) {
+                cameraState.getAlarmInfo().setAlarmType(command.toString());
+                try {
+                    api.setAlarmInfoType(command.toString());
+                } catch (ApiException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
-            // TODO: handle command
-
-            // Note: if communication with thing fails for some reason,
-            // indicate that by setting the status with detail information:
-            // updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-            // "Could not control device at IP address x.x.x.x");
+        } else if (CHANNEL_MOTION_DETECTION_ENABLED.equals(channelUID.getId())) {
+            if (command instanceof OnOffType) {
+                cameraState.getMotionDetection().setEnabled(command.toString().toLowerCase());
+                try {
+                    api.setMotionDetectionEnabled(cameraState.getMotionDetection().getEnabled());
+                } catch (ApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } else if (CHANNEL_MOTION_DETECTION_DIGITAL_SENSITIVITY.equals(channelUID.getId())) {
+            if (command instanceof PercentType) {
+                String value = String.valueOf(((PercentType) command).intValue() * 10);
+                cameraState.getMotionDetection().setDigitalSensitivity(value);
+                try {
+                    api.setMotionDetectionSensitivity(value);
+                } catch (ApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } else if (CHANNEL_PEOPLE_DETECTION_ENABLED.equals(channelUID.getId())) {
+            if (command instanceof OnOffType) {
+                cameraState.getPeopleDetection().setEnabled(command.toString().toLowerCase());
+                try {
+                    api.setPeopleDetectionEnabled(cameraState.getPeopleDetection().getEnabled());
+                } catch (ApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } else if (CHANNEL_PEOPLE_DETECTION_SENSITIVITY.equals(channelUID.getId())) {
+            if (command instanceof PercentType) {
+                String value = String.valueOf(((PercentType) command).intValue() * 10);
+                cameraState.getPeopleDetection().setSensitivity(value);
+                try {
+                    api.setPeopleDetectionSensitivity(value);
+                } catch (ApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 
     @Override
     public void initialize() {
         config = getConfigAs(TapoCameraConfiguration.class);
-
-        // TODO: Initialize the handler.
-        // The framework requires you to return from this method quickly, i.e. any network access must be done in
-        // the background initialization below.
-        // Also, before leaving this method a thing status from one of ONLINE, OFFLINE or UNKNOWN must be set. This
-        // might already be the real thing status in case you can decide it directly.
-        // In case you can not decide the thing status directly (e.g. for long running connection handshake using WAN
-        // access or similar) you should set status UNKNOWN here and then decide the real status asynchronously in the
-        // background.
-
-        // set the thing status to UNKNOWN temporarily and let the background task decide for the real status.
-        // the framework is then able to reuse the resources from the thing handler initialization.
-        // we set this upfront to reliably check status updates in unit tests.
         updateStatus(ThingStatus.UNKNOWN);
 
         // Example for background initialization:
-        scheduler.execute(() -> {
-            boolean thingReachable = true; // <background task with long running initialization here>
-            // when done do:
-            if (thingReachable) {
-                updateStatus(ThingStatus.ONLINE);
+        initJob = connect(0);
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        Future<?> job = initJob;
+        if (job != null) {
+            job.cancel(true);
+            initJob = null;
+        }
+        job = pollingJob;
+        if (job != null) {
+            job.cancel(true);
+            pollingJob = null;
+        }
+    }
+
+    private Future<?> connect(int wait) {
+        logger.warn("Try connect after: {} sec", wait);
+        return scheduler.schedule(() -> {
+            if (config == null) {
+                updateStatus(ThingStatus.UNINITIALIZED, ThingStatusDetail.CONFIGURATION_ERROR);
             } else {
                 updateStatus(ThingStatus.OFFLINE);
+                api.setHostname(config.hostname);
+                String pass = config.cloudPassword.isEmpty() ? config.password : config.cloudPassword;
+                boolean thingReachable = false;
+                try {
+                    thingReachable = api.auth(config.username, pass);
+                } catch (ApiException e) {
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
+                    reconnect();
+                    throw new RuntimeException(e);
+                }
+                if (thingReachable) {
+                    updateStatus(ThingStatus.ONLINE);
+                    try {
+                        ApiDeviceInfo devInfo = api.getDeviceInfo();
+                        setThingProperties(devInfo);
+                        pollingJob = getCameraParameters(config.pollingInterval);
+                    } catch (ApiException e) {
+                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    reconnect();
+                }
             }
-        });
+        }, wait, TimeUnit.SECONDS);
+    }
 
-        // These logging types should be primarily used by bindings
-        // logger.trace("Example trace message");
-        // logger.debug("Example debug message");
-        // logger.warn("Example warn message");
-        //
-        // Logging to INFO should be avoided normally.
-        // See https://www.openhab.org/docs/developer/guidelines.html#f-logging
+    private void reconnect() {
+        logger.debug("Try to reconnect");
+        Future<?> job = initJob;
+        if (job != null) {
+            job.cancel(true);
+            initJob = null;
+        }
+        initJob = connect(config.reconnectInterval);
+    }
 
-        // Note: When initialization can NOT be done set the status with more details for further
-        // analysis. See also class ThingStatusDetail for all available status details.
-        // Add a description to give user information to understand why thing does not work as expected. E.g.
-        // updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-        // "Can not access device as username and/or password are invalid");
+    private void setThingProperties(ApiDeviceInfo device) {
+        Map<String, String> properties = new HashMap<>();
+        properties.put("Friendly Name:", device.basicInfo.friendlyName);
+        properties.put("Device model:", device.basicInfo.deviceModel);
+        properties.put("Software version:", device.basicInfo.swVersion);
+        properties.put("Hardware version:", device.basicInfo.hwVersion);
+        properties.put("Device identifier:", device.basicInfo.devId);
+
+        updateProperties(properties);
+    }
+
+    private Future<?> getCameraParameters(Integer interval) {
+        logger.debug("get camera parameters");
+        return scheduler.scheduleWithFixedDelay(() -> {
+
+            try {
+                // get led status
+                String ledStatus = api.getLedStatus();
+                cameraState.setLedStatus(ledStatus);
+                updateState(CHANNEL_LED_STATUS, OnOffType.from(ledStatus.toUpperCase()));
+
+                // alarm mode
+                AlarmInfo alarmInfo = api.getAlarmInfo();
+                cameraState.setAlarmInfo(alarmInfo);
+                updateState(CHANNEL_ALARM_ENABLED, OnOffType.from(alarmInfo.getEnabled().toUpperCase()));
+                updateState(CHANNEL_ALARM_TYPE, new StringType(alarmInfo.getAlarmType()));
+                updateState(CHANNEL_ALARM_LIGHT_TYPE, new StringType(alarmInfo.getLightType()));
+
+                if (alarmInfo.getAlarmMode().isEmpty() || alarmInfo.getAlarmMode().size() == 0) {
+                    updateState(CHANNEL_ALARM_MODE, new StringType("off"));
+                } else if (alarmInfo.getAlarmMode().size() == 2) {
+                    updateState(CHANNEL_ALARM_MODE, new StringType("both"));
+                } else if (alarmInfo.getAlarmMode().size() == 1) {
+                    updateState(CHANNEL_ALARM_MODE, new StringType(alarmInfo.getAlarmMode().get(0)));
+                }
+
+                // motion detection
+                MotionDetection motionDetection = api.getMotionDetection();
+                cameraState.setMotionDetection(motionDetection);
+                updateState(CHANNEL_MOTION_DETECTION_ENABLED,
+                        OnOffType.from(motionDetection.getEnabled().toUpperCase()));
+                updateState(CHANNEL_MOTION_DETECTION_SENSITIVITY, new StringType(motionDetection.getSensitivity()));
+                int digitalSensitivity = Integer.parseInt(motionDetection.getDigitalSensitivity()) / 10;
+                updateState(CHANNEL_MOTION_DETECTION_DIGITAL_SENSITIVITY, new PercentType(digitalSensitivity));
+
+                // people detection
+                PeopleDetection peopleDetection = api.getPeopleDetection();
+                cameraState.setPeopleDetection(peopleDetection);
+                updateState(CHANNEL_PEOPLE_DETECTION_ENABLED,
+                        OnOffType.from(peopleDetection.getEnabled().toUpperCase()));
+                digitalSensitivity = Integer.parseInt(peopleDetection.getSensitivity()) / 10;
+                updateState(CHANNEL_PEOPLE_DETECTION_SENSITIVITY, new PercentType(digitalSensitivity));
+
+                // get image common
+                // get image switch
+                // get events
+
+            } catch (ApiException e) {
+                throw new RuntimeException(e);
+            }
+
+        }, interval, interval, TimeUnit.SECONDS);
     }
 }
