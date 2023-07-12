@@ -22,6 +22,8 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.tapocamera.internal.api.response.ApiDeviceInfo;
 import org.openhab.binding.tapocamera.internal.api.response.ApiResponse;
 import org.openhab.binding.tapocamera.internal.dto.AlarmInfo;
+import org.openhab.binding.tapocamera.internal.dto.IntrusionDetection;
+import org.openhab.binding.tapocamera.internal.dto.LineCrossingDetection;
 import org.openhab.binding.tapocamera.internal.dto.MotionDetection;
 import org.openhab.binding.tapocamera.internal.dto.PeopleDetection;
 
@@ -52,6 +54,10 @@ public interface TapoCameraApi {
 
     PeopleDetection getPeopleDetection() throws ApiException;
 
+    LineCrossingDetection getLineCrossingDetection() throws ApiException;
+
+    IntrusionDetection getIntrusionDetection() throws ApiException;
+
     void setLedStatus(String status) throws ApiException;
 
     void setAlarmInfoEnabled(String status) throws ApiException;
@@ -69,4 +75,7 @@ public interface TapoCameraApi {
     void setPeopleDetectionSensitivity(String state) throws ApiException;
 
     void setManualAlarm(String state) throws ApiException;
+
+    void setLineCrossingDetectionEnabled(String state) throws ApiException;
+    void setIntrusionDetectionEnabled(String state) throws ApiException;
 }

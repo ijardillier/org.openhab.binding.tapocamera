@@ -20,6 +20,9 @@ public class CameraState {
     private MotionDetection motionDetection = new MotionDetection();
     private PeopleDetection peopleDetection = new PeopleDetection();
 
+    private LineCrossingDetection lineCrossingDetection = new LineCrossingDetection();
+
+    private IntrusionDetection intrusionDetection = new IntrusionDetection();
     public CameraState() {
     }
 
@@ -53,5 +56,21 @@ public class CameraState {
 
     public void setPeopleDetection(PeopleDetection peopleDetection) {
         this.peopleDetection = peopleDetection;
+    }
+
+    public LineCrossingDetection getLineCrossingDetection() {
+        return lineCrossingDetection;
+    }
+
+    public void setLineCrossingDetection(LineCrossingDetection lineCrossingDetection) {
+        this.lineCrossingDetection = lineCrossingDetection;
+    }
+
+    public IntrusionDetection getIntrusionDetection() {
+        return intrusionDetection;
+    }
+
+    public void setIntrusionDetection(IntrusionDetection intrusionDetection) {
+        this.intrusionDetection = intrusionDetection;
     }
 }

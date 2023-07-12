@@ -43,5 +43,9 @@ public class TapoCameraBindingConstants {
 
     public static final String CHANNEL_PEOPLE_DETECTION_ENABLED = "people-detection-enabled";
     public static final String CHANNEL_PEOPLE_DETECTION_SENSITIVITY = "people-detection-sensitivity";
+
+    public static final String CHANNEL_LINE_CROSSING_DETECTION_ENABLED = "line-crossing-detection-enabled";
+    public static final String CHANNEL_INTRUSION_DETECTION_ENABLED = "intrusion-detection-enabled";
+
     public static final String CHANNEL_MANUAL_ALARM = "manual-alarm";
 }

@@ -16,7 +16,9 @@ import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants
 import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_ALARM_LIGHT_TYPE;
 import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_ALARM_MODE;
 import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_ALARM_TYPE;
+import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_INTRUSION_DETECTION_ENABLED;
 import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_LED_STATUS;
+import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_LINE_CROSSING_DETECTION_ENABLED;
 import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_MANUAL_ALARM;
 import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_MOTION_DETECTION_DIGITAL_SENSITIVITY;
 import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_MOTION_DETECTION_ENABLED;
@@ -49,6 +51,8 @@ import org.openhab.binding.tapocamera.internal.api.TapoCameraApi;
 import org.openhab.binding.tapocamera.internal.api.response.ApiDeviceInfo;
 import org.openhab.binding.tapocamera.internal.dto.AlarmInfo;
 import org.openhab.binding.tapocamera.internal.dto.CameraState;
+import org.openhab.binding.tapocamera.internal.dto.IntrusionDetection;
+import org.openhab.binding.tapocamera.internal.dto.LineCrossingDetection;
 import org.openhab.binding.tapocamera.internal.dto.MotionDetection;
 import org.openhab.binding.tapocamera.internal.dto.PeopleDetection;
 import org.slf4j.Logger;
@@ -176,6 +180,24 @@ public class TapoCameraHandler extends BaseThingHandler {
                     throw new RuntimeException(e);
                 }
             }
+        } else if (CHANNEL_LINE_CROSSING_DETECTION_ENABLED.equals(channelUID.getId())) {
+            if (command instanceof OnOffType) {
+                cameraState.getLineCrossingDetection().setEnabled(command.toString().toLowerCase());
+                try {
+                    api.setLineCrossingDetectionEnabled(command.toString().toUpperCase());
+                } catch (ApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } else if (CHANNEL_INTRUSION_DETECTION_ENABLED.equals(channelUID.getId())) {
+            if (command instanceof OnOffType) {
+                cameraState.getIntrusionDetection().setEnabled(command.toString().toLowerCase());
+                try {
+                    api.setIntrusionDetectionEnabled(command.toString().toUpperCase());
+                } catch (ApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 
@@ -299,6 +321,15 @@ public class TapoCameraHandler extends BaseThingHandler {
                         OnOffType.from(peopleDetection.getEnabled().toUpperCase()));
                 digitalSensitivity = Integer.parseInt(peopleDetection.getSensitivity()) / 10;
                 updateState(CHANNEL_PEOPLE_DETECTION_SENSITIVITY, new PercentType(digitalSensitivity));
+
+                LineCrossingDetection lineCrossingDetection = api.getLineCrossingDetection();
+                cameraState.setLineCrossingDetection(lineCrossingDetection);
+                updateState(CHANNEL_LINE_CROSSING_DETECTION_ENABLED, OnOffType.from(lineCrossingDetection.getEnabled().toUpperCase()));
+
+                IntrusionDetection intrusionDetection = api.getIntrusionDetection();
+                cameraState.setIntrusionDetection(intrusionDetection);
+                updateState(CHANNEL_INTRUSION_DETECTION_ENABLED, OnOffType.from(intrusionDetection.getEnabled().toUpperCase()));
+
 
                 // get image common
                 // get image switch

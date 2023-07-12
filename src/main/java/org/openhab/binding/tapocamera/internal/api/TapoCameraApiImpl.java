@@ -38,6 +38,8 @@ import com.google.gson.JsonSyntaxException;
 import org.openhab.binding.tapocamera.internal.api.response.ApiDeviceInfo;
 import org.openhab.binding.tapocamera.internal.api.response.ApiResponse;
 import org.openhab.binding.tapocamera.internal.dto.AlarmInfo;
+import org.openhab.binding.tapocamera.internal.dto.IntrusionDetection;
+import org.openhab.binding.tapocamera.internal.dto.LineCrossingDetection;
 import org.openhab.binding.tapocamera.internal.dto.MotionDetection;
 import org.openhab.binding.tapocamera.internal.dto.PeopleDetection;
 import org.slf4j.Logger;
@@ -219,6 +221,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         // thing offline
     }
 
+    @Override
     public ApiDeviceInfo getDeviceInfo() throws ApiException {
         String command = "{\"method\":\"get\",\"device_info\":{\"name\": [\"basic_info\"]}}";
         try {
@@ -241,6 +244,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
             throw new ApiException("KeyManagementException:{}", e);
         }
     }
+
 
     private Integer getUserId() throws ApiException {
         String command = "{\"method\":\"multipleRequest\",\"params\":{\"requests\": [{\"method\":\"getUserID\",\"params\":{\"system\":{\"get_user_id\":\"null\"}}}]}}";
@@ -267,6 +271,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         }
     }
 
+    @Override
     public String getLedStatus() throws ApiException {
         String command = "{\"method\":\"get\",\"led\":{\"name\": [\"config\"]}}";
         try {
@@ -292,6 +297,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         }
     }
 
+    @Override
     public AlarmInfo getAlarmInfo() throws ApiException {
         String command = "{\"method\":\"get\",\"msg_alarm\":{\"name\": [\"chn1_msg_alarm_info\"]}}";
         try {
@@ -317,6 +323,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         }
     }
 
+    @Override
     public MotionDetection getMotionDetection() throws ApiException {
         String command = "{\"method\":\"get\",\"motion_detection\":{\"name\": [\"motion_det\"]}}";
         try {
@@ -343,6 +350,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         }
     }
 
+    @Override
     public PeopleDetection getPeopleDetection() throws ApiException {
         String command = "{\"method\":\"get\",\"people_detection\":{\"name\": [\"detection\"]}}";
         try {
@@ -357,6 +365,62 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                 return new PeopleDetection();
             } else {
                 throw processErrorResponse("people", response);
+            }
+        } catch (ApiException e) {
+            throw new RuntimeException(e);
+        } catch (JsonSyntaxException e) {
+            throw new ApiException("JsonSyntaxException:{}", e);
+        } catch (KeyManagementException e) {
+            throw new ApiException("KeyManagementException:{}", e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new ApiException("NoSuchAlgorithmException:{}", e);
+        }
+    }
+
+    @Override
+    public LineCrossingDetection getLineCrossingDetection() throws ApiException {
+        String command = "{\"method\":\"get\",\"linecrossing_detection\":{\"name\": [\"detection\"]}}";
+        try {
+            ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "linecrossing_detection");
+            if (response.httpCode == 200 && response.errorCode == 0) {
+                if (response.result.has("detection")) {
+                    LineCrossingDetection detection = gson.fromJson(response.result.get("detection"),
+                            LineCrossingDetection.class);
+                    logger.debug("line crossing detection is {}", detection.toString());
+                    return detection;
+                } else {
+                    return new LineCrossingDetection();
+                }
+            } else {
+                throw processErrorResponse("line", response);
+            }
+        } catch (ApiException e) {
+            throw new RuntimeException(e);
+        } catch (JsonSyntaxException e) {
+            throw new ApiException("JsonSyntaxException:{}", e);
+        } catch (KeyManagementException e) {
+            throw new ApiException("KeyManagementException:{}", e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new ApiException("NoSuchAlgorithmException:{}", e);
+        }
+    }
+
+    @Override
+    public IntrusionDetection getIntrusionDetection() throws ApiException {
+        String command = "{\"method\":\"get\",\"intrusion_detection\":{\"name\": [\"detection\"]}}";
+        try {
+            ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "intrusion_detection");
+            if (response.httpCode == 200 && response.errorCode == 0) {
+                if (response.result.has("detection")) {
+                    IntrusionDetection detection = gson.fromJson(response.result.get("detection"),
+                            IntrusionDetection.class);
+                    logger.debug("Intrusion detection is {}", detection.toString());
+                    return detection;
+                } else {
+                    return new IntrusionDetection();
+                }
+            } else {
+                throw processErrorResponse("line", response);
             }
         } catch (ApiException e) {
             throw new RuntimeException(e);
@@ -386,17 +450,20 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         }
     }
 
+    @Override
     public void setLedStatus(String status) throws ApiException {
         String command = String.format("{\"method\": \"set\",\"led\":{\"config\":{\"enabled\":\"%s\"}}}", status);
         sendCommand(command, "led");
     }
 
+    @Override
     public void setAlarmInfoEnabled(String status) throws ApiException {
         String command = String
                 .format("{\"method\": \"set\",\"msg_alarm\":{\"chn1_msg_alarm_info\":{\"enabled\":\"%s\"}}}", status);
         sendCommand(command, "alarm");
     }
 
+    @Override
     public void setAlarmInfoMode(List<String> modes) throws ApiException {
         String command = String.format(
                 "{\"method\": \"set\",\"msg_alarm\":{\"chn1_msg_alarm_info\":{\"alarm_mode\":[\"%s\"]}}}",
@@ -404,39 +471,59 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         sendCommand(command, "alarm");
     }
 
+    @Override
     public void setAlarmInfoType(String type) throws ApiException {
         String command = String
                 .format("{\"method\": \"set\",\"msg_alarm\":{\"chn1_msg_alarm_info\":{\"alarm_type\":\"%s\"}}}", type);
         sendCommand(command, "alarm");
     }
 
+    @Override
     public void setMotionDetectionEnabled(String state) throws ApiException {
         String command = String
                 .format("{\"method\": \"set\",\"motion_detection\":{\"motion_det\":{\"enable\":\"%s\"}}}", state);
         sendCommand(command, "motion");
     }
 
+    @Override
     public void setMotionDetectionSensitivity(String state) throws ApiException {
         String command = String.format(
                 "{\"method\": \"set\",\"motion_detection\":{\"motion_det\":{\"digital_sensitivity\":\"%s\"}}}", state);
         sendCommand(command, "motion");
     }
 
+    @Override
     public void setPeopleDetectionEnabled(String state) throws ApiException {
         String command = String.format("{\"method\": \"set\",\"people_detection\":{\"detection\":{\"enable\":\"%s\"}}}",
                 state);
         sendCommand(command, "people");
     }
 
+    @Override
     public void setPeopleDetectionSensitivity(String state) throws ApiException {
         String command = String
                 .format("{\"method\": \"set\",\"people_detection\":{\"detection\":{\"sensitivity\":\"%s\"}}}", state);
         sendCommand(command, "people");
     }
 
+    @Override
     public void setManualAlarm(String state) throws ApiException {
         String command = String.format("{\"method\": \"do\",\"msg_alarm\":{\"manual_msg_alarm\":{\"action\":\"%s\"}}}",
                 state);
         sendCommand(command, "manual");
+    }
+
+    @Override
+    public void setLineCrossingDetectionEnabled(String state) throws ApiException {
+        String command = String.format("{\"method\": \"set\",\"linecrossing_detection\":{\"detection\":{\"enable\":\"%s\"}}}",
+                state);
+        sendCommand(command, "lineCrossing");
+    }
+
+    @Override
+    public void setIntrusionDetectionEnabled(String state) throws ApiException {
+        String command = String.format("{\"method\": \"set\",\"intrusion_detection\":{\"detection\":{\"enable\":\"%s\"}}}",
+                state);
+        sendCommand(command, "intrusion");
     }
 }
