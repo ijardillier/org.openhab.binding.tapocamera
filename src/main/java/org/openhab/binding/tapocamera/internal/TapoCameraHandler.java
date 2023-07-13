@@ -46,6 +46,7 @@ import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
 
+import org.openhab.binding.tapocamera.internal.api.ApiErrorCodes;
 import org.openhab.binding.tapocamera.internal.api.ApiException;
 import org.openhab.binding.tapocamera.internal.api.TapoCameraApi;
 import org.openhab.binding.tapocamera.internal.api.response.ApiDeviceInfo;
