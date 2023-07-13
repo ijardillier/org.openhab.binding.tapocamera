@@ -17,7 +17,7 @@ import java.io.Serializable;
 
 import com.google.gson.annotations.SerializedName;
 
-public class IntrusionDetection  implements Serializable {
+public class IntrusionDetection implements Serializable {
 
     @SerializedName("enabled")
     private String enabled = "off";
@@ -35,8 +35,6 @@ public class IntrusionDetection  implements Serializable {
 
     @Override
     public String toString() {
-        return "IntrusionDetection{" +
-                "enabled='" + enabled + '\'' +
-                '}';
+        return "IntrusionDetection{" + "enabled='" + enabled + '\'' + '}';
     }
 }

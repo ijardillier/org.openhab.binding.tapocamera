@@ -28,6 +28,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import org.openhab.binding.tapocamera.internal.api.ApiException;
+import org.openhab.binding.tapocamera.internal.api.TapoCameraApi;
 import org.openhab.binding.tapocamera.internal.api.TapoCameraApiFactory;
 
 /**
@@ -60,7 +61,10 @@ public class TapoCameraHandlerFactory extends BaseThingHandlerFactory {
 
         if (THING_TYPE_CAMERA.equals(thingTypeUID)) {
             try {
-                return new TapoCameraHandler(thing, apiFactory.getApi());
+                TapoCameraApi api = apiFactory.getApi();
+                TapoCameraHandler handler = new TapoCameraHandler(thing, api);
+                api.setDevice(handler);
+                return handler;
             } catch (ApiException e) {
                 throw new RuntimeException(e);
             }
