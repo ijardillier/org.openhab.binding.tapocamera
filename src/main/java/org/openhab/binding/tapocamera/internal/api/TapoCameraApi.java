@@ -13,12 +13,12 @@
 
 package org.openhab.binding.tapocamera.internal.api;
 
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
+import org.openhab.binding.tapocamera.internal.TapoCameraHandler;
 import org.openhab.binding.tapocamera.internal.api.response.ApiDeviceInfo;
 import org.openhab.binding.tapocamera.internal.api.response.ApiResponse;
 import org.openhab.binding.tapocamera.internal.dto.AlarmInfo;
@@ -35,8 +35,9 @@ import org.openhab.binding.tapocamera.internal.dto.PeopleDetection;
 @NonNullByDefault
 public interface TapoCameraApi {
 
-    ApiResponse sendPostRequest(String path, String body)
-            throws ApiException, KeyManagementException, NoSuchAlgorithmException;
+    void setDevice(TapoCameraHandler device);
+
+    ApiResponse sendPostRequest(String path, String body) throws ApiException;
 
     Boolean auth(String username, String password) throws ApiException;
 
@@ -44,38 +45,44 @@ public interface TapoCameraApi {
 
     String getToken();
 
-    ApiDeviceInfo getDeviceInfo() throws ApiException;
+    ApiDeviceInfo getDeviceInfo();
 
-    String getLedStatus() throws ApiException;
+    String getLedStatus();
 
-    AlarmInfo getAlarmInfo() throws ApiException;
+    @Nullable
+    AlarmInfo getAlarmInfo();
 
-    MotionDetection getMotionDetection() throws ApiException;
+    @Nullable
+    MotionDetection getMotionDetection();
 
-    PeopleDetection getPeopleDetection() throws ApiException;
+    @Nullable
+    PeopleDetection getPeopleDetection();
 
-    LineCrossingDetection getLineCrossingDetection() throws ApiException;
+    @Nullable
+    LineCrossingDetection getLineCrossingDetection();
 
-    IntrusionDetection getIntrusionDetection() throws ApiException;
+    @Nullable
+    IntrusionDetection getIntrusionDetection();
 
-    void setLedStatus(String status) throws ApiException;
+    void setLedStatus(String status);
 
-    void setAlarmInfoEnabled(String status) throws ApiException;
+    void setAlarmInfoEnabled(String status);
 
-    void setAlarmInfoMode(List<String> modes) throws ApiException;
+    void setAlarmInfoMode(List<String> modes);
 
-    void setAlarmInfoType(String type) throws ApiException;
+    void setAlarmInfoType(String type);
 
-    void setMotionDetectionEnabled(String state) throws ApiException;
+    void setMotionDetectionEnabled(String state);
 
-    void setMotionDetectionSensitivity(String state) throws ApiException;
+    void setMotionDetectionSensitivity(String state);
 
-    void setPeopleDetectionEnabled(String state) throws ApiException;
+    void setPeopleDetectionEnabled(String state);
 
-    void setPeopleDetectionSensitivity(String state) throws ApiException;
+    void setPeopleDetectionSensitivity(String state);
 
-    void setManualAlarm(String state) throws ApiException;
+    void setManualAlarm(String state);
 
-    void setLineCrossingDetectionEnabled(String state) throws ApiException;
-    void setIntrusionDetectionEnabled(String state) throws ApiException;
+    void setLineCrossingDetectionEnabled(String state);
+
+    void setIntrusionDetectionEnabled(String state);
 }

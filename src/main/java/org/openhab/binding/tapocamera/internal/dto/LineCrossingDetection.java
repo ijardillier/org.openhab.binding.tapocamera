@@ -17,7 +17,7 @@ import java.io.Serializable;
 
 import com.google.gson.annotations.SerializedName;
 
-public class LineCrossingDetection implements Serializable  {
+public class LineCrossingDetection implements Serializable {
     @SerializedName("enabled")
     private String enabled = "off";
 
@@ -34,8 +34,6 @@ public class LineCrossingDetection implements Serializable  {
 
     @Override
     public String toString() {
-        return "LineCrossingDetection{" +
-                "enabled='" + enabled + '\'' +
-                '}';
+        return "LineCrossingDetection{" + "enabled='" + enabled + '\'' + '}';
     }
 }

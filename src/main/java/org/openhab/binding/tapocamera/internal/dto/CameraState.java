@@ -23,6 +23,7 @@ public class CameraState {
     private LineCrossingDetection lineCrossingDetection = new LineCrossingDetection();
 
     private IntrusionDetection intrusionDetection = new IntrusionDetection();
+
     public CameraState() {
     }
 

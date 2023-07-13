@@ -14,7 +14,6 @@
 package org.openhab.binding.tapocamera.internal.api;
 
 import java.math.BigInteger;
-import java.security.KeyManagementException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -24,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
@@ -35,6 +35,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import org.openhab.binding.tapocamera.internal.TapoCameraHandler;
 import org.openhab.binding.tapocamera.internal.api.response.ApiDeviceInfo;
 import org.openhab.binding.tapocamera.internal.api.response.ApiResponse;
 import org.openhab.binding.tapocamera.internal.dto.AlarmInfo;
@@ -59,6 +60,8 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     protected final Gson gson = new Gson();
     public static final String TAPO_USER_AGENT = "Tapo CameraClient Android";
 
+    @Nullable
+    protected TapoCameraHandler device;
     private String token = "";
     private String hostname = "";
 
@@ -74,6 +77,16 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         // }
     }
 
+    @Nullable
+    public TapoCameraHandler getDevice() {
+        return device;
+    }
+
+    @Override
+    public void setDevice(TapoCameraHandler device) {
+        this.device = device;
+    }
+
     @Override
     public String getToken() {
         return token;
@@ -85,13 +98,11 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     }
 
     @Override
-    public ApiResponse sendPostRequest(String path, String body)
-            throws ApiException, KeyManagementException, NoSuchAlgorithmException {
+    public ApiResponse sendPostRequest(String path, String body) throws ApiException {
         return sendPostRequest(path, body, "result");
     }
 
-    private ApiResponse sendPostRequest(String path, String body, String root)
-            throws ApiException, KeyManagementException, NoSuchAlgorithmException {
+    private ApiResponse sendPostRequest(String path, String body, String root) throws ApiException {
         String errorReason = "";
         ApiResponse result = new ApiResponse();
         String url = "https://" + hostname;
@@ -127,8 +138,12 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         } catch (ExecutionException e) {
             errorReason = String.format("ExecutionException: %s", e.getMessage());
         } catch (TimeoutException e) {
+            resetSession();
             errorReason = "TimeoutException: TapoCamera Api was not reachable on your network";
+        } catch (JsonSyntaxException e) {
+            throw new ApiException("JsonSyntaxException:{}", e);
         }
+        device.setDeviceStatus(errorReason);
         throw new ApiException(errorReason);
     }
 
@@ -189,14 +204,8 @@ public class TapoCameraApiImpl implements TapoCameraApi {
             } else {
                 throw processErrorResponse("auth", response);
             }
-        } catch (ApiException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new ApiException("NoSuchAlgorithmException:{}", e);
         } catch (JsonSyntaxException e) {
             throw new ApiException("JsonSyntaxException:{}", e);
-        } catch (KeyManagementException e) {
-            throw new ApiException("KeyManagementException:{}", e);
         }
     }
 
@@ -204,6 +213,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         if (response.httpCode >= 400 && response.httpCode < 500 || response.errorCode < 0) {
             if (response.httpCode == 401 || response.errorCode == -40401) {
                 resetSession();
+                device.setDeviceStatus(response.errorCode);
             }
             logger.error(
                     String.format("TapoCamera API (%s) error: %d - %d", tag, response.httpCode, response.errorCode));
@@ -218,253 +228,207 @@ public class TapoCameraApiImpl implements TapoCameraApi {
 
     private void resetSession() {
         token = "";
-        // thing offline
     }
 
     @Override
-    public ApiDeviceInfo getDeviceInfo() throws ApiException {
+    public ApiDeviceInfo getDeviceInfo() {
+        ApiDeviceInfo apiDeviceInfo = new ApiDeviceInfo();
         String command = "{\"method\":\"get\",\"device_info\":{\"name\": [\"basic_info\"]}}";
         try {
             ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "device_info");
-            if (response.httpCode == 200 && response.errorCode == 0) {
+            if (response.errorCode == 0) {
                 if (response.result.has("basic_info")) {
-                    return Objects.requireNonNull(gson.fromJson(response.result, ApiDeviceInfo.class));
+                    apiDeviceInfo = Objects.requireNonNull(gson.fromJson(response.result, ApiDeviceInfo.class));
                 }
-                return new ApiDeviceInfo();
             } else {
                 throw processErrorResponse("devInfo", response);
             }
+        } catch (JsonSyntaxException e) {
+            logger.error(e.getMessage());
         } catch (ApiException e) {
             throw new RuntimeException(e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new ApiException("NoSuchAlgorithmException:{}", e);
-        } catch (JsonSyntaxException e) {
-            throw new ApiException("JsonSyntaxException:{}", e);
-        } catch (KeyManagementException e) {
-            throw new ApiException("KeyManagementException:{}", e);
         }
+        return apiDeviceInfo;
     }
 
-
-    private Integer getUserId() throws ApiException {
+    private Integer getUserId() {
+        Integer id = -1;
         String command = "{\"method\":\"multipleRequest\",\"params\":{\"requests\": [{\"method\":\"getUserID\",\"params\":{\"system\":{\"get_user_id\":\"null\"}}}]}}";
         try {
             ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "result");
-            if (response.httpCode == 200 && response.errorCode == 0) {
+            if (response.errorCode == 0) {
                 if (response.result.has("responses")) {
-                    userId = response.result.get("responses").getAsJsonArray().get(0).getAsJsonObject()
+                    id = response.result.get("responses").getAsJsonArray().get(0).getAsJsonObject()
                             .getAsJsonObject("result").get("user_id").getAsInt();
-                    return userId;
                 }
-                return -1;
             } else {
                 throw processErrorResponse("devInfo", response);
             }
+        } catch (JsonSyntaxException e) {
+            logger.error(e.getMessage());
         } catch (ApiException e) {
             throw new RuntimeException(e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new ApiException("NoSuchAlgorithmException:{}", e);
-        } catch (JsonSyntaxException e) {
-            throw new ApiException("JsonSyntaxException:{}", e);
-        } catch (KeyManagementException e) {
-            throw new ApiException("KeyManagementException:{}", e);
         }
+        return id;
     }
 
     @Override
-    public String getLedStatus() throws ApiException {
+    public String getLedStatus() {
+        String status = "off";
         String command = "{\"method\":\"get\",\"led\":{\"name\": [\"config\"]}}";
         try {
             ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "led");
-            if (response.httpCode == 200 && response.errorCode == 0) {
+            if (response.errorCode == 0) {
                 if (response.result.has("config")) {
-                    String status = response.result.get("config").getAsJsonObject().get("enabled").getAsString();
+                    status = response.result.get("config").getAsJsonObject().get("enabled").getAsString();
                     logger.debug("led status is {}", status);
-                    return status;
                 }
-                return "off";
             } else {
                 throw processErrorResponse("led", response);
             }
+        } catch (JsonSyntaxException e) {
+            logger.error(e.getMessage());
         } catch (ApiException e) {
             throw new RuntimeException(e);
-        } catch (JsonSyntaxException e) {
-            throw new ApiException("JsonSyntaxException:{}", e);
-        } catch (KeyManagementException e) {
-            throw new ApiException("KeyManagementException:{}", e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new ApiException("NoSuchAlgorithmException:{}", e);
         }
+        return status;
     }
 
     @Override
-    public AlarmInfo getAlarmInfo() throws ApiException {
+    public @Nullable AlarmInfo getAlarmInfo() {
+        AlarmInfo alarmInfo = new AlarmInfo();
         String command = "{\"method\":\"get\",\"msg_alarm\":{\"name\": [\"chn1_msg_alarm_info\"]}}";
         try {
             ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "msg_alarm");
-            if (response.httpCode == 200 && response.errorCode == 0) {
+            if (response.errorCode == 0) {
                 if (response.result.has("chn1_msg_alarm_info")) {
-                    AlarmInfo alarmInfo = gson.fromJson(response.result.get("chn1_msg_alarm_info"), AlarmInfo.class);
+                    alarmInfo = gson.fromJson(response.result.get("chn1_msg_alarm_info"), AlarmInfo.class);
                     logger.debug("alarm info is {}", alarmInfo.toString());
-                    return alarmInfo;
                 }
-                return new AlarmInfo();
             } else {
                 throw processErrorResponse("alarm", response);
             }
+        } catch (JsonSyntaxException e) {
+            logger.error(e.getMessage());
         } catch (ApiException e) {
             throw new RuntimeException(e);
-        } catch (JsonSyntaxException e) {
-            throw new ApiException("JsonSyntaxException:{}", e);
-        } catch (KeyManagementException e) {
-            throw new ApiException("KeyManagementException:{}", e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new ApiException("NoSuchAlgorithmException:{}", e);
         }
+        return alarmInfo;
     }
 
     @Override
-    public MotionDetection getMotionDetection() throws ApiException {
+    public @Nullable MotionDetection getMotionDetection() {
+        MotionDetection motionDetection = new MotionDetection();
         String command = "{\"method\":\"get\",\"motion_detection\":{\"name\": [\"motion_det\"]}}";
         try {
             ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "motion_detection");
             if (response.httpCode == 200 && response.errorCode == 0) {
                 if (response.result.has("motion_det")) {
-                    MotionDetection motionDetection = gson.fromJson(response.result.get("motion_det"),
-                            MotionDetection.class);
+                    motionDetection = gson.fromJson(response.result.get("motion_det"), MotionDetection.class);
                     logger.debug("motion detection is {}", motionDetection.toString());
-                    return motionDetection;
                 }
                 return new MotionDetection();
             } else {
                 throw processErrorResponse("motion", response);
             }
+        } catch (JsonSyntaxException e) {
+            logger.error(e.getMessage());
         } catch (ApiException e) {
             throw new RuntimeException(e);
-        } catch (JsonSyntaxException e) {
-            throw new ApiException("JsonSyntaxException:{}", e);
-        } catch (KeyManagementException e) {
-            throw new ApiException("KeyManagementException:{}", e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new ApiException("NoSuchAlgorithmException:{}", e);
         }
+        return motionDetection;
     }
 
     @Override
-    public PeopleDetection getPeopleDetection() throws ApiException {
+    public @Nullable PeopleDetection getPeopleDetection() {
+        PeopleDetection peopleDetection = new PeopleDetection();
         String command = "{\"method\":\"get\",\"people_detection\":{\"name\": [\"detection\"]}}";
         try {
             ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "people_detection");
-            if (response.httpCode == 200 && response.errorCode == 0) {
+            if (response.errorCode == 0) {
                 if (response.result.has("detection")) {
-                    PeopleDetection peopleDetection = gson.fromJson(response.result.get("detection"),
-                            PeopleDetection.class);
+                    peopleDetection = gson.fromJson(response.result.get("detection"), PeopleDetection.class);
                     logger.debug("people detection is {}", peopleDetection.toString());
-                    return peopleDetection;
                 }
-                return new PeopleDetection();
             } else {
                 throw processErrorResponse("people", response);
             }
+        } catch (JsonSyntaxException e) {
+            logger.error(e.getMessage());
         } catch (ApiException e) {
             throw new RuntimeException(e);
-        } catch (JsonSyntaxException e) {
-            throw new ApiException("JsonSyntaxException:{}", e);
-        } catch (KeyManagementException e) {
-            throw new ApiException("KeyManagementException:{}", e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new ApiException("NoSuchAlgorithmException:{}", e);
         }
+        return peopleDetection;
     }
 
     @Override
-    public LineCrossingDetection getLineCrossingDetection() throws ApiException {
+    public @Nullable LineCrossingDetection getLineCrossingDetection() {
+        LineCrossingDetection detection = new LineCrossingDetection();
         String command = "{\"method\":\"get\",\"linecrossing_detection\":{\"name\": [\"detection\"]}}";
         try {
             ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "linecrossing_detection");
-            if (response.httpCode == 200 && response.errorCode == 0) {
+            if (response.errorCode == 0) {
                 if (response.result.has("detection")) {
-                    LineCrossingDetection detection = gson.fromJson(response.result.get("detection"),
-                            LineCrossingDetection.class);
+                    detection = gson.fromJson(response.result.get("detection"), LineCrossingDetection.class);
                     logger.debug("line crossing detection is {}", detection.toString());
-                    return detection;
                 } else {
                     return new LineCrossingDetection();
                 }
             } else {
                 throw processErrorResponse("line", response);
             }
+        } catch (JsonSyntaxException e) {
+            logger.error(e.getMessage());
         } catch (ApiException e) {
             throw new RuntimeException(e);
-        } catch (JsonSyntaxException e) {
-            throw new ApiException("JsonSyntaxException:{}", e);
-        } catch (KeyManagementException e) {
-            throw new ApiException("KeyManagementException:{}", e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new ApiException("NoSuchAlgorithmException:{}", e);
         }
+        return detection;
     }
 
     @Override
-    public IntrusionDetection getIntrusionDetection() throws ApiException {
+    public @Nullable IntrusionDetection getIntrusionDetection() {
+        IntrusionDetection detection = new IntrusionDetection();
         String command = "{\"method\":\"get\",\"intrusion_detection\":{\"name\": [\"detection\"]}}";
         try {
             ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "intrusion_detection");
-            if (response.httpCode == 200 && response.errorCode == 0) {
-                if (response.result.has("detection")) {
-                    IntrusionDetection detection = gson.fromJson(response.result.get("detection"),
-                            IntrusionDetection.class);
-                    logger.debug("Intrusion detection is {}", detection.toString());
-                    return detection;
-                } else {
-                    return new IntrusionDetection();
-                }
-            } else {
-                throw processErrorResponse("line", response);
+            if (response.result.has("detection")) {
+                detection = gson.fromJson(response.result.get("detection"), IntrusionDetection.class);
+                logger.debug("Intrusion detection is {}", detection.toString());
             }
+        } catch (JsonSyntaxException e) {
+            logger.error(e.getMessage());
         } catch (ApiException e) {
             throw new RuntimeException(e);
-        } catch (JsonSyntaxException e) {
-            throw new ApiException("JsonSyntaxException:{}", e);
-        } catch (KeyManagementException e) {
-            throw new ApiException("KeyManagementException:{}", e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new ApiException("NoSuchAlgorithmException:{}", e);
         }
+        return detection;
     }
 
-    private void sendCommand(String command, String tag) throws ApiException {
+    private void sendCommand(String command, String tag) {
         try {
             ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "result");
             if (response.httpCode != 200 || response.errorCode != 0) {
                 throw processErrorResponse(tag, response);
             }
         } catch (ApiException e) {
-            throw new RuntimeException(e);
-        } catch (JsonSyntaxException e) {
-            throw new ApiException("JsonSyntaxException:{}", e);
-        } catch (KeyManagementException e) {
-            throw new ApiException("KeyManagementException:{}", e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new ApiException("NoSuchAlgorithmException:{}", e);
+            logger.error(e.getMessage());
         }
     }
 
     @Override
-    public void setLedStatus(String status) throws ApiException {
+    public void setLedStatus(String status) {
         String command = String.format("{\"method\": \"set\",\"led\":{\"config\":{\"enabled\":\"%s\"}}}", status);
         sendCommand(command, "led");
     }
 
     @Override
-    public void setAlarmInfoEnabled(String status) throws ApiException {
+    public void setAlarmInfoEnabled(String status) {
         String command = String
                 .format("{\"method\": \"set\",\"msg_alarm\":{\"chn1_msg_alarm_info\":{\"enabled\":\"%s\"}}}", status);
         sendCommand(command, "alarm");
     }
 
     @Override
-    public void setAlarmInfoMode(List<String> modes) throws ApiException {
+    public void setAlarmInfoMode(List<String> modes) {
         String command = String.format(
                 "{\"method\": \"set\",\"msg_alarm\":{\"chn1_msg_alarm_info\":{\"alarm_mode\":[\"%s\"]}}}",
                 modes.toString());
@@ -472,58 +436,58 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     }
 
     @Override
-    public void setAlarmInfoType(String type) throws ApiException {
+    public void setAlarmInfoType(String type) {
         String command = String
                 .format("{\"method\": \"set\",\"msg_alarm\":{\"chn1_msg_alarm_info\":{\"alarm_type\":\"%s\"}}}", type);
         sendCommand(command, "alarm");
     }
 
     @Override
-    public void setMotionDetectionEnabled(String state) throws ApiException {
+    public void setMotionDetectionEnabled(String state) {
         String command = String
                 .format("{\"method\": \"set\",\"motion_detection\":{\"motion_det\":{\"enable\":\"%s\"}}}", state);
         sendCommand(command, "motion");
     }
 
     @Override
-    public void setMotionDetectionSensitivity(String state) throws ApiException {
+    public void setMotionDetectionSensitivity(String state) {
         String command = String.format(
                 "{\"method\": \"set\",\"motion_detection\":{\"motion_det\":{\"digital_sensitivity\":\"%s\"}}}", state);
         sendCommand(command, "motion");
     }
 
     @Override
-    public void setPeopleDetectionEnabled(String state) throws ApiException {
+    public void setPeopleDetectionEnabled(String state) {
         String command = String.format("{\"method\": \"set\",\"people_detection\":{\"detection\":{\"enable\":\"%s\"}}}",
                 state);
         sendCommand(command, "people");
     }
 
     @Override
-    public void setPeopleDetectionSensitivity(String state) throws ApiException {
+    public void setPeopleDetectionSensitivity(String state) {
         String command = String
                 .format("{\"method\": \"set\",\"people_detection\":{\"detection\":{\"sensitivity\":\"%s\"}}}", state);
         sendCommand(command, "people");
     }
 
     @Override
-    public void setManualAlarm(String state) throws ApiException {
+    public void setManualAlarm(String state) {
         String command = String.format("{\"method\": \"do\",\"msg_alarm\":{\"manual_msg_alarm\":{\"action\":\"%s\"}}}",
                 state);
         sendCommand(command, "manual");
     }
 
     @Override
-    public void setLineCrossingDetectionEnabled(String state) throws ApiException {
-        String command = String.format("{\"method\": \"set\",\"linecrossing_detection\":{\"detection\":{\"enable\":\"%s\"}}}",
-                state);
+    public void setLineCrossingDetectionEnabled(String state) {
+        String command = String
+                .format("{\"method\": \"set\",\"linecrossing_detection\":{\"detection\":{\"enable\":\"%s\"}}}", state);
         sendCommand(command, "lineCrossing");
     }
 
     @Override
-    public void setIntrusionDetectionEnabled(String state) throws ApiException {
-        String command = String.format("{\"method\": \"set\",\"intrusion_detection\":{\"detection\":{\"enable\":\"%s\"}}}",
-                state);
+    public void setIntrusionDetectionEnabled(String state) {
+        String command = String
+                .format("{\"method\": \"set\",\"intrusion_detection\":{\"detection\":{\"enable\":\"%s\"}}}", state);
         sendCommand(command, "intrusion");
     }
 }
