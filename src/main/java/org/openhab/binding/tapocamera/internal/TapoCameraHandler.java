@@ -329,7 +329,7 @@ public class TapoCameraHandler extends BaseThingHandler {
             updateState(CHANNEL_INTRUSION_DETECTION_ENABLED.getName(),
                     OnOffType.from(intrusionDetection.getEnabled().toUpperCase()));
 
-            int volume = api.getMicrophoneVolume();
+            long volume = api.getMicrophoneVolume();
             cameraState.setMicrophoneVolume(volume);
             updateState(CHANNEL_MICROPHONE_VOLUME.getName(), new DecimalType(volume));
 

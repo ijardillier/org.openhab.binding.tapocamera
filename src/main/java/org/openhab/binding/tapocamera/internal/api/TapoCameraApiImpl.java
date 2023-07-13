@@ -492,11 +492,11 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     }
 
     @Override
-    public Integer getSpeakerVolume() {
-        int volume = 0;
+    public long getSpeakerVolume() {
+        long volume = 0;
         String command = "{\"method\":\"get\",\"audio_config\":{\"name\": [\"speaker\"]}}";
         try {
-            ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "speaker");
+            ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "audio_config");
             if (response.errorCode == 0) {
                 if (response.result.has("speaker")) {
                     volume = response.result.get("speaker").getAsJsonObject().get("volume").getAsInt();
@@ -514,18 +514,18 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     }
 
     @Override
-    public void setSpeakerVolume(Integer volume) {
+    public void setSpeakerVolume(long volume) {
         String command = String
                 .format("{\"method\": \"set\",\"audio_config\":{\"speaker\":{\"volume\":\"%d\"}}}", volume);
         sendCommand(command, "audio_config");
     }
 
     @Override
-    public Integer getMicrophoneVolume() {
+    public long getMicrophoneVolume() {
         int volume = 0;
         String command = "{\"method\":\"get\",\"audio_config\":{\"name\": [\"microphone\"]}}";
         try {
-            ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "microphone");
+            ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "audio_config");
             if (response.errorCode == 0) {
                 if (response.result.has("microphone")) {
                     volume = response.result.get("microphone").getAsJsonObject().get("volume").getAsInt();
@@ -543,7 +543,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     }
 
     @Override
-    public void setMicrophoneVolume(Integer volume) {
+    public void setMicrophoneVolume(long volume) {
         String command = String
                 .format("{\"method\": \"set\",\"audio_config\":{\"microphone\":{\"volume\":\"%d\"}}}", volume);
         sendCommand(command, "audio_config");

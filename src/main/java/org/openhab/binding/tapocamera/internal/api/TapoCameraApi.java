@@ -86,10 +86,10 @@ public interface TapoCameraApi {
 
     void setIntrusionDetectionEnabled(String state);
 
-    Integer getSpeakerVolume();
-    void setSpeakerVolume(Integer volume);
+    long getSpeakerVolume();
+    void setSpeakerVolume(long volume);
 
-    Integer getMicrophoneVolume();
+    long getMicrophoneVolume();
 
-    void setMicrophoneVolume(Integer volume);
+    void setMicrophoneVolume(long volume);
 }
