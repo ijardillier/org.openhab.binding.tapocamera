@@ -121,7 +121,7 @@
 		<description>LineCrossing Detection enabled</description>
 	</channel-type>
 
-	<channel-type id="lintrusion-detection-enabled">
+	<channel-type id="intrusion-detection-enabled">
 		<item-type>Switch</item-type>
 		<label>Intrusion Detection enabled</label>
 		<description>Intrusion Detection enabled</description>
