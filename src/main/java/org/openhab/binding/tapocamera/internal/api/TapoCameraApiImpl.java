@@ -492,8 +492,8 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     }
 
     @Override
-    public long getSpeakerVolume() {
-        long volume = 0;
+    public int getSpeakerVolume() {
+        int volume = 0;
         String command = "{\"method\":\"get\",\"audio_config\":{\"name\": [\"speaker\"]}}";
         try {
             ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "audio_config");
@@ -514,14 +514,14 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     }
 
     @Override
-    public void setSpeakerVolume(long volume) {
+    public void setSpeakerVolume(int volume) {
         String command = String
                 .format("{\"method\": \"set\",\"audio_config\":{\"speaker\":{\"volume\":\"%d\"}}}", volume);
         sendCommand(command, "audio_config");
     }
 
     @Override
-    public long getMicrophoneVolume() {
+    public int getMicrophoneVolume() {
         int volume = 0;
         String command = "{\"method\":\"get\",\"audio_config\":{\"name\": [\"microphone\"]}}";
         try {
@@ -543,7 +543,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     }
 
     @Override
-    public void setMicrophoneVolume(long volume) {
+    public void setMicrophoneVolume(int volume) {
         String command = String
                 .format("{\"method\": \"set\",\"audio_config\":{\"microphone\":{\"volume\":\"%d\"}}}", volume);
         sendCommand(command, "audio_config");

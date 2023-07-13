@@ -177,14 +177,14 @@ public class TapoCameraHandler extends BaseThingHandler {
                 api.setIntrusionDetectionEnabled(status);
             }
         } else if (CHANNEL_SPEAKER_VOLUME.getName().equals(channelUID.getId())) {
-            if (command instanceof DecimalType) {
-                Integer volume = ((DecimalType) command).intValue();
+            if (command instanceof PercentType) {
+                int volume = ((PercentType) command).intValue();
                 cameraState.setSpeakerVolume(volume);
                 api.setSpeakerVolume(volume);
             }
         } else if (CHANNEL_MICROPHONE_VOLUME.getName().equals(channelUID.getId())) {
-            if (command instanceof DecimalType) {
-                Integer volume = ((DecimalType) command).intValue();
+            if (command instanceof PercentType) {
+                int volume = ((PercentType) command).intValue();
                 cameraState.setMicrophoneVolume(volume);
                 api.setMicrophoneVolume(volume);
             }
@@ -329,13 +329,13 @@ public class TapoCameraHandler extends BaseThingHandler {
             updateState(CHANNEL_INTRUSION_DETECTION_ENABLED.getName(),
                     OnOffType.from(intrusionDetection.getEnabled().toUpperCase()));
 
-            long volume = api.getMicrophoneVolume();
+            int volume = api.getMicrophoneVolume();
             cameraState.setMicrophoneVolume(volume);
-            updateState(CHANNEL_MICROPHONE_VOLUME.getName(), new DecimalType(volume));
+            updateState(CHANNEL_MICROPHONE_VOLUME.getName(), new PercentType(volume));
 
             volume = api.getSpeakerVolume();
             cameraState.setSpeakerVolume(volume);
-            updateState(CHANNEL_SPEAKER_VOLUME.getName(), new DecimalType(volume));
+            updateState(CHANNEL_SPEAKER_VOLUME.getName(), new PercentType(volume));
 
             // get image common
             // get image switch

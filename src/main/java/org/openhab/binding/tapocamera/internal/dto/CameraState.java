@@ -24,8 +24,8 @@ public class CameraState {
 
     private IntrusionDetection intrusionDetection = new IntrusionDetection();
 
-    private long speakerVolume = 0;
-    private long microphoneVolume = 0;
+    private int speakerVolume = 0;
+    private int microphoneVolume = 0;
 
     public CameraState() {
     }
@@ -78,19 +78,19 @@ public class CameraState {
         this.intrusionDetection = intrusionDetection;
     }
 
-    public long getSpeakerVolume() {
+    public int getSpeakerVolume() {
         return speakerVolume;
     }
 
-    public void setSpeakerVolume(long speakerVolume) {
+    public void setSpeakerVolume(int speakerVolume) {
         this.speakerVolume = speakerVolume;
     }
 
-    public long getMicrophoneVolume() {
+    public int getMicrophoneVolume() {
         return microphoneVolume;
     }
 
-    public void setMicrophoneVolume(long microphoneVolume) {
+    public void setMicrophoneVolume(int microphoneVolume) {
         this.microphoneVolume = microphoneVolume;
     }
 }
