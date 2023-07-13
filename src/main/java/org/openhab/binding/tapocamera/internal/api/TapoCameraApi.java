@@ -49,19 +49,14 @@ public interface TapoCameraApi {
 
     String getLedStatus();
 
-    @Nullable
     AlarmInfo getAlarmInfo();
 
-    @Nullable
     MotionDetection getMotionDetection();
 
-    @Nullable
     PeopleDetection getPeopleDetection();
 
-    @Nullable
     LineCrossingDetection getLineCrossingDetection();
 
-    @Nullable
     IntrusionDetection getIntrusionDetection();
 
     void setLedStatus(String status);
@@ -75,6 +70,7 @@ public interface TapoCameraApi {
     void setMotionDetectionEnabled(String state);
 
     void setMotionDetectionSensitivity(String state);
+    void setMotionDetectionDigitalSensitivity(String state);
 
     void setPeopleDetectionEnabled(String state);
 

@@ -146,11 +146,17 @@ public class TapoCameraHandler extends BaseThingHandler {
                 cameraState.getMotionDetection().setEnabled(status);
                 api.setMotionDetectionEnabled(status);
             }
+        } else if (CHANNEL_MOTION_DETECTION_SENSITIVITY.getName().equals(channelUID.getId())) {
+            if (command instanceof StringType) {
+                String value = command.toString();
+                cameraState.getMotionDetection().setSensitivity(value);
+                api.setMotionDetectionSensitivity(value);
+            }
         } else if (CHANNEL_MOTION_DETECTION_DIGITAL_SENSITIVITY.getName().equals(channelUID.getId())) {
             if (command instanceof PercentType) {
                 String value = String.valueOf(((PercentType) command).intValue() * 10);
                 cameraState.getMotionDetection().setDigitalSensitivity(value);
-                api.setMotionDetectionSensitivity(value);
+                api.setMotionDetectionDigitalSensitivity(value);
             }
         } else if (CHANNEL_PEOPLE_DETECTION_ENABLED.getName().equals(channelUID.getId())) {
             if (command instanceof OnOffType) {

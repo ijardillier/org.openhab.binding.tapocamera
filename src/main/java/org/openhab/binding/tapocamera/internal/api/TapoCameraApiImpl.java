@@ -143,7 +143,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         } catch (JsonSyntaxException e) {
             throw new ApiException("JsonSyntaxException:{}", e);
         }
-        device.setDeviceStatus(errorReason);
+        if (device != null) device.setDeviceStatus(errorReason);
         throw new ApiException(errorReason);
     }
 
@@ -160,23 +160,23 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     }
 
     private String getPasswordHash(String password) {
-        String hash = "";
+        StringBuilder hash = new StringBuilder();
         try {
             MessageDigest m = MessageDigest.getInstance("MD5");
             m.reset();
             m.update(password.getBytes());
             byte[] digest = m.digest();
             BigInteger bigInt = new BigInteger(1, digest);
-            hash = bigInt.toString(16);
+            hash = new StringBuilder(bigInt.toString(16));
             // Now we need to zero pad it if you actually want the full 32 chars.
             while (hash.length() < 32) {
-                hash = "0" + hash;
+                hash.insert(0, "0");
             }
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
 
-        return hash.toUpperCase();
+        return hash.toString().toUpperCase();
     }
 
     @Override
@@ -213,7 +213,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         if (response.httpCode >= 400 && response.httpCode < 500 || response.errorCode < 0) {
             if (response.httpCode == 401 || response.errorCode == -40401) {
                 resetSession();
-                device.setDeviceStatus(response.errorCode);
+                if (device != null) device.setDeviceStatus(response.errorCode);
             }
             logger.error(
                     String.format("TapoCamera API (%s) error: %d - %d", tag, response.httpCode, response.errorCode));
@@ -232,13 +232,12 @@ public class TapoCameraApiImpl implements TapoCameraApi {
 
     @Override
     public ApiDeviceInfo getDeviceInfo() {
-        ApiDeviceInfo apiDeviceInfo = new ApiDeviceInfo();
         String command = "{\"method\":\"get\",\"device_info\":{\"name\": [\"basic_info\"]}}";
         try {
             ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "device_info");
             if (response.errorCode == 0) {
                 if (response.result.has("basic_info")) {
-                    apiDeviceInfo = Objects.requireNonNull(gson.fromJson(response.result, ApiDeviceInfo.class));
+                    return Objects.requireNonNull(gson.fromJson(response.result, ApiDeviceInfo.class));
                 }
             } else {
                 throw processErrorResponse("devInfo", response);
@@ -248,11 +247,11 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         } catch (ApiException e) {
             throw new RuntimeException(e);
         }
-        return apiDeviceInfo;
+        return new ApiDeviceInfo();
     }
 
     private Integer getUserId() {
-        Integer id = -1;
+        int id = -1;
         String command = "{\"method\":\"multipleRequest\",\"params\":{\"requests\": [{\"method\":\"getUserID\",\"params\":{\"system\":{\"get_user_id\":\"null\"}}}]}}";
         try {
             ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "result");
@@ -295,15 +294,15 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     }
 
     @Override
-    public @Nullable AlarmInfo getAlarmInfo() {
-        AlarmInfo alarmInfo = new AlarmInfo();
+    public AlarmInfo getAlarmInfo() {
         String command = "{\"method\":\"get\",\"msg_alarm\":{\"name\": [\"chn1_msg_alarm_info\"]}}";
         try {
             ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "msg_alarm");
             if (response.errorCode == 0) {
                 if (response.result.has("chn1_msg_alarm_info")) {
-                    alarmInfo = gson.fromJson(response.result.get("chn1_msg_alarm_info"), AlarmInfo.class);
+                    AlarmInfo alarmInfo = gson.fromJson(response.result.get("chn1_msg_alarm_info"), AlarmInfo.class);
                     logger.debug("alarm info is {}", alarmInfo.toString());
+                    return alarmInfo;
                 }
             } else {
                 throw processErrorResponse("alarm", response);
@@ -313,21 +312,20 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         } catch (ApiException e) {
             throw new RuntimeException(e);
         }
-        return alarmInfo;
+        return new AlarmInfo();
     }
 
     @Override
-    public @Nullable MotionDetection getMotionDetection() {
-        MotionDetection motionDetection = new MotionDetection();
+    public MotionDetection getMotionDetection() {
         String command = "{\"method\":\"get\",\"motion_detection\":{\"name\": [\"motion_det\"]}}";
         try {
             ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "motion_detection");
             if (response.httpCode == 200 && response.errorCode == 0) {
                 if (response.result.has("motion_det")) {
-                    motionDetection = gson.fromJson(response.result.get("motion_det"), MotionDetection.class);
+                    MotionDetection motionDetection = gson.fromJson(response.result.get("motion_det"), MotionDetection.class);
                     logger.debug("motion detection is {}", motionDetection.toString());
+                    return motionDetection;
                 }
-                return new MotionDetection();
             } else {
                 throw processErrorResponse("motion", response);
             }
@@ -336,19 +334,19 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         } catch (ApiException e) {
             throw new RuntimeException(e);
         }
-        return motionDetection;
+        return new MotionDetection();
     }
 
     @Override
-    public @Nullable PeopleDetection getPeopleDetection() {
-        PeopleDetection peopleDetection = new PeopleDetection();
+    public PeopleDetection getPeopleDetection() {
         String command = "{\"method\":\"get\",\"people_detection\":{\"name\": [\"detection\"]}}";
         try {
             ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "people_detection");
             if (response.errorCode == 0) {
                 if (response.result.has("detection")) {
-                    peopleDetection = gson.fromJson(response.result.get("detection"), PeopleDetection.class);
-                    logger.debug("people detection is {}", peopleDetection.toString());
+                    PeopleDetection personDetection = gson.fromJson(response.result.get("detection"), PeopleDetection.class);
+                    logger.debug("person detection is {}", personDetection.toString());
+                    return personDetection;
                 }
             } else {
                 throw processErrorResponse("people", response);
@@ -358,21 +356,19 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         } catch (ApiException e) {
             throw new RuntimeException(e);
         }
-        return peopleDetection;
+        return new PeopleDetection();
     }
 
     @Override
-    public @Nullable LineCrossingDetection getLineCrossingDetection() {
-        LineCrossingDetection detection = new LineCrossingDetection();
+    public LineCrossingDetection getLineCrossingDetection() {
         String command = "{\"method\":\"get\",\"linecrossing_detection\":{\"name\": [\"detection\"]}}";
         try {
             ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "linecrossing_detection");
             if (response.errorCode == 0) {
                 if (response.result.has("detection")) {
-                    detection = gson.fromJson(response.result.get("detection"), LineCrossingDetection.class);
+                    LineCrossingDetection detection = gson.fromJson(response.result.get("detection"), LineCrossingDetection.class);
                     logger.debug("line crossing detection is {}", detection.toString());
-                } else {
-                    return new LineCrossingDetection();
+                    return detection;
                 }
             } else {
                 throw processErrorResponse("line", response);
@@ -382,25 +378,25 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         } catch (ApiException e) {
             throw new RuntimeException(e);
         }
-        return detection;
+        return new LineCrossingDetection();
     }
 
     @Override
-    public @Nullable IntrusionDetection getIntrusionDetection() {
-        IntrusionDetection detection = new IntrusionDetection();
+    public IntrusionDetection getIntrusionDetection() {
         String command = "{\"method\":\"get\",\"intrusion_detection\":{\"name\": [\"detection\"]}}";
         try {
             ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "intrusion_detection");
             if (response.result.has("detection")) {
-                detection = gson.fromJson(response.result.get("detection"), IntrusionDetection.class);
+                IntrusionDetection detection = gson.fromJson(response.result.get("detection"), IntrusionDetection.class);
                 logger.debug("Intrusion detection is {}", detection.toString());
+                return detection;
             }
         } catch (JsonSyntaxException e) {
             logger.error(e.getMessage());
         } catch (ApiException e) {
             throw new RuntimeException(e);
         }
-        return detection;
+        return new IntrusionDetection();
     }
 
     private void sendCommand(String command, String tag) {
@@ -451,6 +447,13 @@ public class TapoCameraApiImpl implements TapoCameraApi {
 
     @Override
     public void setMotionDetectionSensitivity(String state) {
+        String command = String.format(
+                "{\"method\": \"set\",\"motion_detection\":{\"motion_det\":{\"sensitivity\":\"%s\"}}}", state);
+        sendCommand(command, "motion");
+    }
+
+    @Override
+    public void setMotionDetectionDigitalSensitivity(String state) {
         String command = String.format(
                 "{\"method\": \"set\",\"motion_detection\":{\"motion_det\":{\"digital_sensitivity\":\"%s\"}}}", state);
         sendCommand(command, "motion");
