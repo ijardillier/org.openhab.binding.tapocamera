@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<thing:thing-descriptions bindingId="tapocamera"
+                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
+                          xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
+
+    <channel-type id="led-status">
+        <item-type>Switch</item-type>
+        <label>Led Status</label>
+        <description>Led Status</description>
+        <category>if:mdi:led-on</category>
+    </channel-type>
+
+    <channel-type id="manual-alarm">
+        <item-type>Switch</item-type>
+        <label>Manual Alarm</label>
+        <description>Manual Alarm</description>
+        <category>if:mdi:alarm-light</category>
+    </channel-type>
+
+    <channel-type id="speaker-volume">
+        <item-type>Dimmer</item-type>
+        <label>Speaker Volume</label>
+        <description>Speaker Volume</description>
+        <category>if:mdi:bullhorn</category>
+        <state pattern="%d %unit%" min="0" max="100" step="1"/>
+    </channel-type>
+
+    <channel-type id="microphone-volume">
+        <item-type>Dimmer</item-type>
+        <label>Microphone Volume</label>
+        <description>Microphone Volume</description>
+        <category>if:mdi:microphone</category>
+        <state pattern="%d %unit%" min="0" max="100" step="1"/>
+    </channel-type>
+</thing:thing-descriptions>

@@ -85,4 +85,11 @@ public interface TapoCameraApi {
     void setLineCrossingDetectionEnabled(String state);
 
     void setIntrusionDetectionEnabled(String state);
+
+    Integer getSpeakerVolume();
+    void setSpeakerVolume(Integer volume);
+
+    Integer getMicrophoneVolume();
+
+    void setMicrophoneVolume(Integer volume);
 }

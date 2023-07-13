@@ -490,4 +490,62 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                 .format("{\"method\": \"set\",\"intrusion_detection\":{\"detection\":{\"enable\":\"%s\"}}}", state);
         sendCommand(command, "intrusion");
     }
+
+    @Override
+    public Integer getSpeakerVolume() {
+        int volume = 0;
+        String command = "{\"method\":\"get\",\"audio_config\":{\"name\": [\"speaker\"]}}";
+        try {
+            ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "speaker");
+            if (response.errorCode == 0) {
+                if (response.result.has("speaker")) {
+                    volume = response.result.get("speaker").getAsJsonObject().get("volume").getAsInt();
+                    logger.debug("speaker volume is {}", volume);
+                }
+            } else {
+                throw processErrorResponse("speaker", response);
+            }
+        } catch (JsonSyntaxException e) {
+            logger.error(e.getMessage());
+        } catch (ApiException e) {
+            throw new RuntimeException(e);
+        }
+        return volume;
+    }
+
+    @Override
+    public void setSpeakerVolume(Integer volume) {
+        String command = String
+                .format("{\"method\": \"set\",\"audio_config\":{\"speaker\":{\"volume\":\"%d\"}}}", volume);
+        sendCommand(command, "audio_config");
+    }
+
+    @Override
+    public Integer getMicrophoneVolume() {
+        int volume = 0;
+        String command = "{\"method\":\"get\",\"audio_config\":{\"name\": [\"microphone\"]}}";
+        try {
+            ApiResponse response = sendPostRequest("/stok=" + token + "/ds", command, "microphone");
+            if (response.errorCode == 0) {
+                if (response.result.has("microphone")) {
+                    volume = response.result.get("microphone").getAsJsonObject().get("volume").getAsInt();
+                    logger.debug("microphone volume is {}", volume);
+                }
+            } else {
+                throw processErrorResponse("microphone", response);
+            }
+        } catch (JsonSyntaxException e) {
+            logger.error(e.getMessage());
+        } catch (ApiException e) {
+            throw new RuntimeException(e);
+        }
+        return volume;
+    }
+
+    @Override
+    public void setMicrophoneVolume(Integer volume) {
+        String command = String
+                .format("{\"method\": \"set\",\"audio_config\":{\"microphone\":{\"volume\":\"%d\"}}}", volume);
+        sendCommand(command, "audio_config");
+    }
 }

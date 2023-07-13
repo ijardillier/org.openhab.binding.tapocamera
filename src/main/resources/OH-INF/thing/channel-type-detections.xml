@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<thing:thing-descriptions bindingId="tapocamera"
+                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
+                          xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
+
+    <channel-type id="motion-detection-enabled">
+        <item-type>Switch</item-type>
+        <label>Motion Detection enabled</label>
+        <description>Motion Detection enabled</description>
+        <category>if:material-symbols:detection-and-zone</category>
+    </channel-type>
+    <channel-type id="motion-detection-sensitivity">
+        <item-type>String</item-type>
+        <label>Motion Detection sensitivity</label>
+        <description>Motion Detection sensitivity</description>
+        <state>
+            <options>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </options>
+        </state>
+    </channel-type>
+    <channel-type id="motion-detection-digital-sensitivity">
+        <item-type>Dimmer</item-type>
+        <label>Motion Detection digital sensitivity</label>
+        <description>Motion Detection digital sensitivity</description>
+        <state pattern="%d %unit%" min="0" max="10" step="1"/>
+    </channel-type>
+
+    <channel-type id="person-detection-enabled">
+        <item-type>Switch</item-type>
+        <label>Person Detection enabled</label>
+        <description>Person Detection enabled</description>
+    </channel-type>
+    <channel-type id="person-detection-sensitivity">
+        <item-type>Dimmer</item-type>
+        <label>People Detection sensitivity</label>
+        <description>People Detection sensitivity</description>
+        <state pattern="%d %unit%" min="0" max="10" step="1"/>
+    </channel-type>
+
+    <channel-type id="line-crossing-detection-enabled">
+        <item-type>Switch</item-type>
+        <label>LineCrossing Detection enabled</label>
+        <description>LineCrossing Detection enabled</description>
+    </channel-type>
+
+    <channel-type id="intrusion-detection-enabled">
+        <item-type>Switch</item-type>
+        <label>Intrusion Detection enabled</label>
+        <description>Intrusion Detection enabled</description>
+    </channel-type>
+
+</thing:thing-descriptions>
