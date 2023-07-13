@@ -37,8 +37,8 @@
     </channel-type>
     <channel-type id="person-detection-sensitivity">
         <item-type>Dimmer</item-type>
-        <label>People Detection sensitivity</label>
-        <description>People Detection sensitivity</description>
+        <label>Person Detection sensitivity</label>
+        <description>Person Detection sensitivity</description>
         <state pattern="%d %unit%" min="0" max="10" step="1"/>
     </channel-type>
 

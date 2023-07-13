@@ -51,8 +51,8 @@
             <channel id="motion-detection-enabled" typeId="motion-detection-enabled" />
             <channel id="motion-detection-sensitivity" typeId="motion-detection-sensitivity" />
             <channel id="motion-detection-digital-sensitivity" typeId="motion-detection-digital-sensitivity" />
-            <channel id="people-detection-enabled" typeId="people-detection-enabled" />
-            <channel id="people-detection-sensitivity" typeId="people-detection-sensitivity" />
+            <channel id="person-detection-enabled" typeId="person-detection-enabled" />
+            <channel id="person-detection-sensitivity" typeId="person-detection-sensitivity" />
             <channel id="line-crossing-detection-enabled" typeId="line-crossing-detection-enabled" />
             <channel id="intrusion-detection-enabled" typeId="intrusion-detection-enabled" />
         </channels>

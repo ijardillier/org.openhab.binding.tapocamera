@@ -20,10 +20,10 @@
 			<channel-group id="image" typeId="image"/>
 			<channel-group id="alarm-control" typeId="alarm-control"/>
 			<channel-group id="detections" typeId="detections"/>
-			<channel-group id="motion-detection" typeId="motion-detection"/>
-			<channel-group id="person-detection" typeId="person-detection"/>
-			<channel-group id="line-crossing-detection" typeId="line-crossing-detection"/>
-			<channel-group id="intrusion-detection" typeId="intrusion-detection"/>
+<!--			<channel-group id="motion-detection" typeId="motion-detection"/>-->
+<!--			<channel-group id="person-detection" typeId="person-detection"/>-->
+<!--			<channel-group id="line-crossing-detection" typeId="line-crossing-detection"/>-->
+<!--			<channel-group id="intrusion-detection" typeId="intrusion-detection"/>-->
 			<channel-group id="motor" typeId="motor"/>
 			<channel-group id="preset" typeId="preset"/>
 		</channel-groups>
