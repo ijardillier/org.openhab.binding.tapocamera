@@ -14,21 +14,25 @@
 package org.openhab.binding.tapocamera.internal.dto;
 
 import org.openhab.binding.tapocamera.internal.api.v1.dto.Old_AlarmInfo;
-import org.openhab.binding.tapocamera.internal.api.v1.dto.Old_IntrusionDetection;
-import org.openhab.binding.tapocamera.internal.api.v1.dto.Old_LineCrossingDetection;
-import org.openhab.binding.tapocamera.internal.api.v1.dto.Old_MotionDetection;
-import org.openhab.binding.tapocamera.internal.api.v1.dto.Old_PeopleDetection;
+import org.openhab.binding.tapocamera.internal.api.v2.dto.alarm.MsgAlarmInfo;
+import org.openhab.binding.tapocamera.internal.api.v2.dto.detection.IntrusionDetectionInfo;
+import org.openhab.binding.tapocamera.internal.api.v2.dto.detection.LineCrossingDetectionInfo;
+import org.openhab.binding.tapocamera.internal.api.v2.dto.detection.MotionDetection;
+import org.openhab.binding.tapocamera.internal.api.v2.dto.detection.PersonDetectionInfo;
 
 public class CameraState {
     private String ledStatus;
 
-    private Old_AlarmInfo oldAlarmInfo = new Old_AlarmInfo();
-    private Old_MotionDetection oldMotionDetection = new Old_MotionDetection();
-    private Old_PeopleDetection oldPeopleDetection = new Old_PeopleDetection();
+    private MsgAlarmInfo alarmInfo = new MsgAlarmInfo();
+    private MotionDetection motionDetection = new MotionDetection();
+    private PersonDetectionInfo personDetectionInfo = new PersonDetectionInfo();
 
-    private Old_LineCrossingDetection oldLineCrossingDetection = new Old_LineCrossingDetection();
+    private LineCrossingDetectionInfo lineCrossingDetectionInfo = new LineCrossingDetectionInfo();
 
-    private Old_IntrusionDetection oldIntrusionDetection = new Old_IntrusionDetection();
+    private IntrusionDetectionInfo intrusionDetectionInfo = new IntrusionDetectionInfo();
+
+    private int speakerVolume = 0;
+    private int microphoneVolume = 0;
 
     public CameraState() {
     }
@@ -41,43 +45,59 @@ public class CameraState {
         this.ledStatus = ledStatus;
     }
 
-    public Old_AlarmInfo getAlarmInfo() {
-        return oldAlarmInfo;
+    public MsgAlarmInfo getAlarmInfo() {
+        return alarmInfo;
     }
 
-    public void setAlarmInfo(Old_AlarmInfo oldAlarmInfo) {
-        this.oldAlarmInfo = oldAlarmInfo;
+    public void setAlarmInfo(MsgAlarmInfo alarmInfo) {
+        this.alarmInfo = alarmInfo;
     }
 
-    public Old_MotionDetection getMotionDetection() {
-        return oldMotionDetection;
+    public MotionDetection getMotionDetection() {
+        return motionDetection;
     }
 
-    public void setMotionDetection(Old_MotionDetection oldMotionDetection) {
-        this.oldMotionDetection = oldMotionDetection;
+    public void setMotionDetection(MotionDetection motionDetection) {
+        this.motionDetection = motionDetection;
     }
 
-    public Old_PeopleDetection getPeopleDetection() {
-        return oldPeopleDetection;
+    public PersonDetectionInfo getPersonDetectionInfo() {
+        return personDetectionInfo;
     }
 
-    public void setPeopleDetection(Old_PeopleDetection oldPeopleDetection) {
-        this.oldPeopleDetection = oldPeopleDetection;
+    public void setPersonDetectionInfo(PersonDetectionInfo personDetectionInfo) {
+        this.personDetectionInfo = personDetectionInfo;
     }
 
-    public Old_LineCrossingDetection getLineCrossingDetection() {
-        return oldLineCrossingDetection;
+    public LineCrossingDetectionInfo getLineCrossingDetection() {
+        return lineCrossingDetectionInfo;
     }
 
-    public void setLineCrossingDetection(Old_LineCrossingDetection oldLineCrossingDetection) {
-        this.oldLineCrossingDetection = oldLineCrossingDetection;
+    public void setLineCrossingDetection(LineCrossingDetectionInfo lineCrossingDetectionInfo) {
+        this.lineCrossingDetectionInfo = lineCrossingDetectionInfo;
     }
 
-    public Old_IntrusionDetection getIntrusionDetection() {
-        return oldIntrusionDetection;
+    public IntrusionDetectionInfo getIntrusionDetection() {
+        return intrusionDetectionInfo;
     }
 
-    public void setIntrusionDetection(Old_IntrusionDetection oldIntrusionDetection) {
-        this.oldIntrusionDetection = oldIntrusionDetection;
+    public void setIntrusionDetection(IntrusionDetectionInfo intrusionDetectionInfo) {
+        this.intrusionDetectionInfo = intrusionDetectionInfo;
+    }
+
+    public int getSpeakerVolume() {
+        return speakerVolume;
+    }
+
+    public void setSpeakerVolume(int speakerVolume) {
+        this.speakerVolume = speakerVolume;
+    }
+
+    public int getMicrophoneVolume() {
+        return microphoneVolume;
+    }
+
+    public void setMicrophoneVolume(int microphoneVolume) {
+        this.microphoneVolume = microphoneVolume;
     }
 }
