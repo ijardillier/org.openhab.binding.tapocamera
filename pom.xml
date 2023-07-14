@@ -9,7 +9,7 @@
     <artifactId>org.openhab.addons.reactor.bundles</artifactId>
     <version>3.4.5-SNAPSHOT</version>
     <!--<relativePath>../openhab-addons/bundles</relativePath> -->
-    <relativePath>../../bundles</relativePath>
+    <!-- <relativePath>../../bundles</relativePath> -->
   </parent>
 
   <artifactId>org.openhab.binding.tapocamera</artifactId>

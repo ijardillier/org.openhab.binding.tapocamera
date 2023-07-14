@@ -13,19 +13,22 @@
 
 package org.openhab.binding.tapocamera.internal.dto;
 
+import org.openhab.binding.tapocamera.internal.api.v1.dto.Old_AlarmInfo;
+import org.openhab.binding.tapocamera.internal.api.v1.dto.Old_IntrusionDetection;
+import org.openhab.binding.tapocamera.internal.api.v1.dto.Old_LineCrossingDetection;
+import org.openhab.binding.tapocamera.internal.api.v1.dto.Old_MotionDetection;
+import org.openhab.binding.tapocamera.internal.api.v1.dto.Old_PeopleDetection;
+
 public class CameraState {
     private String ledStatus;
 
-    private AlarmInfo alarmInfo = new AlarmInfo();
-    private MotionDetection motionDetection = new MotionDetection();
-    private PeopleDetection peopleDetection = new PeopleDetection();
+    private Old_AlarmInfo oldAlarmInfo = new Old_AlarmInfo();
+    private Old_MotionDetection oldMotionDetection = new Old_MotionDetection();
+    private Old_PeopleDetection oldPeopleDetection = new Old_PeopleDetection();
 
-    private LineCrossingDetection lineCrossingDetection = new LineCrossingDetection();
+    private Old_LineCrossingDetection oldLineCrossingDetection = new Old_LineCrossingDetection();
 
-    private IntrusionDetection intrusionDetection = new IntrusionDetection();
-
-    private int speakerVolume = 0;
-    private int microphoneVolume = 0;
+    private Old_IntrusionDetection oldIntrusionDetection = new Old_IntrusionDetection();
 
     public CameraState() {
     }
@@ -38,59 +41,43 @@ public class CameraState {
         this.ledStatus = ledStatus;
     }
 
-    public AlarmInfo getAlarmInfo() {
-        return alarmInfo;
+    public Old_AlarmInfo getAlarmInfo() {
+        return oldAlarmInfo;
     }
 
-    public void setAlarmInfo(AlarmInfo alarmInfo) {
-        this.alarmInfo = alarmInfo;
+    public void setAlarmInfo(Old_AlarmInfo oldAlarmInfo) {
+        this.oldAlarmInfo = oldAlarmInfo;
     }
 
-    public MotionDetection getMotionDetection() {
-        return motionDetection;
+    public Old_MotionDetection getMotionDetection() {
+        return oldMotionDetection;
     }
 
-    public void setMotionDetection(MotionDetection motionDetection) {
-        this.motionDetection = motionDetection;
+    public void setMotionDetection(Old_MotionDetection oldMotionDetection) {
+        this.oldMotionDetection = oldMotionDetection;
     }
 
-    public PeopleDetection getPeopleDetection() {
-        return peopleDetection;
+    public Old_PeopleDetection getPeopleDetection() {
+        return oldPeopleDetection;
     }
 
-    public void setPeopleDetection(PeopleDetection peopleDetection) {
-        this.peopleDetection = peopleDetection;
+    public void setPeopleDetection(Old_PeopleDetection oldPeopleDetection) {
+        this.oldPeopleDetection = oldPeopleDetection;
     }
 
-    public LineCrossingDetection getLineCrossingDetection() {
-        return lineCrossingDetection;
+    public Old_LineCrossingDetection getLineCrossingDetection() {
+        return oldLineCrossingDetection;
     }
 
-    public void setLineCrossingDetection(LineCrossingDetection lineCrossingDetection) {
-        this.lineCrossingDetection = lineCrossingDetection;
+    public void setLineCrossingDetection(Old_LineCrossingDetection oldLineCrossingDetection) {
+        this.oldLineCrossingDetection = oldLineCrossingDetection;
     }
 
-    public IntrusionDetection getIntrusionDetection() {
-        return intrusionDetection;
+    public Old_IntrusionDetection getIntrusionDetection() {
+        return oldIntrusionDetection;
     }
 
-    public void setIntrusionDetection(IntrusionDetection intrusionDetection) {
-        this.intrusionDetection = intrusionDetection;
-    }
-
-    public int getSpeakerVolume() {
-        return speakerVolume;
-    }
-
-    public void setSpeakerVolume(int speakerVolume) {
-        this.speakerVolume = speakerVolume;
-    }
-
-    public int getMicrophoneVolume() {
-        return microphoneVolume;
-    }
-
-    public void setMicrophoneVolume(int microphoneVolume) {
-        this.microphoneVolume = microphoneVolume;
+    public void setIntrusionDetection(Old_IntrusionDetection oldIntrusionDetection) {
+        this.oldIntrusionDetection = oldIntrusionDetection;
     }
 }
