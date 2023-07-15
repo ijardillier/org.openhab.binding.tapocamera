@@ -31,7 +31,7 @@ public class MotionDetection extends DetectionInfo {
 
     @Override
     public String toString() {
-        return "Old_MotionDetection{" +
+        return "MotionDetection{" +
                 "digitalSensitivity=" + digitalSensitivity +
                 ", sensitivity='" + sensitivity + '\'' +
                 ", enabled='" + enabled + '\'' +

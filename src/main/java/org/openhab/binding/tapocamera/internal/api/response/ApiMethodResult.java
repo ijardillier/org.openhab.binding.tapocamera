@@ -36,4 +36,12 @@ public class ApiMethodResult {
     @SerializedName("result")
     public JsonObject result;
 
+    @Override
+    public String toString() {
+        return "ApiMethodResult{" +
+                "method='" + method + '\'' +
+                ", errorCode=" + errorCode +
+                ", result=" + result +
+                '}';
+    }
 }

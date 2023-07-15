@@ -33,6 +33,14 @@ public class DeviceInfo implements Serializable {
     @SerializedName("info")
     public DeviceInfoFull full;
 
+    @Override
+    public String toString() {
+        return "DeviceInfo{" +
+                "basic=" + basic +
+                ", full=" + full +
+                '}';
+    }
+
 
     /*
     info:

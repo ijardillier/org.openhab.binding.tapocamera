@@ -17,4 +17,10 @@ package org.openhab.binding.tapocamera.internal.api.dto.detection;
  * The type Intrusion detection info.
  */
 public class IntrusionDetectionInfo extends DetectionInfo {
+    @Override
+    public String toString() {
+        return "IntrusionDetectionInfo{" +
+                "enabled='" + enabled + '\'' +
+                '}';
+    }
 }

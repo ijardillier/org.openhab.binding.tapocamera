@@ -19,6 +19,15 @@ import com.google.gson.annotations.SerializedName;
  * The type Tamper detection info.
  */
 public class TamperDetectionInfo extends DetectionInfo {
+    @Override
+    public String toString() {
+        return "TamperDetectionInfo{" +
+                "sensitivity='" + sensitivity + '\'' +
+                ", digitalSensitivity=" + digitalSensitivity +
+                ", enabled='" + enabled + '\'' +
+                '}';
+    }
+
     /**
      * The Sensitivity.
      */

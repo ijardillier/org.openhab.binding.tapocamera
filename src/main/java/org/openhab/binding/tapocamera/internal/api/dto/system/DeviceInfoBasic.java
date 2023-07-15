@@ -23,6 +23,32 @@ public class DeviceInfoBasic {
      * The Ffs.
      */
     public Boolean ffs;
+
+    @Override
+    public String toString() {
+        return "DeviceInfoBasic{" +
+                "ffs=" + ffs +
+                ", deviceType='" + deviceType + '\'' +
+                ", deviceModel='" + deviceModel + '\'' +
+                ", deviceName='" + deviceName + '\'' +
+                ", deviceInfo='" + deviceInfo + '\'' +
+                ", hwVersion='" + hwVersion + '\'' +
+                ", swVersion='" + swVersion + '\'' +
+                ", deviceAlias='" + deviceAlias + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", longitude=" + longitude +
+                ", latitude=" + latitude +
+                ", hasSetLocationInfo=" + hasSetLocationInfo +
+                ", features=" + features +
+                ", barcode='" + barcode + '\'' +
+                ", mac='" + mac + '\'' +
+                ", devId='" + devId + '\'' +
+                ", oemId='" + oemId + '\'' +
+                ", hwDesc='" + hwDesc + '\'' +
+                ", isCal=" + isCal +
+                '}';
+    }
+
     /**
      * The Device type.
      */
@@ -108,28 +134,4 @@ public class DeviceInfoBasic {
     @SerializedName("is_cal")
     public Boolean isCal; // true
 
-    @Override
-    public String toString() {
-        return "DeviceInfoBasic{" +
-                "ffs=" + ffs +
-                ", deviceType='" + deviceType + '\'' +
-                ", deviceModel='" + deviceModel + '\'' +
-                ", deviceName='" + deviceName + '\'' +
-                ", deviceInfo='" + deviceInfo + '\'' +
-                ", hwVersion='" + hwVersion + '\'' +
-                ", swVersion='" + swVersion + '\'' +
-                ", deviceAlias='" + deviceAlias + '\'' +
-                ", avatar='" + avatar + '\'' +
-                ", longitude=" + longitude +
-                ", latitude=" + latitude +
-                ", hasSetLocationInfo=" + hasSetLocationInfo +
-                ", features=" + features +
-                ", barcode='" + barcode + '\'' +
-                ", mac='" + mac + '\'' +
-                ", devId='" + devId + '\'' +
-                ", oemId='" + oemId + '\'' +
-                ", hwDesc='" + hwDesc + '\'' +
-                ", isCal=" + isCal +
-                '}';
-    }
 }

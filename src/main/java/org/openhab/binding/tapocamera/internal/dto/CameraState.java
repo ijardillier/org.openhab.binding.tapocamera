@@ -23,6 +23,7 @@ import org.openhab.binding.tapocamera.internal.api.dto.detection.PersonDetection
  * The type Camera state.
  */
 public class CameraState {
+    private String friendlyName;
     private String ledStatus;
 
     private MsgAlarmInfo alarmInfo = new MsgAlarmInfo();
@@ -40,6 +41,14 @@ public class CameraState {
      * Instantiates a new Camera state.
      */
     public CameraState() {
+    }
+
+    public String getFriendlyName() {
+        return friendlyName;
+    }
+
+    public void setFriendlyName(String friendlyName) {
+        this.friendlyName = friendlyName;
     }
 
     /**

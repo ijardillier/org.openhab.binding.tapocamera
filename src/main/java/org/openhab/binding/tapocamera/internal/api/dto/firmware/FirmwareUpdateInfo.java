@@ -21,6 +21,19 @@ public class FirmwareUpdateInfo {
      * The Connect status.
      */
     public String connect_status;
+
+    @Override
+    public String toString() {
+        return "FirmwareUpdateInfo{" +
+                "connect_status='" + connect_status + '\'' +
+                ", disconnect_reason='" + disconnect_reason + '\'' +
+                ", fw_download_progress='" + fw_download_progress + '\'' +
+                ", fw_download_status='" + fw_download_status + '\'' +
+                ", reconnect_time='" + reconnect_time + '\'' +
+                ", fw_verify_status='" + fw_verify_status + '\'' +
+                '}';
+    }
+
     /**
      * The Disconnect reason.
      */

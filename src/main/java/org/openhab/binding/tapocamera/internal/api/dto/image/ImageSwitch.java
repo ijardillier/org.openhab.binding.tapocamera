@@ -19,6 +19,20 @@ import com.google.gson.annotations.SerializedName;
  * The type Image switch.
  */
 public class ImageSwitch {
+    @Override
+    public String toString() {
+        return "ImageSwitch{" +
+                "switchMode='" + switchMode + '\'' +
+                ", scheduleStartTime=" + scheduleStartTime +
+                ", scheduleEndTime=" + scheduleEndTime +
+                ", flipType='" + flipType + '\'' +
+                ", rotateType='" + rotateType + '\'' +
+                ", lensDistortionCorrection='" + lensDistortionCorrection + '\'' +
+                ", nightVisionMode='" + nightVisionMode + '\'' +
+                ", wtlIntensityLevel=" + wtlIntensityLevel +
+                '}';
+    }
+
     /**
      * The Switch mode.
      */
@@ -60,17 +74,4 @@ public class ImageSwitch {
     @SerializedName("wtl_intensity_level")
     public Integer wtlIntensityLevel; // "5"
 
-    @Override
-    public String toString() {
-        return "ImageSwitch{" +
-                "switchMode='" + switchMode + '\'' +
-                ", scheduleStartTime=" + scheduleStartTime +
-                ", scheduleEndTime=" + scheduleEndTime +
-                ", flipType='" + flipType + '\'' +
-                ", rotateType='" + rotateType + '\'' +
-                ", lensDistortionCorrection='" + lensDistortionCorrection + '\'' +
-                ", nightVisionMode='" + nightVisionMode + '\'' +
-                ", wtlIntensityLevel=" + wtlIntensityLevel +
-                '}';
-    }
 }

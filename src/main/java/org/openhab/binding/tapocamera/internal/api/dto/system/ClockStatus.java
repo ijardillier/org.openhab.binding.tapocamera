@@ -24,6 +24,15 @@ public class ClockStatus {
      */
     @SerializedName("local_time")
     public String localTime;
+
+    @Override
+    public String toString() {
+        return "ClockStatus{" +
+                "localTime='" + localTime + '\'' +
+                ", secondsFrom1970=" + secondsFrom1970 +
+                '}';
+    }
+
     /**
      * The Seconds from 1970.
      */

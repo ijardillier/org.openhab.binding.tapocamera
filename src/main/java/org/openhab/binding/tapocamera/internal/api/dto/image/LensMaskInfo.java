@@ -21,4 +21,11 @@ public class LensMaskInfo {
      * The Enabled.
      */
     public String enabled;
+
+    @Override
+    public String toString() {
+        return "LensMaskInfo{" +
+                "enabled='" + enabled + '\'' +
+                '}';
+    }
 }

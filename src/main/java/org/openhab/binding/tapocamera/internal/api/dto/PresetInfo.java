@@ -17,6 +17,17 @@ package org.openhab.binding.tapocamera.internal.api.dto;
  * The type Preset info.
  */
 public class PresetInfo {
+    @Override
+    public String toString() {
+        return "PresetInfo{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", position_pan=" + position_pan +
+                ", position_tilt=" + position_tilt +
+                ", read_only=" + read_only +
+                '}';
+    }
+
     /**
      * The Id.
      */

@@ -29,6 +29,32 @@ public class HardDiskInfo {
      * The Detect status.
      */
     public String detect_status; // String",
+
+    @Override
+    public String toString() {
+        return "HardDiskInfo{" +
+                "disk_name='" + disk_name + '\'' +
+                ", rw_attr='" + rw_attr + '\'' +
+                ", detect_status='" + detect_status + '\'' +
+                ", write_protect=" + write_protect +
+                ", msg_push_free_space='" + msg_push_free_space + '\'' +
+                ", picture_free_space='" + picture_free_space + '\'' +
+                ", free_space='" + free_space + '\'' +
+                ", video_free_space='" + video_free_space + '\'' +
+                ", percent=" + percent +
+                ", record_duration=" + record_duration +
+                ", record_free_duration=" + record_free_duration +
+                ", record_start_time='" + record_start_time + '\'' +
+                ", status='" + status + '\'' +
+                ", msg_push_total_space='" + msg_push_total_space + '\'' +
+                ", picture_total_space='" + picture_total_space + '\'' +
+                ", total_space='" + total_space + '\'' +
+                ", video_total_space='" + video_total_space + '\'' +
+                ", type='" + type + '\'' +
+                ", loop_record_status=" + loop_record_status +
+                '}';
+    }
+
     /**
      * The Write protect.
      */

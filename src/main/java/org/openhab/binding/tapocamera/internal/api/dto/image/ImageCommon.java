@@ -19,6 +19,47 @@ import com.google.gson.annotations.SerializedName;
  * The type Image common.
  */
 public class ImageCommon {
+    @Override
+    public String toString() {
+        return "ImageCommon{" +
+                "luma=" + luma +
+                ", contrast=" + contrast +
+                ", chroma=" + chroma +
+                ", saturation=" + saturation +
+                ", sharpness=" + sharpness +
+                ", expType='" + expType + '\'' +
+                ", shutter='" + shutter + '\'' +
+                ", focusType='" + focusType + '\'' +
+                ", focusLimited=" + focusLimited +
+                ", expGain=" + expGain +
+                ", infStartTime=" + infStartTime +
+                ", infEndTime=" + infEndTime +
+                ", infSensitivity=" + infSensitivity +
+                ", infDelay=" + infDelay +
+                ", wideDynamic='" + wideDynamic + '\'' +
+                ", lightFreqMode='" + lightFreqMode + '\'' +
+                ", wd_gain=" + wd_gain +
+                ", wb_type='" + wb_type + '\'' +
+                ", wb_R_gain=" + wb_R_gain +
+                ", wb_G_gain=" + wb_G_gain +
+                ", wb_B_gain=" + wb_B_gain +
+                ", lock_red_gain=" + lock_red_gain +
+                ", lock_gr_gain=" + lock_gr_gain +
+                ", lock_gb_gain=" + lock_gb_gain +
+                ", lock_blue_gain=" + lock_blue_gain +
+                ", lock_red_colton=" + lock_red_colton +
+                ", lock_green_colton=" + lock_green_colton +
+                ", lock_blue_colton=" + lock_blue_colton +
+                ", lock_source='" + lock_source + '\'' +
+                ", area_compensation='" + area_compensation + '\'' +
+                ", smartir='" + smartir + '\'' +
+                ", smartir_level=" + smartir_level +
+                ", high_light_compensation='" + high_light_compensation + '\'' +
+                ", dehaze='" + dehaze + '\'' +
+                ", inf_type='" + inf_type + '\'' +
+                '}';
+    }
+
     /**
      * The Luma.
      */
@@ -170,44 +211,4 @@ public class ImageCommon {
      */
     public String inf_type; // "off"
 
-    @Override
-    public String toString() {
-        return "ImageCommon{" +
-                "luma=" + luma +
-                ", contrast=" + contrast +
-                ", chroma=" + chroma +
-                ", saturation=" + saturation +
-                ", sharpness=" + sharpness +
-                ", expType='" + expType + '\'' +
-                ", shutter='" + shutter + '\'' +
-                ", focusType='" + focusType + '\'' +
-                ", focusLimited=" + focusLimited +
-                ", expGain=" + expGain +
-                ", infStartTime=" + infStartTime +
-                ", infEndTime=" + infEndTime +
-                ", infSensitivity=" + infSensitivity +
-                ", infDelay=" + infDelay +
-                ", wideDynamic='" + wideDynamic + '\'' +
-                ", lightFreqMode='" + lightFreqMode + '\'' +
-                ", wd_gain=" + wd_gain +
-                ", wb_type='" + wb_type + '\'' +
-                ", wb_R_gain=" + wb_R_gain +
-                ", wb_G_gain=" + wb_G_gain +
-                ", wb_B_gain=" + wb_B_gain +
-                ", lock_red_gain=" + lock_red_gain +
-                ", lock_gr_gain=" + lock_gr_gain +
-                ", lock_gb_gain=" + lock_gb_gain +
-                ", lock_blue_gain=" + lock_blue_gain +
-                ", lock_red_colton=" + lock_red_colton +
-                ", lock_green_colton=" + lock_green_colton +
-                ", lock_blue_colton=" + lock_blue_colton +
-                ", lock_source='" + lock_source + '\'' +
-                ", area_compensation='" + area_compensation + '\'' +
-                ", smartir='" + smartir + '\'' +
-                ", smartir_level=" + smartir_level +
-                ", high_light_compensation='" + high_light_compensation + '\'' +
-                ", dehaze='" + dehaze + '\'' +
-                ", inf_type='" + inf_type + '\'' +
-                '}';
-    }
 }

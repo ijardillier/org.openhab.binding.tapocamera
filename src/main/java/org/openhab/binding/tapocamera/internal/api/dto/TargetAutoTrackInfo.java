@@ -17,6 +17,15 @@ package org.openhab.binding.tapocamera.internal.api.dto;
  * The type Target auto track info.
  */
 public class TargetAutoTrackInfo {
+    @Override
+    public String toString() {
+        return "TargetAutoTrackInfo{" +
+                "x_coord='" + x_coord + '\'' +
+                ", y_coord='" + y_coord + '\'' +
+                ", enabled='" + enabled + '\'' +
+                '}';
+    }
+
     /**
      * The X coord.
      */

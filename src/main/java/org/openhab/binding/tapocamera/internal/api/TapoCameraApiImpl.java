@@ -523,7 +523,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     }
     @Override
     public void setIntrusionDetectEnabled(String state) {
-        executeSetMethod(INTRUSION_DETECTION, "enable", state);
+        executeSetMethod(INTRUSION_DETECTION, "enabled", state);
     }
     @Override
     public LineCrossingDetectionInfo getLineCrossingDetectionInfo() {
@@ -536,7 +536,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     }
     @Override
     public void setLineCrossingDetectEnabled(String state) {
-        executeSetMethod(LINECROSSING_DETECTION, "enable", state);
+        executeSetMethod(LINECROSSING_DETECTION, "enabled", state);
     }
     @Override
     public MotionDetection getMotionDetectionInfo() {
@@ -549,7 +549,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     }
     @Override
     public void setMotionDetectEnabled(String state) {
-        executeSetMethod(MOTION_DETECTION, "enable", state);
+        executeSetMethod(MOTION_DETECTION, "enabled", state);
     }
     @Override
     public void setMotionDetectSensitivity(String state) {
@@ -570,7 +570,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     }
     @Override
     public void setPersonDetectEnabled(String state) {
-        executeSetMethod(PERSON_DETECTION, "enable", state);
+        executeSetMethod(PERSON_DETECTION, "enabled", state);
     }
     @Override
     public void setPersonDetectSensitivity(Integer state) {
@@ -587,7 +587,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     }
     @Override
     public void setTamperDetectEnabled(String state) {
-        executeSetMethod(TAMPER_DETECTION, "enable", state);
+        executeSetMethod(TAMPER_DETECTION, "enabled", state);
     }
     @Override
     public PresetInfo getPresetInfo() {

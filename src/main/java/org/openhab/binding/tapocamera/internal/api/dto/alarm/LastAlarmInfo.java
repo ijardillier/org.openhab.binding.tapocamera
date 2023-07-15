@@ -29,4 +29,12 @@ public class LastAlarmInfo {
      */
     @SerializedName("last_alarm_time")
     public Integer lastAlarmTime; // "1689317707"
+
+    @Override
+    public String toString() {
+        return "LastAlarmInfo{" +
+                "lastAlarmType='" + lastAlarmType + '\'' +
+                ", lastAlarmTime=" + lastAlarmTime +
+                '}';
+    }
 }

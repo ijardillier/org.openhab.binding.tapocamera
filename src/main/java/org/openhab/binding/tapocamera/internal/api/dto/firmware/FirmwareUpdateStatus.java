@@ -17,6 +17,14 @@ package org.openhab.binding.tapocamera.internal.api.dto.firmware;
  * The type Firmware update status.
  */
 public class FirmwareUpdateStatus {
+    @Override
+    public String toString() {
+        return "FirmwareUpdateStatus{" +
+                "state='" + state + '\'' +
+                ", lastUpgradingSuccess=" + lastUpgradingSuccess +
+                '}';
+    }
+
     /**
      * The State.
      */

@@ -17,6 +17,18 @@ package org.openhab.binding.tapocamera.internal.api.dto.audio;
  * The type Audio microphone info.
  */
 public class AudioMicrophoneInfo {
+    @Override
+    public String toString() {
+        return "AudioMicrophoneInfo{" +
+                "sampling_rate=" + sampling_rate +
+                ", channels=" + channels +
+                ", encode_type='" + encode_type + '\'' +
+                ", mute='" + mute + '\'' +
+                ", noise_cancelling='" + noise_cancelling + '\'' +
+                ", volume=" + volume +
+                '}';
+    }
+
     /**
      * The Sampling rate.
      */

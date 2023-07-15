@@ -24,6 +24,52 @@ public class DeviceInfoFull {
      */
     @SerializedName("device_model")
     public String deviceModel; // "C310",
+
+    @Override
+    public String toString() {
+        return "DeviceInfoFull{" +
+                "deviceModel='" + deviceModel + '\'' +
+                ", hwVersion='" + hwVersion + '\'' +
+                ", fwDescription='" + fwDescription + '\'' +
+                ", productId='" + productId + '\'' +
+                ", deviceName='" + deviceName + '\'' +
+                ", deviceInfo='" + deviceInfo + '\'' +
+                ", devId='" + devId + '\'' +
+                ", hwId='" + hwId + '\'' +
+                ", mac='" + mac + '\'' +
+                ", curIspVersion='" + curIspVersion + '\'' +
+                ", sensor='" + sensor + '\'' +
+                ", fwCurId='" + fwCurId + '\'' +
+                ", swVersion='" + swVersion + '\'' +
+                ", sysSoftwareRevision='" + sysSoftwareRevision + '\'' +
+                ", sysSoftwareRevisionMinor='" + sysSoftwareRevisionMinor + '\'' +
+                ", deviceBase='" + deviceBase + '\'' +
+                ", lensName='" + lensName + '\'' +
+                ", deviceType='" + deviceType + '\'' +
+                ", features=" + features +
+                ", domainName='" + domainName + '\'' +
+                ", language='" + language + '\'' +
+                ", enableDns=" + enableDns +
+                ", manufacturerName='" + manufacturerName + '\'' +
+                ", friendlyName='" + friendlyName + '\'' +
+                ", modelDescription='" + modelDescription + '\'' +
+                ", manufacturerUrl='" + manufacturerUrl + '\'' +
+                ", vendorId='" + vendorId + '\'' +
+                ", zoneCode='" + zoneCode + '\'' +
+                ", roiRegNum=" + roiRegNum +
+                ", coverRegNum=" + coverRegNum +
+                ", mdRegNum=" + mdRegNum +
+                ", tdRegNum=" + tdRegNum +
+                ", idRegNum=" + idRegNum +
+                ", cdRegNum=" + cdRegNum +
+                ", acRegNum=" + acRegNum +
+                ", pluginObtainWay='" + pluginObtainWay + '\'' +
+                ", productType='" + productType + '\'' +
+                ", fwSharedPrefix='" + fwSharedPrefix + '\'' +
+                ", extFwUpgrade=" + extFwUpgrade +
+                '}';
+    }
+
     /**
      * The Hw version.
      */
@@ -211,48 +257,4 @@ public class DeviceInfoFull {
     @SerializedName("ext_fw_upgrade")
     public Integer extFwUpgrade; // "1"
 
-    @Override
-    public String toString() {
-        return "DeviceInfoFull{" +
-                "deviceModel='" + deviceModel + '\'' +
-                ", hwVersion='" + hwVersion + '\'' +
-                ", fwDescription='" + fwDescription + '\'' +
-                ", productId='" + productId + '\'' +
-                ", deviceName='" + deviceName + '\'' +
-                ", deviceInfo='" + deviceInfo + '\'' +
-                ", devId='" + devId + '\'' +
-                ", hwId='" + hwId + '\'' +
-                ", mac='" + mac + '\'' +
-                ", curIspVersion='" + curIspVersion + '\'' +
-                ", sensor='" + sensor + '\'' +
-                ", fwCurId='" + fwCurId + '\'' +
-                ", swVersion='" + swVersion + '\'' +
-                ", sysSoftwareRevision='" + sysSoftwareRevision + '\'' +
-                ", sysSoftwareRevisionMinor='" + sysSoftwareRevisionMinor + '\'' +
-                ", deviceBase='" + deviceBase + '\'' +
-                ", lensName='" + lensName + '\'' +
-                ", deviceType='" + deviceType + '\'' +
-                ", features=" + features +
-                ", domainName='" + domainName + '\'' +
-                ", language='" + language + '\'' +
-                ", enableDns=" + enableDns +
-                ", manufacturerName='" + manufacturerName + '\'' +
-                ", friendlyName='" + friendlyName + '\'' +
-                ", modelDescription='" + modelDescription + '\'' +
-                ", manufacturerUrl='" + manufacturerUrl + '\'' +
-                ", vendorId='" + vendorId + '\'' +
-                ", zoneCode='" + zoneCode + '\'' +
-                ", roiRegNum=" + roiRegNum +
-                ", coverRegNum=" + coverRegNum +
-                ", mdRegNum=" + mdRegNum +
-                ", tdRegNum=" + tdRegNum +
-                ", idRegNum=" + idRegNum +
-                ", cdRegNum=" + cdRegNum +
-                ", acRegNum=" + acRegNum +
-                ", pluginObtainWay='" + pluginObtainWay + '\'' +
-                ", productType='" + productType + '\'' +
-                ", fwSharedPrefix='" + fwSharedPrefix + '\'' +
-                ", extFwUpgrade=" + extFwUpgrade +
-                '}';
-    }
 }

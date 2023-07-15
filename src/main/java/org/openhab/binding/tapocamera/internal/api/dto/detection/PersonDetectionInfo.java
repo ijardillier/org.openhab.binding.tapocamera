@@ -21,4 +21,12 @@ public class PersonDetectionInfo extends DetectionInfo {
      * The Sensitivity.
      */
     public Integer sensitivity;
+
+    @Override
+    public String toString() {
+        return "PersonDetectionInfo{" +
+                "sensitivity=" + sensitivity +
+                ", enabled='" + enabled + '\'' +
+                '}';
+    }
 }

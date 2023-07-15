@@ -27,7 +27,7 @@
         <item-type>Dimmer</item-type>
         <label>Motion Detection digital sensitivity</label>
         <description>Motion Detection digital sensitivity</description>
-        <state pattern="%d %unit%" min="0" max="10" step="1"/>
+        <state pattern="%d %unit%" min="0" max="100" step="10"/>
     </channel-type>
 
     <channel-type id="person-detection-enabled">
@@ -39,7 +39,7 @@
         <item-type>Dimmer</item-type>
         <label>Person Detection sensitivity</label>
         <description>Person Detection sensitivity</description>
-        <state pattern="%d %unit%" min="0" max="10" step="1"/>
+        <state pattern="%d %unit%" min="0" max="100" step="10"/>
     </channel-type>
 
     <channel-type id="line-crossing-detection-enabled">

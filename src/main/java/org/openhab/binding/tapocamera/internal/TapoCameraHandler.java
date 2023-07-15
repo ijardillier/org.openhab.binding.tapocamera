@@ -29,9 +29,11 @@ import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_SPEAKER_VOLUME;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -48,8 +50,12 @@ import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.openhab.binding.tapocamera.internal.api.ApiErrorCodes;
 import org.openhab.binding.tapocamera.internal.api.ApiException;
+import org.openhab.binding.tapocamera.internal.api.ApiMethodTypes;
 import org.openhab.binding.tapocamera.internal.api.TapoCameraApi;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.LastAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgAlarmInfo;
@@ -67,6 +73,7 @@ import org.openhab.binding.tapocamera.internal.api.dto.image.LensMaskInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.system.DeviceInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.system.LedStatus;
 import org.openhab.binding.tapocamera.internal.api.dto.system.NetworkInfo;
+import org.openhab.binding.tapocamera.internal.api.response.ApiMethodResult;
 import org.openhab.binding.tapocamera.internal.dto.CameraState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,6 +92,7 @@ public class TapoCameraHandler extends BaseThingHandler {
     private @Nullable Future<?> initJob;
     private @Nullable Future<?> pollingJob;
     private final TapoCameraApi api;
+    private final Gson gson = new Gson();
     private CameraState cameraState = new CameraState();
 
     /**
@@ -162,7 +170,7 @@ public class TapoCameraHandler extends BaseThingHandler {
         }
         else if (CHANNEL_MOTION_DETECTION_DIGITAL_SENSITIVITY.getName().equals(channelUID.getId())) {
             if (command instanceof PercentType) {
-                Integer value = ((PercentType) command).intValue() * 10;
+                Integer value = ((PercentType) command).intValue();
                 cameraState.getMotionDetection().digitalSensitivity = value;
                 api.setMotionDetectSensitivity(value);
             }
@@ -176,7 +184,7 @@ public class TapoCameraHandler extends BaseThingHandler {
         }
         else if (CHANNEL_PERSON_DETECTION_SENSITIVITY.getName().equals(channelUID.getId())) {
             if (command instanceof PercentType) {
-                Integer value = ((PercentType) command).intValue() * 10;
+                Integer value = ((PercentType) command).intValue();
                 cameraState.getPersonDetectionInfo().sensitivity = value;
                 api.setPersonDetectSensitivity(value);
             }
@@ -248,7 +256,10 @@ public class TapoCameraHandler extends BaseThingHandler {
             if (thingReachable) {
                 updateStatus(ThingStatus.ONLINE);
                 DeviceInfo deviceInfo = api.getDeviceInfo();
+                cameraState.setFriendlyName(deviceInfo.basic.deviceAlias);
+                logger.debug("{}: received: {}", cameraState.getFriendlyName(), deviceInfo.toString());
                 NetworkInfo networkInfo = api.getNetworkInfo();
+                logger.debug("{}: received: {}", cameraState.getFriendlyName(), networkInfo.toString());
                 setThingProperties(deviceInfo);
                 updateThingProperties(networkInfo);
                 pollingJob = getCameraParameters(config.pollingInterval);
@@ -313,8 +324,9 @@ public class TapoCameraHandler extends BaseThingHandler {
                 updateStatus(ThingStatus.ONLINE);
             }
 
-            api.getChangebleParameters().forEach(param -> {
-                processAllResults(param.result);
+            List<ApiMethodResult> apiMethodsResultList = api.getChangebleParameters();
+            apiMethodsResultList.forEach(param -> {
+                processAllResults(param);
             });
 
         } catch (Exception e) {
@@ -344,9 +356,28 @@ public class TapoCameraHandler extends BaseThingHandler {
         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, String.format("%s", message));
     }
 
-    private void processAllResults(Object data) {
+    private void processAllResults(ApiMethodResult object) {
+         // ApiMethodTypes.getClassByModuleAndSection()
+        Optional<ApiMethodTypes> apipMethod = Arrays.asList(ApiMethodTypes.values()).stream()
+                .filter(m -> {
+                    return object.method.equals(m.getMethod()) &&
+                            object.result.has(m.getModule()) &&
+                            object.result.getAsJsonObject(m.getModule()).has(m.getSection());
+                })
+                //.map(ApiMethodTypes::getClazz)
+                .findFirst();
+      if ( !apipMethod.isPresent() ) {
+          return;
+      }
+      Class<?> clazz = apipMethod.get().getClazz();
+      String module = apipMethod.get().getModule();
+      String section = apipMethod.get().getSection();
+      JsonElement newObj = ((JsonObject) object.result).getAsJsonObject(module).get(section);
+      Object data = gson.fromJson(newObj, clazz);
+
         if (data instanceof LedStatus) {
             // get led status
+            logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());
             String ledStatus = ((LedStatus) data).enabled;
             cameraState.setLedStatus(ledStatus);
             updateState(CHANNEL_LED_STATUS.getName(), OnOffType.from(ledStatus.toUpperCase()));
@@ -354,11 +385,13 @@ public class TapoCameraHandler extends BaseThingHandler {
         // audio config
         else if (data instanceof AudioSpeakerInfo) {
             // speaker status
+            logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());
             int volume = ((AudioSpeakerInfo) data).volume;
             cameraState.setSpeakerVolume(volume);
             updateState(CHANNEL_SPEAKER_VOLUME.getName(), new PercentType(volume));
         } else if (data instanceof AudioMicrophoneInfo) {
             // microphone status
+            logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());
             int volume = ((AudioMicrophoneInfo) data).volume;
             cameraState.setMicrophoneVolume(volume);
             updateState(CHANNEL_MICROPHONE_VOLUME.getName(), new PercentType(volume));
@@ -366,31 +399,36 @@ public class TapoCameraHandler extends BaseThingHandler {
         // detections
         else if (data instanceof MotionDetection) {
             // motion detection
+            logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());
             MotionDetection motionDetection = (MotionDetection) data;
             cameraState.setMotionDetection(motionDetection);
             updateState(CHANNEL_MOTION_DETECTION_ENABLED.getName(), OnOffType.from(motionDetection.enabled.toUpperCase()));
             updateState(CHANNEL_MOTION_DETECTION_SENSITIVITY.getName(), new StringType(motionDetection.sensitivity));
-            int digitalSensitivity = motionDetection.digitalSensitivity / 10;
+            int digitalSensitivity = motionDetection.digitalSensitivity;
             updateState(CHANNEL_MOTION_DETECTION_DIGITAL_SENSITIVITY.getName(), new PercentType(digitalSensitivity));
         } else if (data instanceof PersonDetectionInfo) {
             // person detection
+            logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());
             PersonDetectionInfo personDetectionInfo = (PersonDetectionInfo) data;
             cameraState.setPersonDetectionInfo(personDetectionInfo);
             updateState(CHANNEL_PERSON_DETECTION_ENABLED.getName(), OnOffType.from(personDetectionInfo.enabled.toUpperCase()));
-            int digitalSensitivity = personDetectionInfo.sensitivity / 10;
+            int digitalSensitivity = personDetectionInfo.sensitivity;
             updateState(CHANNEL_PERSON_DETECTION_SENSITIVITY.getName(), new PercentType(digitalSensitivity));
         } else if (data instanceof LineCrossingDetectionInfo) {
             // line crossing detection
+            logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());
             LineCrossingDetectionInfo lineCrossingDetection = (LineCrossingDetectionInfo) data;
             cameraState.setLineCrossingDetection(lineCrossingDetection);
             updateState(CHANNEL_LINE_CROSSING_DETECTION_ENABLED.getName(),
                     OnOffType.from(lineCrossingDetection.enabled.toUpperCase()));
         } else if (data instanceof IntrusionDetectionInfo) {
             // intrusion detection
+            logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());
             IntrusionDetectionInfo intrusionDetection = (IntrusionDetectionInfo) data;
             cameraState.setIntrusionDetection(intrusionDetection);
             updateState(CHANNEL_INTRUSION_DETECTION_ENABLED.getName(), OnOffType.from(intrusionDetection.enabled.toUpperCase()));
         } else if (data instanceof TamperDetectionInfo) {
+            logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());
             logger.info("TamperDetectionInfo:");
             logger.info("\t enabled:" + ((TamperDetectionInfo) data).enabled);
             logger.info("\t sensitivity:" + ((TamperDetectionInfo) data).sensitivity);
@@ -400,11 +438,13 @@ public class TapoCameraHandler extends BaseThingHandler {
         // image info
         else if (data instanceof ImageCommon) {
             // TODO: image commmon
+            logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());
             logger.info("ImageCommon:");
             logger.info("\t infSensitivity:" + ((ImageCommon) data).infSensitivity);
             logger.info("\t lightFreqMode:" + ((ImageCommon) data).lightFreqMode);
         } else if (data instanceof ImageSwitch) {
             // TODO: image switch
+            logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());
             logger.info("ImageSwitch:");
             logger.info("\t flipType:" + ((ImageSwitch) data).flipType);
             logger.info("\t rotateType:" + ((ImageSwitch) data).rotateType);
@@ -413,16 +453,19 @@ public class TapoCameraHandler extends BaseThingHandler {
             logger.info("\t lensDistortionCorrection:" + ((ImageSwitch) data).lensDistortionCorrection);
             logger.info("\t wtlIntensityLevel:" + ((ImageSwitch) data).wtlIntensityLevel);
         }  else if (data instanceof LensMaskInfo) {
+            logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());
             logger.info("LensMaskInfo:");
             logger.info("\t enabled:" + ((LensMaskInfo) data).enabled);
         }
 
         // message alarm
         else if (data instanceof LastAlarmInfo) {
+            logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());
             logger.info("LastAlarmInfo:");
             logger.info("\t lastAlarmTime:" + ((LastAlarmInfo) data).lastAlarmTime);
             logger.info("\t lastAlarmTime:" + ((LastAlarmInfo) data).lastAlarmTime);
         } else if (data instanceof MsgAlarmInfo) {
+            logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());
             // alarm mode
             MsgAlarmInfo alarmInfo = (MsgAlarmInfo) data;
             cameraState.setAlarmInfo(alarmInfo);
@@ -437,6 +480,7 @@ public class TapoCameraHandler extends BaseThingHandler {
                 updateState(CHANNEL_ALARM_MODE.getName(), new StringType(alarmInfo.alarmMode.get(0)));
             }
         } else if (data instanceof MsgPushInfo) {
+            logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());
             logger.info("MsgPushInfo:");
             logger.info("\t notificationEnabled:" + ((MsgPushInfo) data).notificationEnabled);
             logger.info("\t richNotificationEnabled:" + ((MsgPushInfo) data).richNotificationEnabled);

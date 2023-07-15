@@ -19,6 +19,14 @@ import com.google.gson.annotations.SerializedName;
  * The type Msg push info.
  */
 public class MsgPushInfo {
+    @Override
+    public String toString() {
+        return "MsgPushInfo{" +
+                "notificationEnabled='" + notificationEnabled + '\'' +
+                ", richNotificationEnabled='" + richNotificationEnabled + '\'' +
+                '}';
+    }
+
     /**
      * The Notification enabled.
      */

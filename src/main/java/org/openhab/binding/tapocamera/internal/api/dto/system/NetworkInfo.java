@@ -25,6 +25,27 @@ public class NetworkInfo {
      * The Type.
      */
     public String type; // "bridge",
+
+    @Override
+    public String toString() {
+        return "NetworkInfo{" +
+                "ifname='" + ifname + '\'' +
+                ", type='" + type + '\'' +
+                ", wan_type='" + wan_type + '\'' +
+                ", speed_duplex='" + speed_duplex + '\'' +
+                ", proto='" + proto + '\'' +
+                ", mtu=" + mtu +
+                ", auto='" + auto + '\'' +
+                ", netmask='" + netmask + '\'' +
+                ", macaddr='" + macaddr + '\'' +
+                ", fac_macaddr='" + fac_macaddr + '\'' +
+                ", ipaddr='" + ipaddr + '\'' +
+                ", gateway='" + gateway + '\'' +
+                ", dns='" + dns + '\'' +
+                ", link_type='" + link_type + '\'' +
+                '}';
+    }
+
     /**
      * The Wan type.
      */

@@ -21,4 +21,11 @@ public class AudioSpeakerInfo {
      * The Volume.
      */
     public Integer volume;
+
+    @Override
+    public String toString() {
+        return "AudioSpeakerInfo{" +
+                "volume=" + volume +
+                '}';
+    }
 }

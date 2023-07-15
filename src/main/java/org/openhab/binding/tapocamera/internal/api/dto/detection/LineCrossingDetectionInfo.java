@@ -17,4 +17,10 @@ package org.openhab.binding.tapocamera.internal.api.dto.detection;
  * The type Line crossing detection info.
  */
 public class LineCrossingDetectionInfo extends DetectionInfo {
+    @Override
+    public String toString() {
+        return "LineCrossingDetectionInfo{" +
+                "enabled='" + enabled + '\'' +
+                '}';
+    }
 }
