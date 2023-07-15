@@ -255,7 +255,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     public boolean executeSetMethod(ApiMethodTypes type, String paramName, Object value) {
         String module = type.getModule();
         String section = type.getSection();
-        String command = ApiUtils.createSingleCommand("set", module, section, "volume", value);
+        String command = ApiUtils.createSingleCommand("set", module, section, paramName, value);
         JsonObject obj = (JsonObject) sendSingleRequest(token, command);
         ApiResponse response = gson.fromJson(obj, ApiResponse.class);
         return  response.errorCode == 0;
