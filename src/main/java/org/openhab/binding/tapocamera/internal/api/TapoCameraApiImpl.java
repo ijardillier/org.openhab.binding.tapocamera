@@ -253,9 +253,17 @@ public class TapoCameraApiImpl implements TapoCameraApi {
      * @return the boolean
      */
     public boolean executeSetMethod(ApiMethodTypes type, String paramName, Object value) {
+        return executeCommandMethod("set", type, paramName, value);
+    }
+
+    public boolean executeDoMethod(ApiMethodTypes type, String paramName, Object value) {
+        return executeCommandMethod("do", type, paramName, value);
+    }
+
+    private boolean executeCommandMethod(String method, ApiMethodTypes type, String paramName, Object value) {
         String module = type.getModule();
         String section = type.getSection();
-        String command = ApiUtils.createSingleCommand("set", module, section, paramName, value);
+        String command = ApiUtils.createSingleCommand(method, module, section, paramName, value);
         JsonObject obj = (JsonObject) sendSingleRequest(token, command);
         ApiResponse response = gson.fromJson(obj, ApiResponse.class);
         return  response.errorCode == 0;
@@ -482,7 +490,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     }
     @Override
     public void setManualAlarm(String state) {
-        executeSetMethod(MSG_ALARM_MANUAL, "action", state);
+        executeDoMethod(MSG_ALARM_MANUAL, "action", state);
     }
     @Override
     public MsgPushInfo getMsgPushInfo() {
