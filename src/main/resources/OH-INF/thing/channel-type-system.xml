@@ -11,7 +11,12 @@
         <description>Led Status</description>
         <category>if:mdi:led-on</category>
     </channel-type>
-
+    <channel-type id="privacy-mode">
+        <item-type>Switch</item-type>
+        <label>Privacy Mode</label>
+        <description>Privacy Mode</description>
+        <category>if:mdi:eye</category>
+    </channel-type>
     <channel-type id="manual-alarm">
         <item-type>Switch</item-type>
         <label>Manual Alarm</label>

@@ -183,7 +183,7 @@ public interface TapoCameraApi {
      * @return the lens mask info
      */
     LensMaskInfo getLensMaskInfo();
-
+    void setLensMaskEnabled(String state);
     /**
      * Gets led status.
      *

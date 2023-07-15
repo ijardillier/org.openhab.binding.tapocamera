@@ -16,6 +16,7 @@ package org.openhab.binding.tapocamera.internal.api;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_FLIP;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_LENS_CORRECTION;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_NIGHT_VISION;
+import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_PRIVACY_MODE;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.CLOCK_STATUS;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.CONNECTION_TYPE;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.DEVICE_INFO_BASIC;
@@ -471,6 +472,10 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         return (LensMaskInfo) result;
     }
 
+    @Override
+    public void setLensMaskEnabled(String state) {
+        executeSetMethod(LENS_MASK, "enabled", state);
+    }
     @Override
     public LedStatus getLedStatus() {
         String module = LED_STATUS.getModule();

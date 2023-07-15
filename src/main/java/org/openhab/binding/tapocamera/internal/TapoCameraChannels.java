@@ -27,6 +27,7 @@ public enum TapoCameraChannels {
      */
 // system group
     CHANNEL_LED_STATUS("led-status", CHANNEL_GROUP_SYSTEM),
+    CHANNEL_PRIVACY_MODE("privacy-mode", CHANNEL_GROUP_SYSTEM),
     /**
      * Channel manual alarm tapo camera channels.
      */
@@ -57,6 +58,8 @@ public enum TapoCameraChannels {
      * Channel alarm light type tapo camera channels.
      */
     CHANNEL_ALARM_LIGHT_TYPE("alarm-light-type", CHANNEL_GROUP_ALARM_CONTROL),
+    CHANNEL_LAST_ALARM_TYPE("last-alarm-type", CHANNEL_GROUP_ALARM_CONTROL),
+    CHANNEL_LAST_ALARM_TIME("last-alarm-time", CHANNEL_GROUP_ALARM_CONTROL),
 
     /**
      * The Channel motion detection enabled.

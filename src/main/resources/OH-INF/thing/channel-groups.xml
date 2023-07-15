@@ -19,6 +19,7 @@
         <channels>
             <channel id="led-status" typeId="led-status" />
             <channel id="manual-alarm" typeId="manual-alarm" />
+            <channel id="privacy-mode" typeId="privacy-mode" />
             <channel id="speaker-volume" typeId="speaker-volume" />
             <channel id="microphone-volume" typeId="microphone-volume" />
         </channels>
@@ -43,6 +44,8 @@
             <channel id="alarm-type" typeId="alarm-type" />
             <channel id="alarm-mode" typeId="alarm-mode" />
             <channel id="alarm-light-type" typeId="alarm-light-type" />
+            <channel id="last-alarm-type" typeId="last-alarm-type" />
+            <channel id="last-alarm-time" typeId="last-alarm-time" />
         </channels>
     </channel-group-type>
 
