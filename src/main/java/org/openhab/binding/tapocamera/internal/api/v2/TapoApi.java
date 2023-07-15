@@ -57,15 +57,33 @@ public interface TapoApi {
     void setLedStatus(String status);
 
     MsgAlarmInfo getMsgAlarmInfo();
+    void setAlarmInfoEnabled(String status);
+    void setAlarmInfoMode(List<String> modes);
+    void setAlarmInfoType(String type);
+
+    void setManualAlarm(String state);
+
     MsgPushInfo getMsgPushInfo();
 
     LastAlarmInfo getLastAlarmInfo();
 
     IntrusionDetectionInfo getIntrusionDetectionInfo();
+    void setIntrusionDetectEnabled(String state);
+
     LineCrossingDetectionInfo getLineCrossingDetectionInfo();
+    void setLineCrossingDetectEnabled(String state);
+
     MotionDetection getMotionDetectionInfo();
+    void setMotionDetectEnabled(String state);
+    void setMotionDetectSensitivity(String state);
+    void setMotionDetectSensitivity(Integer state);
+
     PersonDetectionInfo getPersonDetectionInfo();
+    void setPersonDetectEnabled(String state);
+    void setPersonDetectSensitivity(Integer state);
+
     TamperDetectionInfo getTamperDetectionInfo();
+    void setTamperDetectEnabled(String state);
 
     PresetInfo getPresetInfo();
     TargetAutoTrackInfo getTargetAutoTrackInfo();

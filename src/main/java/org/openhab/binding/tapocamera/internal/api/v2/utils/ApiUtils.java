@@ -65,4 +65,22 @@ public class ApiUtils {
         section.add("name", gson.toJsonTree(sectionsName).getAsJsonArray());
         return json.toString();
     }
+
+    public static String createSingleCommand(String method, String moduleName, String sectionName, String paramName, Object value ) {
+        JsonObject json = new JsonObject();
+        json.addProperty("method", method);
+        JsonObject section = new JsonObject();
+        JsonObject param = new JsonObject();
+        json.add(moduleName, section);
+        json.add(sectionName, param);
+
+        if (value instanceof String) {
+            param.addProperty(paramName, (String) value);
+        } else if (value instanceof List<?>) {
+            Gson gson = new Gson();
+            param.add("paramName", gson.toJsonTree(value).getAsJsonArray());
+        }
+        return json.toString();
+    }
+
 }

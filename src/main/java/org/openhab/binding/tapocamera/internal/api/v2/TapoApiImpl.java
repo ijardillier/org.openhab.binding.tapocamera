@@ -13,6 +13,7 @@ import static org.openhab.binding.tapocamera.internal.api.v2.TypeMethodResponse.
 import static org.openhab.binding.tapocamera.internal.api.v2.TypeMethodResponse.MICROPHONE_INFO;
 import static org.openhab.binding.tapocamera.internal.api.v2.TypeMethodResponse.MOTION_DETECTION;
 import static org.openhab.binding.tapocamera.internal.api.v2.TypeMethodResponse.MSG_ALARM_INFO;
+import static org.openhab.binding.tapocamera.internal.api.v2.TypeMethodResponse.MSG_ALARM_MANUAL;
 import static org.openhab.binding.tapocamera.internal.api.v2.TypeMethodResponse.MSG_PUSH_INFO;
 import static org.openhab.binding.tapocamera.internal.api.v2.TypeMethodResponse.NIGHT_VISION_MODE;
 import static org.openhab.binding.tapocamera.internal.api.v2.TypeMethodResponse.PERSON_DETECTION;
@@ -37,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
@@ -76,7 +78,6 @@ import org.openhab.binding.tapocamera.internal.api.v2.utils.ApiUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@NonNullByDefault
 public class TapoApiImpl implements TapoApi {
     private final Logger logger = LoggerFactory.getLogger(TapoApiImpl.class);
     private static final String TAPO_USER_AGENT = "Tapo CameraClient Android";
@@ -229,6 +230,15 @@ public class TapoApiImpl implements TapoApi {
         }
     }
 
+    public boolean executeSetMethod(TypeMethodResponse type, String paramName, Object value) {
+        String module = type.getModule();
+        String section = type.getSection();
+        String command = ApiUtils.createSingleCommand("set", module, section, "volume", value);
+        JsonObject obj = (JsonObject) sendSingleRequest(token, command);
+        ApiResponse response = gson.fromJson(obj, ApiResponse.class);
+        return  response.errorCode == 0;
+    }
+
     @Override
     public Object processSingleResponse(Object data, String moduleName, String section) {
         if (((JsonObject) data).has(moduleName)) {
@@ -354,7 +364,7 @@ public class TapoApiImpl implements TapoApi {
 
     @Override
     public void setSpeakerVolume(int volume) {
-
+        executeSetMethod(SPEAKER_INFO, "volume", String.valueOf(volume));
     }
 
     @Override
@@ -369,7 +379,7 @@ public class TapoApiImpl implements TapoApi {
 
     @Override
     public void setMicrophoneVolume(int volume) {
-
+        executeSetMethod(MICROPHONE_INFO, "volume", String.valueOf(volume));
     }
 
     @Override
@@ -424,7 +434,7 @@ public class TapoApiImpl implements TapoApi {
 
     @Override
     public void setLedStatus(String status) {
-
+        executeSetMethod(LED_STATUS, "enabled", status);
     }
 
     @Override
@@ -436,7 +446,22 @@ public class TapoApiImpl implements TapoApi {
         Object result = processSingleResponse(singleResponse, module, section);
         return (MsgAlarmInfo) result;
     }
-
+    @Override
+    public void setAlarmInfoEnabled(String status) {
+        executeSetMethod(MSG_ALARM_INFO, "enabled", status);
+    }
+    @Override
+    public void setAlarmInfoMode(List<String> modes) {
+        executeSetMethod(MSG_ALARM_INFO, "alarm_mode", modes);
+    }
+    @Override
+    public void setAlarmInfoType(String type) {
+        executeSetMethod(MSG_ALARM_INFO, "alarm_type", type);
+    }
+    @Override
+    public void setManualAlarm(String state) {
+        executeSetMethod(MSG_ALARM_MANUAL, "action", state);
+    }
     @Override
     public MsgPushInfo getMsgPushInfo() {
         String module = MSG_PUSH_INFO.getModule();
@@ -466,7 +491,10 @@ public class TapoApiImpl implements TapoApi {
         Object result = processSingleResponse(singleResponse, module, section);
         return (IntrusionDetectionInfo) result;
     }
-
+    @Override
+    public void setIntrusionDetectEnabled(String state) {
+        executeSetMethod(INTRUSION_DETECTION, "enable", state);
+    }
     @Override
     public LineCrossingDetectionInfo getLineCrossingDetectionInfo() {
         String module = LINECROSSING_DETECTION.getModule();
@@ -476,7 +504,10 @@ public class TapoApiImpl implements TapoApi {
         Object result = processSingleResponse(singleResponse, module, section);
         return (LineCrossingDetectionInfo) result;
     }
-
+    @Override
+    public void setLineCrossingDetectEnabled(String state) {
+        executeSetMethod(LINECROSSING_DETECTION, "enable", state);
+    }
     @Override
     public MotionDetection getMotionDetectionInfo() {
         String module = MOTION_DETECTION.getModule();
@@ -486,7 +517,18 @@ public class TapoApiImpl implements TapoApi {
         Object result = processSingleResponse(singleResponse, module, section);
         return (MotionDetection) result;
     }
-
+    @Override
+    public void setMotionDetectEnabled(String state) {
+        executeSetMethod(MOTION_DETECTION, "enable", state);
+    }
+    @Override
+    public void setMotionDetectSensitivity(String state) {
+        executeSetMethod(MOTION_DETECTION, "sensitivity", state);
+    }
+    @Override
+    public void setMotionDetectSensitivity(Integer state) {
+        executeSetMethod(MOTION_DETECTION, "digital_sensitivity", String.valueOf(state));
+    }
     @Override
     public PersonDetectionInfo getPersonDetectionInfo() {
         String module = PERSON_DETECTION.getModule();
@@ -496,7 +538,14 @@ public class TapoApiImpl implements TapoApi {
         Object result = processSingleResponse(singleResponse, module, section);
         return (PersonDetectionInfo) result;
     }
-
+    @Override
+    public void setPersonDetectEnabled(String state) {
+        executeSetMethod(PERSON_DETECTION, "enable", state);
+    }
+    @Override
+    public void setPersonDetectSensitivity(Integer state) {
+        executeSetMethod(PERSON_DETECTION, "sensitivity", String.valueOf(state));
+    }
     @Override
     public TamperDetectionInfo getTamperDetectionInfo() {
         String module = TAMPER_DETECTION.getModule();
@@ -506,7 +555,10 @@ public class TapoApiImpl implements TapoApi {
         Object result = processSingleResponse(singleResponse, module, section);
         return (TamperDetectionInfo) result;
     }
-
+    @Override
+    public void setTamperDetectEnabled(String state) {
+        executeSetMethod(TAMPER_DETECTION, "enable", state);
+    }
     @Override
     public PresetInfo getPresetInfo() {
         String module = PRESETS.getModule();
@@ -516,7 +568,6 @@ public class TapoApiImpl implements TapoApi {
         Object result = processSingleResponse(singleResponse, module, section);
         return (PresetInfo) result;
     }
-
     @Override
     public TargetAutoTrackInfo getTargetAutoTrackInfo() {
         String module = TARGET_TRACK.getModule();
@@ -526,7 +577,6 @@ public class TapoApiImpl implements TapoApi {
         Object result = processSingleResponse(singleResponse, module, section);
         return (TargetAutoTrackInfo) result;
     }
-
     @Override
     public List<ApiMethodResult> getChangebleParameters() {
         List<ApiMethodResult> result = new ArrayList<>();

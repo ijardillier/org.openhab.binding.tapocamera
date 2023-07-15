@@ -32,6 +32,7 @@ public enum TypeMethodResponse {
     WAN_INFO("get", "network", "wan", NetworkInfo.class),
     CONNECTION_TYPE("getConnectionType", "network", "get_connection_type", String.class),
     MOTION_DETECTION("getDetectionConfig", "motion_detection", "motion_det", MotionDetection.class),
+    MSG_ALARM_MANUAL("do", "msg_alarm", "manual_msg_alarm", String.class),
     MSG_ALARM_INFO("getAlertConfig", "msg_alarm", "chn1_msg_alarm_info", MsgAlarmInfo.class),
     NIGHT_VISION_MODE("getNightVisionModeConfig", "image", "switch", ImageSwitch.class),
     LIGHT_FREQUENCY_INFO("getLightFrequencyInfo", "image", "common", ImageCommon.class),

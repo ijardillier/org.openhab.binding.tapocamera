@@ -51,9 +51,7 @@ import org.openhab.core.types.RefreshType;
 import org.openhab.binding.tapocamera.internal.api.ApiErrorCodes;
 import org.openhab.binding.tapocamera.internal.api.ApiException;
 import org.openhab.binding.tapocamera.internal.api.v1.TapoCameraApi_v1;
-import org.openhab.binding.tapocamera.internal.api.v1.dto.Old_IntrusionDetection;
 import org.openhab.binding.tapocamera.internal.api.v1.response.Old_ApiDeviceInfo;
-import org.openhab.binding.tapocamera.internal.api.v1.dto.Old_AlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.v2.TapoApi;
 import org.openhab.binding.tapocamera.internal.api.v2.dto.alarm.LastAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.v2.dto.alarm.MsgAlarmInfo;
@@ -72,7 +70,6 @@ import org.openhab.binding.tapocamera.internal.api.v2.dto.system.DeviceInfo;
 import org.openhab.binding.tapocamera.internal.api.v2.dto.system.LedStatus;
 import org.openhab.binding.tapocamera.internal.api.v2.dto.system.NetworkInfo;
 import org.openhab.binding.tapocamera.internal.dto.CameraState;
-import org.openhab.binding.tapocamera.internal.api.v1.dto.Old_LineCrossingDetection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,14 +88,14 @@ public class TapoCameraHandler extends BaseThingHandler {
 
     private @Nullable Future<?> initJob;
     private @Nullable Future<?> pollingJob;
-    private final TapoCameraApi_v1 apiV1;
+    //private final TapoCameraApi_v1 apiV1;
     private final TapoApi apiV2;
 
     private CameraState cameraState = new CameraState();
 
     public TapoCameraHandler(Thing thing, TapoCameraApi_v1 apiV1, TapoApi apiV2) {
         super(thing);
-        this.apiV1 = apiV1;
+        //this.apiV1 = apiV1;
         this.apiV2 = apiV2;
     }
 
@@ -106,23 +103,26 @@ public class TapoCameraHandler extends BaseThingHandler {
     public void handleCommand(ChannelUID channelUID, Command command) {
         if (CHANNEL_MANUAL_ALARM.getName().equals(channelUID.getId())) {
             if (command instanceof OnOffType) {
-                apiV1.old_setManualAlarm(command.equals(OnOffType.ON) ? "start" : "stop");
+                apiV2.setManualAlarm(command.equals(OnOffType.ON) ? "start" : "stop");
             }
-        } else if (CHANNEL_LED_STATUS.getName().equals(channelUID.getId())) {
+        }
+        else if (CHANNEL_LED_STATUS.getName().equals(channelUID.getId())) {
             if (command instanceof RefreshType) {
                 // TODO: handle data refresh
             } else if (command instanceof OnOffType) {
                 String status = command.toString().toLowerCase();
                 cameraState.setLedStatus(status);
-                apiV1.old_setLedStatus(status);
+                apiV2.setLedStatus(status);
             }
-        } else if (CHANNEL_ALARM_ENABLED.getName().equals(channelUID.getId())) {
+        }
+        else if (CHANNEL_ALARM_ENABLED.getName().equals(channelUID.getId())) {
             if (command instanceof OnOffType) {
                 String status = command.toString().toLowerCase();
                 cameraState.getAlarmInfo().enabled = status;
-                apiV1.old_setAlarmInfoEnabled(status);
+                apiV2.setAlarmInfoEnabled(status);
             }
-        } else if (CHANNEL_ALARM_MODE.getName().equals(channelUID.getId())) {
+        }
+        else if (CHANNEL_ALARM_MODE.getName().equals(channelUID.getId())) {
             if (command instanceof StringType) {
                 List<String> modes = new ArrayList<>();
                 if (command.toString().equals("off")) {
@@ -136,68 +136,78 @@ public class TapoCameraHandler extends BaseThingHandler {
                     modes.add("light");
                 }
                 cameraState.getAlarmInfo().alarmMode.addAll(modes);
-                apiV1.old_setAlarmInfoMode(modes);
+                apiV2.setAlarmInfoMode(modes);
             }
-        } else if (CHANNEL_ALARM_TYPE.getName().equals(channelUID.getId())) {
+        }
+        else if (CHANNEL_ALARM_TYPE.getName().equals(channelUID.getId())) {
             if (command instanceof StringType) {
                 String status = command.toString();
                 cameraState.getAlarmInfo().alarmType = Integer.parseInt(status);
-                apiV1.old_setAlarmInfoType(status);
+                apiV2.setAlarmInfoType(status);
             }
 
-        } else if (CHANNEL_MOTION_DETECTION_ENABLED.getName().equals(channelUID.getId())) {
+        }
+        else if (CHANNEL_MOTION_DETECTION_ENABLED.getName().equals(channelUID.getId())) {
             if (command instanceof OnOffType) {
                 String status = command.toString().toLowerCase();
                 cameraState.getMotionDetection().enabled = status;
-                apiV1.old_setMotionDetectionEnabled(status);
+                apiV2.setMotionDetectEnabled(status);
             }
-        } else if (CHANNEL_MOTION_DETECTION_SENSITIVITY.getName().equals(channelUID.getId())) {
+        }
+        else if (CHANNEL_MOTION_DETECTION_SENSITIVITY.getName().equals(channelUID.getId())) {
             if (command instanceof StringType) {
                 String value = command.toString();
                 cameraState.getMotionDetection().sensitivity = value;
-                apiV1.old_setMotionDetectionSensitivity(value);
+                apiV2.setMotionDetectSensitivity(value);
             }
-        } else if (CHANNEL_MOTION_DETECTION_DIGITAL_SENSITIVITY.getName().equals(channelUID.getId())) {
+        }
+        else if (CHANNEL_MOTION_DETECTION_DIGITAL_SENSITIVITY.getName().equals(channelUID.getId())) {
             if (command instanceof PercentType) {
-                String value = String.valueOf(((PercentType) command).intValue() * 10);
+                Integer value = ((PercentType) command).intValue() * 10;
                 cameraState.getMotionDetection().digitalSensitivity = value;
-                apiV1.old_setMotionDetectionDigitalSensitivity(value);
+                apiV2.setMotionDetectSensitivity(value);
             }
-        } else if (CHANNEL_PERSON_DETECTION_ENABLED.getName().equals(channelUID.getId())) {
+        }
+        else if (CHANNEL_PERSON_DETECTION_ENABLED.getName().equals(channelUID.getId())) {
             if (command instanceof OnOffType) {
                 String status = command.toString().toLowerCase();
                 cameraState.getPersonDetectionInfo().enabled = status;
-                apiV1.old_setPeopleDetectionEnabled(status);
+                apiV2.setPersonDetectEnabled(status);
             }
-        } else if (CHANNEL_PERSON_DETECTION_SENSITIVITY.getName().equals(channelUID.getId())) {
+        }
+        else if (CHANNEL_PERSON_DETECTION_SENSITIVITY.getName().equals(channelUID.getId())) {
             if (command instanceof PercentType) {
-                String value = String.valueOf(((PercentType) command).intValue() * 10);
-                cameraState.getPersonDetectionInfo().sensitivity = Integer.parseInt(value);
-                apiV1.old_setPeopleDetectionSensitivity(value);
+                Integer value = ((PercentType) command).intValue() * 10;
+                cameraState.getPersonDetectionInfo().sensitivity = value;
+                apiV2.setPersonDetectSensitivity(value);
             }
-        } else if (CHANNEL_LINE_CROSSING_DETECTION_ENABLED.getName().equals(channelUID.getId())) {
+        }
+        else if (CHANNEL_LINE_CROSSING_DETECTION_ENABLED.getName().equals(channelUID.getId())) {
             if (command instanceof OnOffType) {
                 String status = command.toString().toLowerCase();
                 cameraState.getLineCrossingDetection().enabled = status;
-                apiV1.old_setLineCrossingDetectionEnabled(status);
+                apiV2.setLineCrossingDetectEnabled(status);
             }
-        } else if (CHANNEL_INTRUSION_DETECTION_ENABLED.getName().equals(channelUID.getId())) {
+        }
+        else if (CHANNEL_INTRUSION_DETECTION_ENABLED.getName().equals(channelUID.getId())) {
             if (command instanceof OnOffType) {
                 String status = command.toString().toLowerCase();
                 cameraState.getIntrusionDetection().enabled = (status);
-                apiV1.old_setIntrusionDetectionEnabled(status);
+                apiV2.setIntrusionDetectEnabled(status);
             }
-        } else if (CHANNEL_SPEAKER_VOLUME.getName().equals(channelUID.getId())) {
+        }
+        else if (CHANNEL_SPEAKER_VOLUME.getName().equals(channelUID.getId())) {
             if (command instanceof PercentType) {
                 int volume = ((PercentType) command).intValue();
                 cameraState.setSpeakerVolume(volume);
-                apiV1.old_setSpeakerVolume(volume);
+                apiV2.setSpeakerVolume(volume);
             }
-        } else if (CHANNEL_MICROPHONE_VOLUME.getName().equals(channelUID.getId())) {
+        }
+        else if (CHANNEL_MICROPHONE_VOLUME.getName().equals(channelUID.getId())) {
             if (command instanceof PercentType) {
                 int volume = ((PercentType) command).intValue();
                 cameraState.setMicrophoneVolume(volume);
-                apiV1.old_setMicrophoneVolume(volume);
+                apiV2.setMicrophoneVolume(volume);
             }
         }
     }
@@ -205,10 +215,15 @@ public class TapoCameraHandler extends BaseThingHandler {
     @Override
     public void initialize() {
         config = getConfigAs(TapoCameraConfiguration.class);
-        apiV2.setHostname(config.hostname);
-        updateStatus(ThingStatus.UNKNOWN);
+        if (config == null) {
+            updateStatus(ThingStatus.UNINITIALIZED, ThingStatusDetail.CONFIGURATION_ERROR);
+        } else {
+            String hostname = config.hostname;
+            apiV2.setHostname(hostname);
+            updateStatus(ThingStatus.UNKNOWN);
 
-        initJob = connectCamera(0);
+            initJob = connectCamera(0);
+        }
     }
 
     @Override
@@ -229,26 +244,18 @@ public class TapoCameraHandler extends BaseThingHandler {
     private Future<?> connectCamera(int wait) {
         logger.warn("Try connect after: {} sec", wait);
         return scheduler.schedule(() -> {
-            if (config == null) {
-                updateStatus(ThingStatus.UNINITIALIZED, ThingStatusDetail.CONFIGURATION_ERROR);
+            updateStatus(ThingStatus.OFFLINE);
+            boolean thingReachable = deviceAuth();
+            if (thingReachable) {
+                updateStatus(ThingStatus.ONLINE);
+                DeviceInfo deviceInfo = apiV2.getDeviceInfo();
+                NetworkInfo networkInfo = apiV2.getNetworkInfo();
+                setThingProperties(deviceInfo);
+                updateThingProperties(networkInfo);
+                pollingJob = getCameraParameters(config.pollingInterval);
             } else {
-                updateStatus(ThingStatus.OFFLINE);
-                boolean thingReachable = deviceAuth();
-                if (thingReachable) {
-                    updateStatus(ThingStatus.ONLINE);
-                    // Old_ApiDeviceInfo devInfo = apiV1.old_getDeviceInfo();
-                    DeviceInfo deviceInfo = apiV2.getDeviceInfo();
-                    NetworkInfo networkInfo = apiV2.getNetworkInfo();
-
-                    // setThingProperties(devInfo);
-                    setThingProperties(deviceInfo);
-                    updateThingProperties(networkInfo);
-
-                    pollingJob = getCameraParameters(config.pollingInterval);
-                } else {
-                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
-                    reconnect();
-                }
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
+                reconnect();
             }
         }, wait, TimeUnit.SECONDS);
     }
@@ -275,8 +282,6 @@ public class TapoCameraHandler extends BaseThingHandler {
             throw new RuntimeException(e);
         }
     }
-
-
 
     private void setThingProperties(Old_ApiDeviceInfo device) {
         Map<String, String> properties = new HashMap<>();
