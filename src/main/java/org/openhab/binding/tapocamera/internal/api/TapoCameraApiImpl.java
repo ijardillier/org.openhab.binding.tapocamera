@@ -461,7 +461,22 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     public void setImageNightVision(String state) {
         executeSetMethod(LIGHT_FREQUENCY_INFO, "inf_type", state);
     }
-
+    @Override
+    public void setImageContrast(Integer state) {
+        executeSetMethod(LIGHT_FREQUENCY_INFO, "contrast", String.valueOf(state));
+    }
+    @Override
+    public void setImageSaturation(Integer state) {
+        executeSetMethod(LIGHT_FREQUENCY_INFO, "saturation", String.valueOf(state));
+    }
+    @Override
+    public void setImageSharpness(Integer state) {
+        executeSetMethod(LIGHT_FREQUENCY_INFO, "sharpness", String.valueOf(state));
+    }
+    @Override
+    public void setImageLuma(Integer state) {
+        executeSetMethod(LIGHT_FREQUENCY_INFO, "luma", String.valueOf(state));
+    }
     @Override
     public LensMaskInfo getLensMaskInfo() {
         String module = LENS_MASK.getModule();

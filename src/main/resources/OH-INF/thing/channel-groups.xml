@@ -33,6 +33,10 @@
             <channel id="flip" typeId="flip" />
             <channel id="ldc" typeId="ldc" />
             <channel id="night-vision" typeId="night-vision" />
+            <channel id="contrast" typeId="contrast" />
+            <channel id="saturation" typeId="saturation" />
+            <channel id="sharpness" typeId="sharpness" />
+            <channel id="luma" typeId="luma" />
         </channels>
     </channel-group-type>
 

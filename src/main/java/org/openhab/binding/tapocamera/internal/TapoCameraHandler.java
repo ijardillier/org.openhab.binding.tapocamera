@@ -16,9 +16,13 @@ import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_ALARM_LIGHT_TYPE;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_ALARM_MODE;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_ALARM_TYPE;
+import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_CONTRAST;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_FLIP;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_LENS_CORRECTION;
+import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_LUMA;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_NIGHT_VISION;
+import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_SATURATION;
+import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_SHARPNESS;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_INTRUSION_DETECTION_ENABLED;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_LAST_ALARM_TIME;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_LAST_ALARM_TYPE;
@@ -252,6 +256,30 @@ public class TapoCameraHandler extends BaseThingHandler {
                 api.setImageNightVision(state);
             }
         }
+        else if (CHANNEL_IMAGE_CONTRAST.getName().equals(channelUID.getId())) {
+            if (command instanceof PercentType) {
+                int state = ((PercentType) command).intValue();
+                api.setImageContrast(state);
+            }
+        }
+        else if (CHANNEL_IMAGE_SATURATION.getName().equals(channelUID.getId())) {
+            if (command instanceof PercentType) {
+                int state = ((PercentType) command).intValue();
+                api.setImageSaturation(state);
+            }
+        }
+        else if (CHANNEL_IMAGE_SHARPNESS.getName().equals(channelUID.getId())) {
+            if (command instanceof PercentType) {
+                int state = ((PercentType) command).intValue();
+                api.setImageSharpness(state);
+            }
+        }
+        else if (CHANNEL_IMAGE_LUMA.getName().equals(channelUID.getId())) {
+            if (command instanceof PercentType) {
+                int state = ((PercentType) command).intValue();
+                api.setImageLuma(state);
+            }
+        }
     }
 
     @Override
@@ -475,6 +503,10 @@ public class TapoCameraHandler extends BaseThingHandler {
             // TODO: image commmon
             logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());
             updateState(CHANNEL_IMAGE_NIGHT_VISION.getName(), new StringType(((ImageCommon) data).nightMode));
+            updateState(CHANNEL_IMAGE_CONTRAST.getName(), new PercentType(((ImageCommon) data).contrast));
+            updateState(CHANNEL_IMAGE_SHARPNESS.getName(), new PercentType(((ImageCommon) data).sharpness));
+            updateState(CHANNEL_IMAGE_SATURATION.getName(), new PercentType(((ImageCommon) data).saturation));
+            updateState(CHANNEL_IMAGE_LUMA.getName(), new PercentType(((ImageCommon) data).luma));
         } else if (data instanceof ImageSwitch) {
             // TODO: image switch
             logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());

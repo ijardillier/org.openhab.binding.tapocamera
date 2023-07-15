@@ -31,4 +31,32 @@
             </options>
         </state>
     </channel-type>
+    <channel-type id="contrast" advanced="true">
+        <item-type>Dimmer</item-type>
+        <label>Image Contrast</label>
+        <description>Contrast Level</description>
+        <category>if:mdi:contrast-box</category>
+        <state pattern="%d %unit%" min="0" max="100" step="1"/>
+    </channel-type>
+    <channel-type id="saturation" advanced="true">
+        <item-type>Dimmer</item-type>
+        <label>Image Saturation</label>
+        <description>Saturation Level</description>
+        <category>if:mdi:brightness-7</category>
+        <state pattern="%d %unit%" min="0" max="100" step="1"/>
+    </channel-type>
+    <channel-type id="sharpness" advanced="true">
+        <item-type>Dimmer</item-type>
+        <label>Image Sharpness</label>
+        <description>Sharpness Level</description>
+        <category>if:mdi:square-opacity</category>
+        <state pattern="%d %unit%" min="0" max="100" step="1"/>
+    </channel-type>
+    <channel-type id="luma" advanced="true">
+        <item-type>Dimmer</item-type>
+        <label>Image Luma</label>
+        <description>Luma Level</description>
+        <category>if:mdi:square-opacity</category>
+        <state pattern="%d %unit%" min="0" max="100" step="1"/>
+    </channel-type>
 </thing:thing-descriptions>
