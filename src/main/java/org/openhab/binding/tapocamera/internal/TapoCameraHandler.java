@@ -16,6 +16,9 @@ import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_ALARM_LIGHT_TYPE;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_ALARM_MODE;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_ALARM_TYPE;
+import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_FLIP;
+import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_LENS_CORRECTION;
+import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_NIGHT_VISION;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_INTRUSION_DETECTION_ENABLED;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_LED_STATUS;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_LINE_CROSSING_DETECTION_ENABLED;
@@ -215,6 +218,24 @@ public class TapoCameraHandler extends BaseThingHandler {
                 int volume = ((PercentType) command).intValue();
                 cameraState.setMicrophoneVolume(volume);
                 api.setMicrophoneVolume(volume);
+            }
+        }
+        else if (CHANNEL_IMAGE_FLIP.getName().equals(channelUID.getId())) {
+            if (command instanceof OnOffType) {
+                String state = command.equals(OnOffType.ON) ? "center" : "off";
+                api.setImageFlip(state);
+            }
+        }
+        else if (CHANNEL_IMAGE_LENS_CORRECTION.getName().equals(channelUID.getId())) {
+            if (command instanceof OnOffType) {
+                String state = command.toString().toLowerCase();
+                api.setImageLdc(state);
+            }
+        }
+        else if (CHANNEL_IMAGE_NIGHT_VISION.getName().equals(channelUID.getId())) {
+            if (command instanceof StringType) {
+                String state = command.toString();
+                api.setImageNightVision(state);
             }
         }
     }
@@ -442,16 +463,18 @@ public class TapoCameraHandler extends BaseThingHandler {
             logger.info("ImageCommon:");
             logger.info("\t infSensitivity:" + ((ImageCommon) data).infSensitivity);
             logger.info("\t lightFreqMode:" + ((ImageCommon) data).lightFreqMode);
+            updateState(CHANNEL_IMAGE_NIGHT_VISION.getName(), new StringType(((ImageCommon) data).nightMode));
         } else if (data instanceof ImageSwitch) {
             // TODO: image switch
             logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());
             logger.info("ImageSwitch:");
             logger.info("\t flipType:" + ((ImageSwitch) data).flipType);
+            updateState(CHANNEL_IMAGE_FLIP.getName(), OnOffType.from(((ImageSwitch) data).flipType.equals("center")));
             logger.info("\t rotateType:" + ((ImageSwitch) data).rotateType);
             logger.info("\t switchMode:" + ((ImageSwitch) data).switchMode);
             logger.info("\t nightVisionMode:" + ((ImageSwitch) data).nightVisionMode);
-            logger.info("\t lensDistortionCorrection:" + ((ImageSwitch) data).lensDistortionCorrection);
             logger.info("\t wtlIntensityLevel:" + ((ImageSwitch) data).wtlIntensityLevel);
+            updateState(CHANNEL_IMAGE_LENS_CORRECTION.getName(), OnOffType.from(((ImageSwitch) data).lensDistortionCorrection.toUpperCase()));
         }  else if (data instanceof LensMaskInfo) {
             logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());
             logger.info("LensMaskInfo:");

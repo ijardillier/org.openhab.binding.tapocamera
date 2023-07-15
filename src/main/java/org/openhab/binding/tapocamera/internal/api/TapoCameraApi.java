@@ -174,6 +174,9 @@ public interface TapoCameraApi {
      */
     ImageSwitch getImageSwitchInfo();
 
+    void setImageFlip(String state);
+    void setImageLdc(String state);
+    void setImageNightVision(String state);
     /**
      * Gets lens mask info.
      *

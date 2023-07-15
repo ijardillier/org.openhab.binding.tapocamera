@@ -24,15 +24,17 @@
         </channels>
     </channel-group-type>
 
-    <!--
+
     <channel-group-type id="image">
         <label>Image parameters</label>
         <description>Image parameters</description>
         <channels>
-
+            <channel id="flip" typeId="flip" />
+            <channel id="ldc" typeId="ldc" />
+            <channel id="night-vision" typeId="night-vision" />
         </channels>
     </channel-group-type>
--->
+
     <channel-group-type id="alarm-control">
         <label>Alarm control</label>
         <description>Alarm control</description>

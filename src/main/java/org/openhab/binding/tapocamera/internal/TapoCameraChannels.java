@@ -15,6 +15,7 @@ package org.openhab.binding.tapocamera.internal;
 
 import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_GROUP_ALARM_CONTROL;
 import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_GROUP_DETECTIONS;
+import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_GROUP_IMAGE;
 import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_GROUP_SYSTEM;
 
 /**
@@ -87,6 +88,9 @@ public enum TapoCameraChannels {
      */
     CHANNEL_INTRUSION_DETECTION_ENABLED("intrusion-detection-enabled", CHANNEL_GROUP_DETECTIONS),
 
+    CHANNEL_IMAGE_FLIP("flip", CHANNEL_GROUP_IMAGE),
+    CHANNEL_IMAGE_LENS_CORRECTION("ldc", CHANNEL_GROUP_IMAGE),
+    CHANNEL_IMAGE_NIGHT_VISION("night-vision", CHANNEL_GROUP_IMAGE),
     ;
 
     private String channelId;

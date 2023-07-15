@@ -5,5 +5,30 @@
                           xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
                           xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
 
+    <channel-type id="flip">
+        <item-type>Switch</item-type>
+        <label>Flip Image</label>
+        <description>Flip Image</description>
+        <category>if:mdi:flip-vertical</category>
+    </channel-type>
+    <channel-type id="ldc">
+        <item-type>Switch</item-type>
+        <label>Lens Distortion Correction</label>
+        <description>Lens Distortion Correction</description>
+        <category>if:mdi:google-lens</category>
+    </channel-type>
 
+    <channel-type id="night-vision">
+        <item-type>String</item-type>
+        <label>Night Vision</label>
+        <description>Night Vision</description>
+        <category>if:mdi:theme-light-dark</category>
+        <state>
+            <options>
+                <option value="auto">Auto</option>
+                <option value="on">Night</option>
+                <option value="off">Day</option>
+            </options>
+        </state>
+    </channel-type>
 </thing:thing-descriptions>

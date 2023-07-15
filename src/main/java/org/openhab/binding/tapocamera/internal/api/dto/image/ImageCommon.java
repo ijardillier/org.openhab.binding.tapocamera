@@ -56,7 +56,7 @@ public class ImageCommon {
                 ", smartir_level=" + smartir_level +
                 ", high_light_compensation='" + high_light_compensation + '\'' +
                 ", dehaze='" + dehaze + '\'' +
-                ", inf_type='" + inf_type + '\'' +
+                ", inf_type='" + nightMode + '\'' +
                 '}';
     }
 
@@ -209,6 +209,7 @@ public class ImageCommon {
     /**
      * The Inf type.
      */
-    public String inf_type; // "off"
+    @SerializedName("inf_type")
+    public String nightMode; // "off" - day, "on" - night, "Auto" - Auto
 
 }

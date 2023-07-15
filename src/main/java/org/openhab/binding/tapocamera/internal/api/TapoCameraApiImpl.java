@@ -13,6 +13,9 @@
 
 package org.openhab.binding.tapocamera.internal.api;
 
+import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_FLIP;
+import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_LENS_CORRECTION;
+import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_NIGHT_VISION;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.CLOCK_STATUS;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.CONNECTION_TYPE;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.DEVICE_INFO_BASIC;
@@ -53,6 +56,9 @@ import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
+
+import org.openhab.core.library.types.OnOffType;
+import org.openhab.core.library.types.StringType;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -440,6 +446,19 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         Object singleResponse = sendSingleRequest(token, singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (ImageSwitch) result;
+    }
+
+    @Override
+    public void setImageFlip(String state) {
+        executeSetMethod(NIGHT_VISION_MODE, "flip_type", state);
+    }
+    @Override
+    public void setImageLdc(String state) {
+        executeSetMethod(NIGHT_VISION_MODE, "ldc", state);
+    }
+    @Override
+    public void setImageNightVision(String state) {
+        executeSetMethod(LIGHT_FREQUENCY_INFO, "inf_type", state);
     }
 
     @Override
