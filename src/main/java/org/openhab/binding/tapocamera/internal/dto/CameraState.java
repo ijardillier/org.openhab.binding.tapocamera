@@ -13,7 +13,6 @@
 
 package org.openhab.binding.tapocamera.internal.dto;
 
-import org.openhab.binding.tapocamera.internal.api.v1.dto.Old_AlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.v2.dto.alarm.MsgAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.v2.dto.detection.IntrusionDetectionInfo;
 import org.openhab.binding.tapocamera.internal.api.v2.dto.detection.LineCrossingDetectionInfo;

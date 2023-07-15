@@ -27,9 +27,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import org.openhab.binding.tapocamera.internal.api.ApiException;
-import org.openhab.binding.tapocamera.internal.api.v1.TapoCameraApi_v1;
-import org.openhab.binding.tapocamera.internal.api.v1.TapoCameraApiFactory_v1;
 import org.openhab.binding.tapocamera.internal.api.v2.TapoApi;
 import org.openhab.binding.tapocamera.internal.api.v2.TapoApiFactory;
 
@@ -44,14 +41,10 @@ import org.openhab.binding.tapocamera.internal.api.v2.TapoApiFactory;
 public class TapoCameraHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_CAMERA);
-
-    private final TapoCameraApiFactory_v1 apiFactory_v1;
     private final TapoApiFactory apiFactory_v2;
 
     @Activate
-    public TapoCameraHandlerFactory(@Reference TapoCameraApiFactory_v1 apiFactory_v1,
-                                    @Reference TapoApiFactory apiFactory_v2) {
-        this.apiFactory_v1 = apiFactory_v1;
+    public TapoCameraHandlerFactory(@Reference TapoApiFactory apiFactory_v2) {
         this.apiFactory_v2 = apiFactory_v2;
     }
 
@@ -65,18 +58,8 @@ public class TapoCameraHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (THING_TYPE_CAMERA.equals(thingTypeUID)) {
-            try {
-                TapoCameraApi_v1 v1Api = apiFactory_v1.getApi();
-                TapoApi v2Api = apiFactory_v2.getApi();
-
-                TapoCameraHandler handler = new TapoCameraHandler(thing, v1Api, v2Api);
-                v1Api.old_setDevice(handler);
-
-
-                return handler;
-            } catch (ApiException e) {
-                throw new RuntimeException(e);
-            }
+            TapoApi v2Api = apiFactory_v2.getApi();
+            return new TapoCameraHandler(thing, v2Api);
         }
 
         return null;

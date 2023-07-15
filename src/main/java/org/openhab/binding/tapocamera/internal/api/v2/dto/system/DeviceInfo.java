@@ -3,8 +3,6 @@ package org.openhab.binding.tapocamera.internal.api.v2.dto.system;
 import java.io.Serializable;
 
 import com.google.gson.annotations.SerializedName;
-import org.openhab.binding.tapocamera.internal.api.v2.dto.system.DeviceInfoBasic;
-import org.openhab.binding.tapocamera.internal.api.v2.dto.system.DeviceInfoFull;
 
 public class DeviceInfo implements Serializable {
     private static final long serialVersionUID = 418701930052854366L;

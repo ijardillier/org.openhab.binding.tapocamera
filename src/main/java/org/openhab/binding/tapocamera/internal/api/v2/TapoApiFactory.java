@@ -7,7 +7,6 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
 import org.eclipse.jetty.client.HttpClient;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 

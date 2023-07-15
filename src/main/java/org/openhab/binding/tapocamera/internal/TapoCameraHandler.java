@@ -50,8 +50,6 @@ import org.openhab.core.types.RefreshType;
 
 import org.openhab.binding.tapocamera.internal.api.ApiErrorCodes;
 import org.openhab.binding.tapocamera.internal.api.ApiException;
-import org.openhab.binding.tapocamera.internal.api.v1.TapoCameraApi_v1;
-import org.openhab.binding.tapocamera.internal.api.v1.response.Old_ApiDeviceInfo;
 import org.openhab.binding.tapocamera.internal.api.v2.TapoApi;
 import org.openhab.binding.tapocamera.internal.api.v2.dto.alarm.LastAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.v2.dto.alarm.MsgAlarmInfo;
@@ -83,19 +81,14 @@ import org.slf4j.LoggerFactory;
 public class TapoCameraHandler extends BaseThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(TapoCameraHandler.class);
-
     private @Nullable TapoCameraConfiguration config;
-
     private @Nullable Future<?> initJob;
     private @Nullable Future<?> pollingJob;
-    //private final TapoCameraApi_v1 apiV1;
     private final TapoApi apiV2;
-
     private CameraState cameraState = new CameraState();
 
-    public TapoCameraHandler(Thing thing, TapoCameraApi_v1 apiV1, TapoApi apiV2) {
+    public TapoCameraHandler(Thing thing, TapoApi apiV2) {
         super(thing);
-        //this.apiV1 = apiV1;
         this.apiV2 = apiV2;
     }
 
@@ -271,27 +264,14 @@ public class TapoCameraHandler extends BaseThingHandler {
     }
 
     private Boolean deviceAuth() {
-//      apiV1.old_setHostname(config.hostname);
         String pass = config.cloudPassword.isEmpty() ? config.password : config.cloudPassword;
         try {
-//          result = apiV1.old_auth(config.username, pass);
             return apiV2.auth(config.username, pass);
         } catch (ApiException e) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
             reconnect();
             throw new RuntimeException(e);
         }
-    }
-
-    private void setThingProperties(Old_ApiDeviceInfo device) {
-        Map<String, String> properties = new HashMap<>();
-        properties.put("Friendly Name:", device.basicInfo.friendlyName);
-        properties.put("Device model:", device.basicInfo.deviceModel);
-        properties.put("Software version:", device.basicInfo.swVersion);
-        properties.put("Hardware version:", device.basicInfo.hwVersion);
-        properties.put("Device identifier:", device.basicInfo.devId);
-
-        updateProperties(properties);
     }
 
     private void setThingProperties(DeviceInfo device) {
@@ -321,7 +301,6 @@ public class TapoCameraHandler extends BaseThingHandler {
     private void pollingCamera() {
         logger.debug("get camera parameters");
         try {
-
             if (!apiV2.isAuth()) {
                 reconnect();
             } else {
@@ -364,7 +343,6 @@ public class TapoCameraHandler extends BaseThingHandler {
             updateState(CHANNEL_SPEAKER_VOLUME.getName(), new PercentType(volume));
         } else if (data instanceof AudioMicrophoneInfo) {
             // microphone status
-            // logger.info("\t mute: " + ((AudioMicrophoneInfo) data).mute);
             int volume = ((AudioMicrophoneInfo) data).volume;
             cameraState.setMicrophoneVolume(volume);
             updateState(CHANNEL_MICROPHONE_VOLUME.getName(), new PercentType(volume));
@@ -447,9 +425,5 @@ public class TapoCameraHandler extends BaseThingHandler {
             logger.info("\t notificationEnabled:" + ((MsgPushInfo) data).notificationEnabled);
             logger.info("\t richNotificationEnabled:" + ((MsgPushInfo) data).richNotificationEnabled);
         }
-        /*
-
-
-         */
     }
 }
