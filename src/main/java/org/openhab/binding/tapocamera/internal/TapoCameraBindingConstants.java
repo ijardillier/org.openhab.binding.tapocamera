@@ -26,14 +26,38 @@ public class TapoCameraBindingConstants {
 
     private static final String BINDING_ID = "tapocamera";
 
-    // List of all Thing Type UIDs
+    /**
+     * The constant THING_TYPE_CAMERA.
+     */
+// List of all Thing Type UIDs
     public static final ThingTypeUID THING_TYPE_CAMERA = new ThingTypeUID(BINDING_ID, "camera");
 
+    /**
+     * The constant CHANNEL_GROUP_DEVICE.
+     */
     public static final String CHANNEL_GROUP_DEVICE = "device";
+    /**
+     * The constant CHANNEL_GROUP_SYSTEM.
+     */
     public static final String CHANNEL_GROUP_SYSTEM = "system";
+    /**
+     * The constant CHANNEL_GROUP_IMAGE.
+     */
     public static final String CHANNEL_GROUP_IMAGE = "image";
+    /**
+     * The constant CHANNEL_GROUP_ALARM_CONTROL.
+     */
     public static final String CHANNEL_GROUP_ALARM_CONTROL = "alarm-control";
+    /**
+     * The constant CHANNEL_GROUP_DETECTIONS.
+     */
     public static final String CHANNEL_GROUP_DETECTIONS = "detections";
+    /**
+     * The constant CHANNEL_GROUP_MOTOR.
+     */
     public static final String CHANNEL_GROUP_MOTOR = "motor";
+    /**
+     * The constant CHANNEL_GROUP_PRESET.
+     */
     public static final String CHANNEL_GROUP_PRESET = "preset";
 }

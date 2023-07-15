@@ -27,8 +27,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import org.openhab.binding.tapocamera.internal.api.v2.TapoApi;
-import org.openhab.binding.tapocamera.internal.api.v2.TapoApiFactory;
+import org.openhab.binding.tapocamera.internal.api.TapoCameraApi;
+import org.openhab.binding.tapocamera.internal.api.TapoCameraApiFactory;
 
 /**
  * The {@link TapoCameraHandlerFactory} is responsible for creating things and thing
@@ -41,10 +41,15 @@ import org.openhab.binding.tapocamera.internal.api.v2.TapoApiFactory;
 public class TapoCameraHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_CAMERA);
-    private final TapoApiFactory apiFactory_v2;
+    private final TapoCameraApiFactory apiFactory_v2;
 
+    /**
+     * Instantiates a new Tapo camera handler factory.
+     *
+     * @param apiFactory_v2 the api factory v 2
+     */
     @Activate
-    public TapoCameraHandlerFactory(@Reference TapoApiFactory apiFactory_v2) {
+    public TapoCameraHandlerFactory(@Reference TapoCameraApiFactory apiFactory_v2) {
         this.apiFactory_v2 = apiFactory_v2;
     }
 
@@ -58,7 +63,7 @@ public class TapoCameraHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (THING_TYPE_CAMERA.equals(thingTypeUID)) {
-            TapoApi v2Api = apiFactory_v2.getApi();
+            TapoCameraApi v2Api = apiFactory_v2.getApi();
             return new TapoCameraHandler(thing, v2Api);
         }
 

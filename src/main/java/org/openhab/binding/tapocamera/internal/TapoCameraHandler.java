@@ -50,23 +50,23 @@ import org.openhab.core.types.RefreshType;
 
 import org.openhab.binding.tapocamera.internal.api.ApiErrorCodes;
 import org.openhab.binding.tapocamera.internal.api.ApiException;
-import org.openhab.binding.tapocamera.internal.api.v2.TapoApi;
-import org.openhab.binding.tapocamera.internal.api.v2.dto.alarm.LastAlarmInfo;
-import org.openhab.binding.tapocamera.internal.api.v2.dto.alarm.MsgAlarmInfo;
-import org.openhab.binding.tapocamera.internal.api.v2.dto.alarm.MsgPushInfo;
-import org.openhab.binding.tapocamera.internal.api.v2.dto.audio.AudioMicrophoneInfo;
-import org.openhab.binding.tapocamera.internal.api.v2.dto.audio.AudioSpeakerInfo;
-import org.openhab.binding.tapocamera.internal.api.v2.dto.detection.IntrusionDetectionInfo;
-import org.openhab.binding.tapocamera.internal.api.v2.dto.detection.LineCrossingDetectionInfo;
-import org.openhab.binding.tapocamera.internal.api.v2.dto.detection.MotionDetection;
-import org.openhab.binding.tapocamera.internal.api.v2.dto.detection.PersonDetectionInfo;
-import org.openhab.binding.tapocamera.internal.api.v2.dto.detection.TamperDetectionInfo;
-import org.openhab.binding.tapocamera.internal.api.v2.dto.image.ImageCommon;
-import org.openhab.binding.tapocamera.internal.api.v2.dto.image.ImageSwitch;
-import org.openhab.binding.tapocamera.internal.api.v2.dto.image.LensMaskInfo;
-import org.openhab.binding.tapocamera.internal.api.v2.dto.system.DeviceInfo;
-import org.openhab.binding.tapocamera.internal.api.v2.dto.system.LedStatus;
-import org.openhab.binding.tapocamera.internal.api.v2.dto.system.NetworkInfo;
+import org.openhab.binding.tapocamera.internal.api.TapoCameraApi;
+import org.openhab.binding.tapocamera.internal.api.dto.alarm.LastAlarmInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgAlarmInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgPushInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.audio.AudioMicrophoneInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.audio.AudioSpeakerInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.IntrusionDetectionInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.LineCrossingDetectionInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.MotionDetection;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.PersonDetectionInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.TamperDetectionInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.image.ImageCommon;
+import org.openhab.binding.tapocamera.internal.api.dto.image.ImageSwitch;
+import org.openhab.binding.tapocamera.internal.api.dto.image.LensMaskInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.system.DeviceInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.system.LedStatus;
+import org.openhab.binding.tapocamera.internal.api.dto.system.NetworkInfo;
 import org.openhab.binding.tapocamera.internal.dto.CameraState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,19 +84,25 @@ public class TapoCameraHandler extends BaseThingHandler {
     private @Nullable TapoCameraConfiguration config;
     private @Nullable Future<?> initJob;
     private @Nullable Future<?> pollingJob;
-    private final TapoApi apiV2;
+    private final TapoCameraApi api;
     private CameraState cameraState = new CameraState();
 
-    public TapoCameraHandler(Thing thing, TapoApi apiV2) {
+    /**
+     * Instantiates a new Tapo camera handler.
+     *
+     * @param thing the thing
+     * @param api   the api
+     */
+    public TapoCameraHandler(Thing thing, TapoCameraApi api) {
         super(thing);
-        this.apiV2 = apiV2;
+        this.api = api;
     }
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         if (CHANNEL_MANUAL_ALARM.getName().equals(channelUID.getId())) {
             if (command instanceof OnOffType) {
-                apiV2.setManualAlarm(command.equals(OnOffType.ON) ? "start" : "stop");
+                api.setManualAlarm(command.equals(OnOffType.ON) ? "start" : "stop");
             }
         }
         else if (CHANNEL_LED_STATUS.getName().equals(channelUID.getId())) {
@@ -105,14 +111,14 @@ public class TapoCameraHandler extends BaseThingHandler {
             } else if (command instanceof OnOffType) {
                 String status = command.toString().toLowerCase();
                 cameraState.setLedStatus(status);
-                apiV2.setLedStatus(status);
+                api.setLedStatus(status);
             }
         }
         else if (CHANNEL_ALARM_ENABLED.getName().equals(channelUID.getId())) {
             if (command instanceof OnOffType) {
                 String status = command.toString().toLowerCase();
                 cameraState.getAlarmInfo().enabled = status;
-                apiV2.setAlarmInfoEnabled(status);
+                api.setAlarmInfoEnabled(status);
             }
         }
         else if (CHANNEL_ALARM_MODE.getName().equals(channelUID.getId())) {
@@ -129,14 +135,14 @@ public class TapoCameraHandler extends BaseThingHandler {
                     modes.add("light");
                 }
                 cameraState.getAlarmInfo().alarmMode.addAll(modes);
-                apiV2.setAlarmInfoMode(modes);
+                api.setAlarmInfoMode(modes);
             }
         }
         else if (CHANNEL_ALARM_TYPE.getName().equals(channelUID.getId())) {
             if (command instanceof StringType) {
                 String status = command.toString();
                 cameraState.getAlarmInfo().alarmType = Integer.parseInt(status);
-                apiV2.setAlarmInfoType(status);
+                api.setAlarmInfoType(status);
             }
 
         }
@@ -144,63 +150,63 @@ public class TapoCameraHandler extends BaseThingHandler {
             if (command instanceof OnOffType) {
                 String status = command.toString().toLowerCase();
                 cameraState.getMotionDetection().enabled = status;
-                apiV2.setMotionDetectEnabled(status);
+                api.setMotionDetectEnabled(status);
             }
         }
         else if (CHANNEL_MOTION_DETECTION_SENSITIVITY.getName().equals(channelUID.getId())) {
             if (command instanceof StringType) {
                 String value = command.toString();
                 cameraState.getMotionDetection().sensitivity = value;
-                apiV2.setMotionDetectSensitivity(value);
+                api.setMotionDetectSensitivity(value);
             }
         }
         else if (CHANNEL_MOTION_DETECTION_DIGITAL_SENSITIVITY.getName().equals(channelUID.getId())) {
             if (command instanceof PercentType) {
                 Integer value = ((PercentType) command).intValue() * 10;
                 cameraState.getMotionDetection().digitalSensitivity = value;
-                apiV2.setMotionDetectSensitivity(value);
+                api.setMotionDetectSensitivity(value);
             }
         }
         else if (CHANNEL_PERSON_DETECTION_ENABLED.getName().equals(channelUID.getId())) {
             if (command instanceof OnOffType) {
                 String status = command.toString().toLowerCase();
                 cameraState.getPersonDetectionInfo().enabled = status;
-                apiV2.setPersonDetectEnabled(status);
+                api.setPersonDetectEnabled(status);
             }
         }
         else if (CHANNEL_PERSON_DETECTION_SENSITIVITY.getName().equals(channelUID.getId())) {
             if (command instanceof PercentType) {
                 Integer value = ((PercentType) command).intValue() * 10;
                 cameraState.getPersonDetectionInfo().sensitivity = value;
-                apiV2.setPersonDetectSensitivity(value);
+                api.setPersonDetectSensitivity(value);
             }
         }
         else if (CHANNEL_LINE_CROSSING_DETECTION_ENABLED.getName().equals(channelUID.getId())) {
             if (command instanceof OnOffType) {
                 String status = command.toString().toLowerCase();
                 cameraState.getLineCrossingDetection().enabled = status;
-                apiV2.setLineCrossingDetectEnabled(status);
+                api.setLineCrossingDetectEnabled(status);
             }
         }
         else if (CHANNEL_INTRUSION_DETECTION_ENABLED.getName().equals(channelUID.getId())) {
             if (command instanceof OnOffType) {
                 String status = command.toString().toLowerCase();
                 cameraState.getIntrusionDetection().enabled = (status);
-                apiV2.setIntrusionDetectEnabled(status);
+                api.setIntrusionDetectEnabled(status);
             }
         }
         else if (CHANNEL_SPEAKER_VOLUME.getName().equals(channelUID.getId())) {
             if (command instanceof PercentType) {
                 int volume = ((PercentType) command).intValue();
                 cameraState.setSpeakerVolume(volume);
-                apiV2.setSpeakerVolume(volume);
+                api.setSpeakerVolume(volume);
             }
         }
         else if (CHANNEL_MICROPHONE_VOLUME.getName().equals(channelUID.getId())) {
             if (command instanceof PercentType) {
                 int volume = ((PercentType) command).intValue();
                 cameraState.setMicrophoneVolume(volume);
-                apiV2.setMicrophoneVolume(volume);
+                api.setMicrophoneVolume(volume);
             }
         }
     }
@@ -212,7 +218,7 @@ public class TapoCameraHandler extends BaseThingHandler {
             updateStatus(ThingStatus.UNINITIALIZED, ThingStatusDetail.CONFIGURATION_ERROR);
         } else {
             String hostname = config.hostname;
-            apiV2.setHostname(hostname);
+            api.setHostname(hostname);
             updateStatus(ThingStatus.UNKNOWN);
 
             initJob = connectCamera(0);
@@ -241,8 +247,8 @@ public class TapoCameraHandler extends BaseThingHandler {
             boolean thingReachable = deviceAuth();
             if (thingReachable) {
                 updateStatus(ThingStatus.ONLINE);
-                DeviceInfo deviceInfo = apiV2.getDeviceInfo();
-                NetworkInfo networkInfo = apiV2.getNetworkInfo();
+                DeviceInfo deviceInfo = api.getDeviceInfo();
+                NetworkInfo networkInfo = api.getNetworkInfo();
                 setThingProperties(deviceInfo);
                 updateThingProperties(networkInfo);
                 pollingJob = getCameraParameters(config.pollingInterval);
@@ -266,7 +272,7 @@ public class TapoCameraHandler extends BaseThingHandler {
     private Boolean deviceAuth() {
         String pass = config.cloudPassword.isEmpty() ? config.password : config.cloudPassword;
         try {
-            return apiV2.auth(config.username, pass);
+            return api.auth(config.username, pass);
         } catch (ApiException e) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
             reconnect();
@@ -301,13 +307,13 @@ public class TapoCameraHandler extends BaseThingHandler {
     private void pollingCamera() {
         logger.debug("get camera parameters");
         try {
-            if (!apiV2.isAuth()) {
+            if (!api.isAuth()) {
                 reconnect();
             } else {
                 updateStatus(ThingStatus.ONLINE);
             }
 
-            apiV2.getChangebleParameters().forEach(param -> {
+            api.getChangebleParameters().forEach(param -> {
                 processAllResults(param.result);
             });
 
@@ -316,14 +322,24 @@ public class TapoCameraHandler extends BaseThingHandler {
         }
     }
 
+    /**
+     * Sets device status.
+     *
+     * @param errorCode the error code
+     */
     public void setDeviceStatus(Integer errorCode) {
-        String msg = ApiErrorCodes.getErrorByCode(errorCode).getMessgae();
+        String msg = ApiErrorCodes.getErrorByCode(errorCode).getMessage();
         if (errorCode.equals(ApiErrorCodes.ERROR_40401.getCode())) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
                     String.format("%d - %s", errorCode, msg));
         }
     }
 
+    /**
+     * Sets device status.
+     *
+     * @param message the message
+     */
     public void setDeviceStatus(String message) {
         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, String.format("%s", message));
     }

@@ -22,10 +22,28 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 @NonNullByDefault
 public class TapoCameraConfiguration {
 
+    /**
+     * The Hostname.
+     */
     public String hostname = "";
+    /**
+     * The Username.
+     */
     public String username = "";
+    /**
+     * The Password.
+     */
     public String password = "";
+    /**
+     * The Cloud password.
+     */
     public String cloudPassword = "";
+    /**
+     * The Reconnect interval.
+     */
     public int reconnectInterval = 60;
+    /**
+     * The Polling interval.
+     */
     public int pollingInterval = 5;
 }

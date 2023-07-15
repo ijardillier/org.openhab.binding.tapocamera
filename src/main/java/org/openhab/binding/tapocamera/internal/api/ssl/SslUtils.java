@@ -1,3 +1,16 @@
+/*
+ * Copyright (c) 2010-2023 Contributors to the openHAB project
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ *  SPDX-License-Identifier: EPL-2.0
+ */
+
 package org.openhab.binding.tapocamera.internal.api.ssl;
 
 import javax.net.ssl.HostnameVerifier;
@@ -13,7 +26,15 @@ import java.util.Arrays;
 
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
+/**
+ * The type Ssl utils.
+ */
 public class SslUtils {
+    /**
+     * Create ssl context ssl context factory.
+     *
+     * @return the ssl context factory
+     */
     public static SslContextFactory createSslContext() {
         SslContextFactory ssl = new SslContextFactory();
         String[] excludedCiphersWithoutTlsRsaExclusion = Arrays.stream(ssl.getExcludeCipherSuites())
@@ -37,6 +58,11 @@ public class SslUtils {
         return ssl;
     }
 
+    /**
+     * Init ssl context ssl context.
+     *
+     * @return the ssl context
+     */
     public static SSLContext initSslContext() {
         try {
             SSLContext sslContext = SSLContext.getInstance("TLS");
