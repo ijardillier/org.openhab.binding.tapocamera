@@ -118,7 +118,7 @@ public class ApiUtils {
         JsonObject section = new JsonObject();
         JsonObject param = new JsonObject();
         json.add(moduleName, section);
-        json.add(sectionName, param);
+        section.add(sectionName, param);
 
         if (value instanceof String) {
             param.addProperty(paramName, (String) value);
