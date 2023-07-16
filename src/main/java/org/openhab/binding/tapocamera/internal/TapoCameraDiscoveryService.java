@@ -15,9 +15,16 @@ package org.openhab.binding.tapocamera.internal;
 
 import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.TAPO_DEVICE_TYPE;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -68,14 +75,20 @@ public class TapoCameraDiscoveryService extends AbstractDiscoveryService {
         for (TapoCameraBridge bridge : tapoCameraBridgeBusList) {
             List<ApiDeviceResponse> devices = bridge.getDevices();
             if (devices != null && !devices.isEmpty()) {
+
+                Map<String, String> ipMacs = getMacAddressFromArp();
                 for (ApiDeviceResponse device : devices) {
                     if (device.deviceType.equals(TAPO_DEVICE_TYPE)) {
-                        logger.debug("found: {}", device.toString());
+                        String ip = getIpByMac(ipMacs, device.deviceMac.toLowerCase());
+                        logger.debug("found: {} with IP: {}", device, ip);
                         ThingUID thingUID = new ThingUID(TapoCameraBindingConstants.THING_TYPE_CAMERA,
                                 bridge.getThing().getUID(), device.deviceMac.toLowerCase());
                         DiscoveryResult results = DiscoveryResultBuilder.create(thingUID)
                                 .withProperty("device_id", device.deviceMac.toLowerCase())
+                                .withProperty("hostname", ip)
+                                .withProperty("cloudPassword", bridge.config.cloudPassword)
                                 .withRepresentationProperty("device_id")
+                                .withRepresentationProperty("hostname")
                                 .withLabel(device.alias + " (Model: " + device.deviceName + ")")
                                 .withBridge(bridge.getThing().getUID())
                                 .build();
@@ -86,6 +99,12 @@ public class TapoCameraDiscoveryService extends AbstractDiscoveryService {
         }
     }
 
+    private String getIpByMac(Map<String, String> map, String mac) {
+        if (map.isEmpty()) {
+            return "";
+        }
+        return map.getOrDefault(mac, "");
+    }
     @Override
     protected void startBackgroundDiscovery() {
         logger.debug("startBackgroundDiscovery");
@@ -97,5 +116,45 @@ public class TapoCameraDiscoveryService extends AbstractDiscoveryService {
         super.stopBackgroundDiscovery();
     }
 
+    public Map<String, String> getMacAddressFromArp() {
+        Map<String, String> macs = new HashMap<>();
+        File arp = new File("/proc/net/arp");
+        if (!arp.exists()) {
+            logger.warn("no arp available");
+            return macs;
+        }
+
+        BufferedReader bufferedReader = null;
+
+        try {
+            FileReader fileReader = new FileReader(arp);
+            bufferedReader = new BufferedReader(fileReader);
+
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                String[] splitted = line.split(" +");
+                if (splitted != null && splitted.length >= 4) {
+                    String ip = splitted[0];
+                    String mac = splitted[3];
+                    if (mac.matches("..:..:..:..:..:..")) {
+                        macs.put(mac.replace(":", ""), ip);
+                    }
+                }
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally{
+            try {
+                bufferedReader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return macs;
+    }
 }
 

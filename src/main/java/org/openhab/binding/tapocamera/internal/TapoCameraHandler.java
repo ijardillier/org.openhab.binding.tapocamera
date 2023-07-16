@@ -361,7 +361,7 @@ public class TapoCameraHandler extends BaseThingHandler {
         properties.put("MAC Address:", device.full.mac);
         properties.put("Sensor:", device.full.sensor);
         properties.put("Lens Name:", device.full.lensName);
-        properties.put("Call Support:", device.basic.isCal ? "Supported" : "Not Supported");
+        properties.put("Call Support:", Boolean.TRUE.equals(device.basic.isCal) ? "Supported" : "Not Supported");
         updateProperties(properties);
     }
 
