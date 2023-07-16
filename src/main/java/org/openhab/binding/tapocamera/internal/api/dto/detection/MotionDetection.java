@@ -19,11 +19,14 @@ import com.google.gson.annotations.SerializedName;
  * The type Motion detection.
  */
 public class MotionDetection extends DetectionInfo {
+
+    public String enhanced; // C200 - support (галкка Обнаружение людей), C310 - not support
+
     /**
      * The Digital sensitivity.
      */
     @SerializedName("digital_sensitivity")
-    public Integer digitalSensitivity; // "20", 0 - 100
+    public Integer digitalSensitivity; // "20", 0 - 100   // C200 has only 3 position (20, 60, 80), C310 - 10 positions
     /**
      * The Sensitivity.
      */

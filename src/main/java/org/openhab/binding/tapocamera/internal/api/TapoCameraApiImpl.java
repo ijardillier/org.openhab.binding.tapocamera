@@ -24,6 +24,7 @@ import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.LENS_MA
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.LIGHT_FREQUENCY_INFO;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.LINECROSSING_DETECTION;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MICROPHONE_INFO;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MODULES_SPEC;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MOTION_DETECTION;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MSG_ALARM_INFO;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MSG_ALARM_MANUAL;
@@ -78,6 +79,7 @@ import org.openhab.binding.tapocamera.internal.api.dto.system.ClockStatus;
 import org.openhab.binding.tapocamera.internal.api.dto.system.ConnectionType;
 import org.openhab.binding.tapocamera.internal.api.dto.system.DeviceInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.system.LedStatus;
+import org.openhab.binding.tapocamera.internal.api.dto.system.ModuleSpec;
 import org.openhab.binding.tapocamera.internal.api.dto.system.NetworkInfo;
 import org.openhab.binding.tapocamera.internal.api.response.ApiMethodResult;
 import org.openhab.binding.tapocamera.internal.api.response.ApiResponse;
@@ -382,6 +384,16 @@ public class TapoCameraApiImpl implements TapoCameraApi {
             return result;
         }
         return new NetworkInfo();
+    }
+
+    @Override
+    public ModuleSpec getModuleSpec() {
+        String module = MODULES_SPEC.getModule();
+        String section = MODULES_SPEC.getSection();
+        String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
+        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object result = processSingleResponse(singleResponse, module, section);
+        return (ModuleSpec) result;
     }
 
     @Override

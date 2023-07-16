@@ -38,6 +38,7 @@ import org.openhab.binding.tapocamera.internal.api.dto.system.DeviceInfoBasic;
 import org.openhab.binding.tapocamera.internal.api.dto.system.DeviceInfoFull;
 import org.openhab.binding.tapocamera.internal.api.dto.system.HardDiskInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.system.LedStatus;
+import org.openhab.binding.tapocamera.internal.api.dto.system.ModuleSpec;
 import org.openhab.binding.tapocamera.internal.api.dto.system.NetworkInfo;
 
 /**
@@ -59,7 +60,7 @@ public enum ApiMethodTypes {
     /**
      * Connection type api method types.
      */
-    CONNECTION_TYPE("getConnectionType", "network", "get_connection_type", ConnectionType.class),
+    CONNECTION_TYPE("getConnectionType", "network", "get_connection_type", String/*ConnectionType*/.class),
     /**
      * Motion detection api method types.
      */
@@ -152,6 +153,7 @@ public enum ApiMethodTypes {
      * User id api method types.
      */
     USER_ID("getUserID", "system", "get_user_id", String.class),
+    MODULES_SPEC("get", "function", "module_spec", ModuleSpec.class),
     /**
      * Unknown api method types.
      */

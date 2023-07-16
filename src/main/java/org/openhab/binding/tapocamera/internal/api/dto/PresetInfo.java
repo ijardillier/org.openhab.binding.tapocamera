@@ -13,39 +13,51 @@
 
 package org.openhab.binding.tapocamera.internal.api.dto;
 
+import java.util.List;
+
+import com.google.gson.annotations.SerializedName;
+
 /**
  * The type Preset info.
  */
 public class PresetInfo {
-    @Override
-    public String toString() {
-        return "PresetInfo{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", position_pan=" + position_pan +
-                ", position_tilt=" + position_tilt +
-                ", read_only=" + read_only +
-                '}';
-    }
-
     /**
      * The Id.
      */
-    public Integer id;
+    @SerializedName("id")
+    public List<Integer> ids;
     /**
      * The Name.
      */
-    public String name;
+    @SerializedName("name")
+    public List<String> names;
     /**
      * The Position pan.
      */
-    public Double position_pan;
+    @SerializedName("position_pan")
+    public List<Double> pansPosition;
     /**
      * The Position tilt.
      */
-    public Double position_tilt;
+    @SerializedName("position_tilt")
+    public List<Double> tiltsPosition;
     /**
      * The Read only.
      */
-    public Integer read_only;
+    @SerializedName("read_only")
+    public List<Integer> readOnly;
+
+    @Override
+    public String toString() {
+        return "PresetInfo{" +
+                "ids=" + ids +
+                ", names=" + names +
+                ", pansPosition=" + pansPosition +
+                ", tiltsPosition=" + tiltsPosition +
+                ", readOnly=" + readOnly +
+                '}';
+    }
 }
+/*
+{method='getPresetConfig', errorCode=0, result={"preset":{"preset":{"id":["1","2"],"name":["Отмеченная зона 1","Отмеченная зона 2"],"read_only":["0","0"],"position_pan":["0.940538","0.355739"],"position_tilt":["1.000000","-0.391960"]}}}}
+ */

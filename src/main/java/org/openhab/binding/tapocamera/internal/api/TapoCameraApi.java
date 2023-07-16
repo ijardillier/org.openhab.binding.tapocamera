@@ -33,6 +33,7 @@ import org.openhab.binding.tapocamera.internal.api.dto.image.LensMaskInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.system.ClockStatus;
 import org.openhab.binding.tapocamera.internal.api.dto.system.DeviceInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.system.LedStatus;
+import org.openhab.binding.tapocamera.internal.api.dto.system.ModuleSpec;
 import org.openhab.binding.tapocamera.internal.api.dto.system.NetworkInfo;
 import org.openhab.binding.tapocamera.internal.api.response.ApiMethodResult;
 import org.openhab.binding.tapocamera.internal.api.response.ApiResponse;
@@ -125,6 +126,7 @@ public interface TapoCameraApi {
      */
     NetworkInfo getNetworkInfo();
 
+    ModuleSpec getModuleSpec();
     /**
      * Gets speaker info.
      *

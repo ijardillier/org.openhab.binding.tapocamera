@@ -39,12 +39,12 @@ public class MsgAlarmInfo {
      * The Sound alarm enabled.
      */
     @SerializedName("sound_alarm_enabled")
-    public String soundAlarmEnabled; // "off", "on"
+    public String soundAlarmEnabled; // "off", "on"  // C200 - no, C310 - yes?
     /**
      * The Light alarm enabled.
      */
     @SerializedName("light_alarm_enabled")
-    public String lightAlarmEnabled; // "off", "on"
+    public String lightAlarmEnabled; // "off", "on"  // C200 - no, C310 - yes?
     /**
      * The Light type.
      */

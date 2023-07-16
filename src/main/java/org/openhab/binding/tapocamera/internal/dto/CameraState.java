@@ -37,6 +37,13 @@ public class CameraState {
     private int speakerVolume = 0;
     private int microphoneVolume = 0;
 
+    private Boolean hasMotor = false;
+    private Boolean hasBabyCryDetection = false; // определить только чере запрос данных?
+    private Boolean hasTargetTrack = false;
+    private Boolean hasSmartDetection = false; // PersonDetection
+    private Boolean hasLineCrossingDetection = false; //
+    private Boolean hasIntrusionDetection = false; //
+    private Boolean hasAudioExceptionDetection = false; //
     /**
      * Instantiates a new Camera state.
      */
@@ -193,5 +200,61 @@ public class CameraState {
      */
     public void setMicrophoneVolume(int microphoneVolume) {
         this.microphoneVolume = microphoneVolume;
+    }
+
+    public Boolean getHasMotor() {
+        return hasMotor;
+    }
+
+    public void setHasMotor(Boolean hasMotor) {
+        this.hasMotor = hasMotor;
+    }
+
+    public Boolean getHasBabyCryDetection() {
+        return hasBabyCryDetection;
+    }
+
+    public void setHasBabyCryDetection(Boolean hasBabyCryDetection) {
+        this.hasBabyCryDetection = hasBabyCryDetection;
+    }
+
+    public Boolean getHasTargetTrack() {
+        return hasTargetTrack;
+    }
+
+    public void setHasTargetTrack(Boolean hasTargetTrack) {
+        this.hasTargetTrack = hasTargetTrack;
+    }
+
+    public Boolean getHasSmartDetection() {
+        return hasSmartDetection;
+    }
+
+    public void setHasSmartDetection(Boolean hasSmartDetection) {
+        this.hasSmartDetection = hasSmartDetection;
+    }
+
+    public Boolean getHasLineCrossingDetection() {
+        return hasLineCrossingDetection;
+    }
+
+    public void setHasLineCrossingDetection(Boolean hasLineCrossingDetection) {
+        this.hasLineCrossingDetection = hasLineCrossingDetection;
+    }
+
+    public Boolean getHasIntrusionDetection() {
+        return hasIntrusionDetection;
+    }
+
+    public void setHasIntrusionDetection(Boolean hasIntrusionDetection) {
+        this.hasIntrusionDetection = hasIntrusionDetection;
+    }
+
+    public Boolean getHasAudioExceptionDetection() {
+        return hasAudioExceptionDetection;
+    }
+
+    public void setHasAudioExceptionDetection(Boolean hasAudioExceptionDetection) {
+        this.hasAudioExceptionDetection = hasAudioExceptionDetection;
     }
 }
