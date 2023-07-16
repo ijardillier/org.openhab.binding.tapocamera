@@ -316,7 +316,7 @@ public class TapoCameraHandler extends BaseThingHandler {
                 updateStatus(ThingStatus.ONLINE);
                 DeviceInfo deviceInfo = api.getDeviceInfo();
                 cameraState.setFriendlyName(deviceInfo.basic.deviceAlias);
-                logger.debug("{}: received: {}", cameraState.getFriendlyName(), deviceInfo.toString());
+                logger.debug("{}: received: {}", cameraState.getFriendlyName(), deviceInfo);
                 NetworkInfo networkInfo = api.getNetworkInfo();
                 logger.debug("{}: received: {}", cameraState.getFriendlyName(), networkInfo.toString());
                 setThingProperties(deviceInfo);
@@ -367,7 +367,9 @@ public class TapoCameraHandler extends BaseThingHandler {
 
     private void updateThingProperties(NetworkInfo network) {
         updateProperty("IP Address:", network.ipaddr);
-        updateProperty("Link Type:", network.link_type);
+        updateProperty("Link Type:", network.connectionType.linkType);
+        if (network.connectionType.ssid != null) updateProperty("SSID:", network.connectionType.ssid);
+        if (network.connectionType.rssi != null) updateProperty("RSSI:", String.valueOf(network.connectionType.rssi));
     }
 
     private Future<?> getCameraParameters(Integer interval) {

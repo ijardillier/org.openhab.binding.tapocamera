@@ -13,31 +13,24 @@
 
 package org.openhab.binding.tapocamera.internal.api.dto.system;
 
-import java.io.Serializable;
-
 import com.google.gson.annotations.SerializedName;
 
-/**
- * The type Device info.
- */
-public class DeviceInfo implements Serializable {
-    private static final long serialVersionUID = 418701930052854366L;
-    /**
-     * The Basic.
-     */
-    @SerializedName("basic_info")
-    public DeviceInfoBasic basic;
-    /**
-     * The Full.
-     */
-    @SerializedName("info")
-    public DeviceInfoFull full;
+public class ConnectionType {
+    @SerializedName("link_type")
+    public String linkType; // "wifi", "ethernet"
+    public String ssid;
+    @SerializedName("rssi")
+    public Integer signalLevel; // "3",
+    @SerializedName("rssiValue")
+    public Integer rssi; //  -51
 
     @Override
     public String toString() {
-        return "DeviceInfo{" +
-                "basic=" + basic +
-                ", full=" + full +
+        return "ConnectionType{" +
+                "linkType='" + linkType + '\'' +
+                ", ssid='" + ssid + '\'' +
+                ", signalLevel=" + signalLevel +
+                ", rssi=" + rssi +
                 '}';
     }
 }

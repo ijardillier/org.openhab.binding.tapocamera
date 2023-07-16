@@ -22,7 +22,7 @@ public class DeviceInfoBasic {
     /**
      * The Ffs.
      */
-    public Boolean ffs;
+    public Boolean ffs;  // ??? C200 - no, C310 - false
 
     @Override
     public String toString() {
@@ -132,6 +132,6 @@ public class DeviceInfoBasic {
      * The Is cal.
      */
     @SerializedName("is_cal")
-    public Boolean isCal; // true
+    public Boolean isCal; // true  C310 - support, C200 - not support, but has call function
 
 }

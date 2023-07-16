@@ -75,6 +75,7 @@ import org.openhab.binding.tapocamera.internal.api.dto.image.ImageCommon;
 import org.openhab.binding.tapocamera.internal.api.dto.image.ImageSwitch;
 import org.openhab.binding.tapocamera.internal.api.dto.image.LensMaskInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.system.ClockStatus;
+import org.openhab.binding.tapocamera.internal.api.dto.system.ConnectionType;
 import org.openhab.binding.tapocamera.internal.api.dto.system.DeviceInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.system.LedStatus;
 import org.openhab.binding.tapocamera.internal.api.dto.system.NetworkInfo;
@@ -375,7 +376,8 @@ public class TapoCameraApiImpl implements TapoCameraApi {
             ApiResponse response1 = sendMultipleRequest(token, command);
             if (response1.errorCode == 0) {
                 List<ApiMethodResult> methodResults = processMultipleResponses(response1);
-                result.link_type = methodResults.get(0).result.get("link_type").getAsString();
+                result.connectionType = gson.fromJson(methodResults.get(0).result, ConnectionType.class);
+                // result.link_type = methodResults.get(0).result.get("link_type").getAsString();
             }
             return result;
         }

@@ -147,7 +147,7 @@ public class DeviceInfoFull {
      * The Lens name.
      */
     @SerializedName("lens_name")
-    public String lensName; // "C7327Z",
+    public String lensName; // "C7327Z", C310 - support, C200 - not support
     /**
      * The Device type.
      */
