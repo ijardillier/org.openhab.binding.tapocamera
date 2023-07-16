@@ -362,4 +362,6 @@ public interface TapoCameraApi {
      * @return the changeble parameters
      */
     List<ApiMethodResult> getChangebleParameters();
+
+
 }

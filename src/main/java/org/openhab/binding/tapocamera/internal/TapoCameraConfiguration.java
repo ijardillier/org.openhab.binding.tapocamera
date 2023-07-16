@@ -46,4 +46,8 @@ public class TapoCameraConfiguration {
      * The Polling interval.
      */
     public int pollingInterval = 5;
+
+    public String cloudToken = "";
+    public String cloudUsername = "";
+
 }

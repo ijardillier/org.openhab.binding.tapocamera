@@ -5,11 +5,9 @@
 	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
 
 	<thing-type id="camera">
-		<!-- Comment this in for Things which need a Bridge to function.
-			<supported-bridge-type-refs>
-			<bridge-type-ref id="TapoCameraBridge" />
-			</supported-bridge-type-refs>
-		-->
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="bridge" />
+		</supported-bridge-type-refs>
 
 		<label>TapoCamera</label>
 		<description>Things for TapoCamera Binding</description>
@@ -20,12 +18,8 @@
 			<channel-group id="image" typeId="image"/>
 			<channel-group id="alarm-control" typeId="alarm-control"/>
 			<channel-group id="detections" typeId="detections"/>
-<!--			<channel-group id="motion-detection" typeId="motion-detection"/>-->
-<!--			<channel-group id="person-detection" typeId="person-detection"/>-->
-<!--			<channel-group id="line-crossing-detection" typeId="line-crossing-detection"/>-->
-<!--			<channel-group id="intrusion-detection" typeId="intrusion-detection"/>-->
-			<channel-group id="motor" typeId="motor"/>
-			<channel-group id="preset" typeId="preset"/>
+<!--			<channel-group id="motor" typeId="motor"/>-->
+<!--			<channel-group id="preset" typeId="preset"/>-->
 		</channel-groups>
 
 		<config-description>

@@ -25,12 +25,18 @@ import org.openhab.core.thing.ThingTypeUID;
 public class TapoCameraBindingConstants {
 
     private static final String BINDING_ID = "tapocamera";
+    public static final String THING_TYPE_ID = "camera";
+    private static final String BRIDGE_TYPE_ID = "bridge";
+    public static final String TAPO_CLOUD_URL = "https://eu-wap.tplinkcloud.com";
+
+    public static final String TAPO_DEVICE_TYPE = "SMART.IPCAMERA";
 
     /**
      * The constant THING_TYPE_CAMERA.
      */
 // List of all Thing Type UIDs
-    public static final ThingTypeUID THING_TYPE_CAMERA = new ThingTypeUID(BINDING_ID, "camera");
+    public static final ThingTypeUID THING_TYPE_CAMERA = new ThingTypeUID(BINDING_ID, THING_TYPE_ID);
+    public static final ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, BRIDGE_TYPE_ID);
 
     /**
      * The constant CHANNEL_GROUP_DEVICE.

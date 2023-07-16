@@ -82,4 +82,7 @@ public class TapoCameraApiFactory {
         return new TapoCameraApiImpl(httpClient);
     }
 
+    public TapoCameraCloudApi getCloudApi() {
+        return new TapoCameraCloudApiImpl(httpClient);
+    }
 }

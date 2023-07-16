@@ -13,10 +13,6 @@
 
 package org.openhab.binding.tapocamera.internal.api;
 
-import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_FLIP;
-import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_LENS_CORRECTION;
-import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_IMAGE_NIGHT_VISION;
-import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_PRIVACY_MODE;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.CLOCK_STATUS;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.CONNECTION_TYPE;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.DEVICE_INFO_BASIC;
@@ -57,9 +53,6 @@ import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
-
-import org.openhab.core.library.types.OnOffType;
-import org.openhab.core.library.types.StringType;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;

@@ -38,11 +38,8 @@ import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_PRIVACY_MODE;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_SPEAKER_VOLUME;
 
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +49,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.core.library.types.DateTimeType;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.PercentType;
