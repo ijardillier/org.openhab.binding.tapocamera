@@ -353,7 +353,7 @@ public interface TapoCameraApi {
      * @return the preset info
      */
     PresetInfo getPresetInfo();
-
+    void gotoPreset(String id);
     /**
      * Gets target auto track info.
      *

@@ -19,7 +19,7 @@
 			<channel-group id="alarm-control" typeId="alarm-control"/>
 			<channel-group id="detections" typeId="detections"/>
 <!--			<channel-group id="motor" typeId="motor"/>-->
-<!--			<channel-group id="preset" typeId="preset"/>-->
+			<channel-group id="presets" typeId="presets"/>
 		</channel-groups>
 
 		<config-description>

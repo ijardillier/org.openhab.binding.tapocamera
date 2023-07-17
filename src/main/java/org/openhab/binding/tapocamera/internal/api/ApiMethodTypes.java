@@ -104,6 +104,7 @@ public enum ApiMethodTypes {
      * Presets api method types.
      */
     PRESETS("getPresetConfig", "preset", "preset", PresetInfo.class),
+    GOTO_PRESETS("motorMoveToPreset", "preset", "goto_preset", PresetInfo.class),
     /**
      * Firmware update status api method types.
      */

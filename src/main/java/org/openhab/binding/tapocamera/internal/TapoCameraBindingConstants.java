@@ -65,5 +65,5 @@ public class TapoCameraBindingConstants {
     /**
      * The constant CHANNEL_GROUP_PRESET.
      */
-    public static final String CHANNEL_GROUP_PRESET = "preset";
+    public static final String CHANNEL_GROUP_PRESET = "presets";
 }

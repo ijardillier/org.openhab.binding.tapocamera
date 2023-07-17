@@ -35,6 +35,7 @@ import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_MOTION_DETECTION_SENSITIVITY;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_PERSON_DETECTION_ENABLED;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_PERSON_DETECTION_SENSITIVITY;
+import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_GOTO_PRESETS;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_PRIVACY_MODE;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_SPEAKER_VOLUME;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_TARGET_TRACK_ENABLED;
@@ -43,24 +44,31 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.core.config.core.ConfigDescription;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.PercentType;
 import org.openhab.core.library.types.StringType;
+import org.openhab.core.thing.Channel;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.ThingStatusDetail;
 import org.openhab.core.thing.binding.BaseThingHandler;
+import org.openhab.core.thing.type.ChannelTypeUID;
+import org.openhab.core.thing.type.DynamicStateDescriptionProvider;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
+import org.openhab.core.types.StateDescription;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -68,6 +76,7 @@ import org.openhab.binding.tapocamera.internal.api.ApiErrorCodes;
 import org.openhab.binding.tapocamera.internal.api.ApiException;
 import org.openhab.binding.tapocamera.internal.api.ApiMethodTypes;
 import org.openhab.binding.tapocamera.internal.api.TapoCameraApi;
+import org.openhab.binding.tapocamera.internal.api.dto.PresetInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.detection.TargetAutoTrackInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.LastAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgAlarmInfo;
@@ -98,7 +107,7 @@ import org.slf4j.LoggerFactory;
  * @author "Dmintry P (d51x)" - Initial contribution
  */
 @NonNullByDefault
-public class TapoCameraHandler extends BaseThingHandler {
+public class TapoCameraHandler extends BaseThingHandler implements DynamicStateDescriptionProvider {
 
     private final Logger logger = LoggerFactory.getLogger(TapoCameraHandler.class);
     private @Nullable TapoCameraConfiguration config;
@@ -286,6 +295,12 @@ public class TapoCameraHandler extends BaseThingHandler {
             if (command instanceof PercentType) {
                 int state = ((PercentType) command).intValue();
                 api.setImageLuma(state);
+            }
+        }
+        else if (CHANNEL_GOTO_PRESETS.getName().equals(channelUID.getId())) {
+            if (command instanceof StringType) {
+                String state = command.toString();
+                api.gotoPreset(state);
             }
         }
     }
@@ -563,7 +578,42 @@ public class TapoCameraHandler extends BaseThingHandler {
                 updateState(CHANNEL_ALARM_MODE.getName(), new StringType(alarmInfo.alarmMode.get(0)));
             }
         } else if (data instanceof MsgPushInfo) {
-            logger.debug("{}: received: {}", cameraState.getFriendlyName(), data.toString());
+            logger.debug("{}: received: {}", cameraState.getFriendlyName(), data);
+        } else if (data instanceof PresetInfo) {
+            logger.debug("{}: received: {}", cameraState.getFriendlyName(), data);
+            PresetInfo presets = (PresetInfo) data;
+            AtomicReference<Integer> idx = new AtomicReference<>(0);
+            cameraState.getPresets().clear();
+            StringBuilder strPresets = new StringBuilder();
+            presets.ids.forEach(id -> {
+                cameraState.getPresets().put(id, presets.names.get(idx.get()));
+                strPresets.append(id + "=" + presets.names.get(idx.get()) + "\n");
+                idx.getAndSet(idx.get() + 1);
+            });
+            updateProperty("presets", strPresets.toString());
         }
+    }
+
+
+    @Override
+    protected @Nullable ConfigDescription getConfigDescription(ChannelTypeUID channelTypeUID) {
+        ConfigDescription configDescription = super.getConfigDescription(channelTypeUID);
+        if (this.getThing().getChannel(CHANNEL_GOTO_PRESETS.getName()).getChannelTypeUID().equals(channelTypeUID)) {
+            configDescription.getParameters();
+        }
+        return configDescription;
+    }
+
+    @Override
+    public @Nullable StateDescription getStateDescription(Channel channel, @Nullable StateDescription stateDescription, @Nullable Locale locale) {
+        if (this.getThing().getChannel(CHANNEL_GOTO_PRESETS.getName()).equals(channel)) {
+            logger.debug("requested state for {}", channel.getUID());
+        }
+        return null;
+    }
+
+    @Override
+    public void thingUpdated(Thing thing) {
+        super.thingUpdated(thing);
     }
 }

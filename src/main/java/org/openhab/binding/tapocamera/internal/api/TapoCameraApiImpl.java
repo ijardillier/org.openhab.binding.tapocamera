@@ -17,6 +17,7 @@ import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.CLOCK_S
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.CONNECTION_TYPE;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.DEVICE_INFO_BASIC;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.DEVICE_INFO_FULL;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.GOTO_PRESETS;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.INTRUSION_DETECTION;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.LAST_ALARM_INFO;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.LED_STATUS;
@@ -661,6 +662,17 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         Object result = processSingleResponse(singleResponse, module, section);
         return (PresetInfo) result;
     }
+
+    @Override
+    public void gotoPreset(String id) {
+        String module = GOTO_PRESETS.getModule();
+        String section = GOTO_PRESETS.getSection();
+        String method = GOTO_PRESETS.getMethod();
+        String command = ApiUtils.createSingleCommandAsParam(method, module, section, "id", id);
+        command = ApiUtils.singleToMulti(command);
+        sendSingleRequest(token, command);
+    }
+
     @Override
     public TargetAutoTrackInfo getTargetAutoTrackInfo() {
         String module = TARGET_TRACK.getModule();

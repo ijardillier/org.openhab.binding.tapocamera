@@ -13,6 +13,9 @@
 
 package org.openhab.binding.tapocamera.internal.dto;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.detection.IntrusionDetectionInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.detection.LineCrossingDetectionInfo;
@@ -44,6 +47,8 @@ public class CameraState {
     private Boolean hasLineCrossingDetection = false; //
     private Boolean hasIntrusionDetection = false; //
     private Boolean hasAudioExceptionDetection = false; //
+    private Map<Integer, String> presets = new HashMap<>();
+
     /**
      * Instantiates a new Camera state.
      */
@@ -256,5 +261,23 @@ public class CameraState {
 
     public void setHasAudioExceptionDetection(Boolean hasAudioExceptionDetection) {
         this.hasAudioExceptionDetection = hasAudioExceptionDetection;
+    }
+
+    public Map<Integer, String> getPresets() {
+        return presets;
+    }
+
+    public Integer getPresetId(String name) {
+        return presets.entrySet().stream()
+                .filter(entry -> entry.getValue().equals(name))
+                .findFirst().orElse(null).getKey();
+    }
+
+    public void setPreset(Integer id, String name) {
+        presets.putIfAbsent(id, name);
+    }
+
+    public void setPresets() {
+        presets.clear();
     }
 }

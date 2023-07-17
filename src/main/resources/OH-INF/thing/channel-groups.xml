@@ -67,4 +67,12 @@
             <channel id="target-track-detection-enabled" typeId="target-track-detection-enabled" />
         </channels>
     </channel-group-type>
+
+    <channel-group-type id="presets">
+        <label>Presets</label>
+        <description>Presets</description>
+        <channels>
+            <channel id="presets" typeId="presets" />
+        </channels>
+    </channel-group-type>
 </thing:thing-descriptions>

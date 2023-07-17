@@ -21,6 +21,7 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.openhab.binding.tapocamera.internal.api.ApiMethodTypes;
 
 /**
@@ -129,4 +130,32 @@ public class ApiUtils {
         return json.toString();
     }
 
+    public static String createSingleCommandAsParam(String method, String moduleName, String sectionName, String paramName, Object value ) {
+        JsonObject json = new JsonObject();
+        json.addProperty("method", method);
+        JsonObject section = new JsonObject();
+        JsonObject param = new JsonObject();
+        JsonObject params = new JsonObject();
+        json.add("params", params);
+        params.add(moduleName, section);
+        section.add(sectionName, param);
+
+        if (value instanceof String) {
+            param.addProperty(paramName, (String) value);
+        } else if (value instanceof List<?>) {
+            Gson gson = new Gson();
+            param.add("paramName", gson.toJsonTree(value).getAsJsonArray());
+        }
+        return json.toString();
+    }
+    public static String singleToMulti(String command) {
+        JsonObject json = new JsonObject();
+        json.addProperty("method", "multipleRequest");
+        JsonObject params = new JsonObject();
+        json.add("params", params);
+        JsonArray requests = new JsonArray();
+        params.add("requests", requests);
+        requests.add(JsonParser.parseString(command));
+        return json.toString();
+    }
 }
