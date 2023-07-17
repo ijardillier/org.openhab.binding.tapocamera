@@ -90,6 +90,7 @@ public enum TapoCameraChannels {
      * Channel intrusion detection enabled tapo camera channels.
      */
     CHANNEL_INTRUSION_DETECTION_ENABLED("intrusion-detection-enabled", CHANNEL_GROUP_DETECTIONS),
+    CHANNEL_TARGET_TRACK_ENABLED("target-track-detection-enabled", CHANNEL_GROUP_DETECTIONS),
 
     CHANNEL_IMAGE_FLIP("flip", CHANNEL_GROUP_IMAGE),
     CHANNEL_IMAGE_LENS_CORRECTION("ldc", CHANNEL_GROUP_IMAGE),

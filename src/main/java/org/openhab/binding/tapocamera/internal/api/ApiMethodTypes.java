@@ -16,7 +16,7 @@ package org.openhab.binding.tapocamera.internal.api;
 import java.util.Arrays;
 
 import org.openhab.binding.tapocamera.internal.api.dto.PresetInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.TargetAutoTrackInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.TargetAutoTrackInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.LastAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgPushInfo;

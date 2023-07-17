@@ -61,7 +61,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import org.openhab.binding.tapocamera.internal.api.dto.PresetInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.TargetAutoTrackInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.TargetAutoTrackInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.LastAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgPushInfo;
@@ -571,6 +571,12 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     public void setIntrusionDetectEnabled(String state) {
         executeSetMethod(INTRUSION_DETECTION, "enabled", state);
     }
+
+    @Override
+    public void setTargetTrackEnabled(String state) {
+        executeSetMethod(TARGET_TRACK, "enabled", state);
+    }
+
     @Override
     public LineCrossingDetectionInfo getLineCrossingDetectionInfo() {
         String module = LINECROSSING_DETECTION.getModule();

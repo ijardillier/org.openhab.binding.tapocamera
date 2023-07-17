@@ -64,6 +64,7 @@
             <channel id="person-detection-sensitivity" typeId="person-detection-sensitivity" />
             <channel id="line-crossing-detection-enabled" typeId="line-crossing-detection-enabled" />
             <channel id="intrusion-detection-enabled" typeId="intrusion-detection-enabled" />
+            <channel id="target-track-detection-enabled" typeId="target-track-detection-enabled" />
         </channels>
     </channel-group-type>
 </thing:thing-descriptions>

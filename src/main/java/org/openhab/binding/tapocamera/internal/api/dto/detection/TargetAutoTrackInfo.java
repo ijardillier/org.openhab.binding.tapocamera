@@ -11,7 +11,7 @@
  *  SPDX-License-Identifier: EPL-2.0
  */
 
-package org.openhab.binding.tapocamera.internal.api.dto;
+package org.openhab.binding.tapocamera.internal.api.dto.detection;
 
 /**
  * The type Target auto track info.

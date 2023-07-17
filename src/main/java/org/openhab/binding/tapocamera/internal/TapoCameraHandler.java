@@ -37,6 +37,7 @@ import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_PERSON_DETECTION_SENSITIVITY;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_PRIVACY_MODE;
 import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_SPEAKER_VOLUME;
+import static org.openhab.binding.tapocamera.internal.TapoCameraChannels.CHANNEL_TARGET_TRACK_ENABLED;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,11 +64,11 @@ import org.openhab.core.types.RefreshType;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.openhab.binding.tapocamera.internal.api.ApiErrorCodes;
 import org.openhab.binding.tapocamera.internal.api.ApiException;
 import org.openhab.binding.tapocamera.internal.api.ApiMethodTypes;
 import org.openhab.binding.tapocamera.internal.api.TapoCameraApi;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.TargetAutoTrackInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.LastAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgPushInfo;
@@ -223,6 +224,12 @@ public class TapoCameraHandler extends BaseThingHandler {
                 String status = command.toString().toLowerCase();
                 cameraState.getIntrusionDetection().enabled = (status);
                 api.setIntrusionDetectEnabled(status);
+            }
+        }
+        else if (CHANNEL_TARGET_TRACK_ENABLED.getName().equals(channelUID.getId())) {
+            if (command instanceof OnOffType) {
+                String status = command.toString().toLowerCase();
+                api.setTargetTrackEnabled(status);
             }
         }
         else if (CHANNEL_SPEAKER_VOLUME.getName().equals(channelUID.getId())) {
@@ -515,6 +522,10 @@ public class TapoCameraHandler extends BaseThingHandler {
             logger.debug("{}: received: {}", cameraState.getFriendlyName(), data);
             TamperDetectionInfo tamperDetection = (TamperDetectionInfo) data;
             // TODO: update tamper channels
+        } else if (data instanceof TargetAutoTrackInfo) {
+            logger.debug("{}: received: {}", cameraState.getFriendlyName(), data);
+            TargetAutoTrackInfo targetAutoTrackInfo = (TargetAutoTrackInfo) data;
+            updateState(CHANNEL_TARGET_TRACK_ENABLED.getName(), OnOffType.from(targetAutoTrackInfo.enabled.toUpperCase()));
         }
         // image info
         else if (data instanceof ImageCommon) {

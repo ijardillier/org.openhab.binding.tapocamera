@@ -54,4 +54,10 @@
         <description>Intrusion Detection enabled</description>
     </channel-type>
 
+    <channel-type id="target-track-detection-enabled">
+        <item-type>Switch</item-type>
+        <label>Target Track</label>
+        <description>Target Track Detection enabled only for cameras with motor</description>
+    </channel-type>
+
 </thing:thing-descriptions>

@@ -16,7 +16,7 @@ package org.openhab.binding.tapocamera.internal.api;
 import java.util.List;
 
 import org.openhab.binding.tapocamera.internal.api.dto.PresetInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.TargetAutoTrackInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.TargetAutoTrackInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.LastAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgPushInfo;
@@ -266,6 +266,8 @@ public interface TapoCameraApi {
      * @param state the state
      */
     void setIntrusionDetectEnabled(String state);
+
+    void setTargetTrackEnabled(String state);
 
     /**
      * Gets line crossing detection info.
