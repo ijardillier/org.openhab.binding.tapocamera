@@ -33,7 +33,6 @@ import org.openhab.binding.tapocamera.internal.api.dto.image.ImageCommon;
 import org.openhab.binding.tapocamera.internal.api.dto.image.ImageSwitch;
 import org.openhab.binding.tapocamera.internal.api.dto.image.LensMaskInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.system.ClockStatus;
-import org.openhab.binding.tapocamera.internal.api.dto.system.ConnectionType;
 import org.openhab.binding.tapocamera.internal.api.dto.system.DeviceInfoBasic;
 import org.openhab.binding.tapocamera.internal.api.dto.system.DeviceInfoFull;
 import org.openhab.binding.tapocamera.internal.api.dto.system.HardDiskInfo;
@@ -76,7 +75,7 @@ public enum ApiMethodTypes {
     /**
      * Night vision mode api method types.
      */
-    NIGHT_VISION_MODE("getNightVisionModeConfig", "image", "switch", ImageSwitch.class),
+    IMAGE_ROTATION_STATUS("getRotationStatus", "image", "switch", ImageSwitch.class),
     /**
      * Light frequency info api method types.
      */

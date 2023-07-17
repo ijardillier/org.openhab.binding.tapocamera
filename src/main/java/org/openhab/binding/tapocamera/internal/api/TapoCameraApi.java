@@ -309,6 +309,7 @@ public interface TapoCameraApi {
      */
     void setMotionDetectSensitivity(Integer state);
 
+    void setMotionDetectEnhanced(String state);
     /**
      * Gets person detection info.
      *

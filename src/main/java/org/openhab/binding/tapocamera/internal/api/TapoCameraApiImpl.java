@@ -29,7 +29,7 @@ import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MOTION_
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MSG_ALARM_INFO;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MSG_ALARM_MANUAL;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MSG_PUSH_INFO;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.NIGHT_VISION_MODE;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.IMAGE_ROTATION_STATUS;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.PERSON_DETECTION;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.PRESETS;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.SPEAKER_INFO;
@@ -448,8 +448,8 @@ public class TapoCameraApiImpl implements TapoCameraApi {
 
     @Override
     public ImageSwitch getImageSwitchInfo() {
-        String module = NIGHT_VISION_MODE.getModule();
-        String section = NIGHT_VISION_MODE.getSection();
+        String module = IMAGE_ROTATION_STATUS.getModule();
+        String section = IMAGE_ROTATION_STATUS.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
         Object singleResponse = sendSingleRequest(token, singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
@@ -458,11 +458,11 @@ public class TapoCameraApiImpl implements TapoCameraApi {
 
     @Override
     public void setImageFlip(String state) {
-        executeSetMethod(NIGHT_VISION_MODE, "flip_type", state);
+        executeSetMethod(IMAGE_ROTATION_STATUS, "flip_type", state);
     }
     @Override
     public void setImageLdc(String state) {
-        executeSetMethod(NIGHT_VISION_MODE, "ldc", state);
+        executeSetMethod(IMAGE_ROTATION_STATUS, "ldc", state);
     }
     @Override
     public void setImageNightVision(String state) {
@@ -605,6 +605,11 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     public void setMotionDetectSensitivity(Integer state) {
         executeSetMethod(MOTION_DETECTION, "digital_sensitivity", String.valueOf(state));
     }
+
+    @Override
+    public void setMotionDetectEnhanced(String state) {
+        executeSetMethod(MOTION_DETECTION, "enhanced", state);
+    }
     @Override
     public PersonDetectionInfo getPersonDetectionInfo() {
         String module = PERSON_DETECTION.getModule();
@@ -661,7 +666,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                 ApiMethodTypes.LINECROSSING_DETECTION, ApiMethodTypes.PERSON_DETECTION,
                 ApiMethodTypes.TAMPER_DETECTION,
                 ApiMethodTypes.MSG_ALARM_INFO, ApiMethodTypes.LAST_ALARM_INFO, ApiMethodTypes.MSG_PUSH_INFO,
-                ApiMethodTypes.NIGHT_VISION_MODE,
+                ApiMethodTypes.IMAGE_ROTATION_STATUS,
                 ApiMethodTypes.LENS_MASK, ApiMethodTypes.LIGHT_FREQUENCY_INFO,
                 ApiMethodTypes.LED_STATUS,
                 ApiMethodTypes.TARGET_TRACK, ApiMethodTypes.PRESETS,

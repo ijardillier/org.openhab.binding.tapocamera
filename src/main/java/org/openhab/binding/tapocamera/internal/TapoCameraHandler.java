@@ -197,7 +197,11 @@ public class TapoCameraHandler extends BaseThingHandler {
             if (command instanceof OnOffType) {
                 String status = command.toString().toLowerCase();
                 cameraState.getPersonDetectionInfo().enabled = status;
-                api.setPersonDetectEnabled(status);
+                if (cameraState.getMotionDetection().enhanced == null || cameraState.getMotionDetection().enhanced.isEmpty()) {
+                    api.setPersonDetectEnabled(status);
+                } else {
+                    api.setMotionDetectEnhanced(status);
+                }
             }
         }
         else if (CHANNEL_PERSON_DETECTION_SENSITIVITY.getName().equals(channelUID.getId())) {
@@ -483,6 +487,9 @@ public class TapoCameraHandler extends BaseThingHandler {
             updateState(CHANNEL_MOTION_DETECTION_SENSITIVITY.getName(), new StringType(motionDetection.sensitivity));
             int digitalSensitivity = motionDetection.digitalSensitivity;
             updateState(CHANNEL_MOTION_DETECTION_DIGITAL_SENSITIVITY.getName(), new PercentType(digitalSensitivity));
+            if (motionDetection.enhanced != null) {
+                cameraState.setHasSmartDetection(true);
+            }
         } else if (data instanceof PersonDetectionInfo) {
             // person detection
             logger.debug("{}: received: {}", cameraState.getFriendlyName(), data);
