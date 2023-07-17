@@ -496,6 +496,7 @@ public class TapoCameraHandler extends BaseThingHandler {
             updateState(CHANNEL_MOTION_DETECTION_DIGITAL_SENSITIVITY.getName(), new PercentType(digitalSensitivity));
             if (motionDetection.enhanced != null) {
                 cameraState.setHasSmartDetection(true);
+                updateState(CHANNEL_PERSON_DETECTION_ENABLED.getName(), OnOffType.from(motionDetection.enhanced.toUpperCase()));
             }
         } else if (data instanceof PersonDetectionInfo) {
             // person detection

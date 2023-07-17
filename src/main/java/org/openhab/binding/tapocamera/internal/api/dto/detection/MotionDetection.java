@@ -35,7 +35,8 @@ public class MotionDetection extends DetectionInfo {
     @Override
     public String toString() {
         return "MotionDetection{" +
-                "digitalSensitivity=" + digitalSensitivity +
+                "enhanced='" + enhanced + '\'' +
+                ", digitalSensitivity=" + digitalSensitivity +
                 ", sensitivity='" + sensitivity + '\'' +
                 ", enabled='" + enabled + '\'' +
                 '}';
