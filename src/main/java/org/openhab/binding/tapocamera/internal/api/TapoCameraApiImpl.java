@@ -165,13 +165,15 @@ public class TapoCameraApiImpl implements TapoCameraApi {
             }
         } catch (TimeoutException e) {
             logger.error("TimeoutException: {}", e.getMessage());
+            this.token = "";
             throw new ApiException(String.format("TimeoutException: %s", e.getMessage()));
         } catch (InterruptedException e) {
             logger.error("InterruptedException: {}", e.getMessage());
-            throw new ApiException(String.format("TimeoutException: %s", e.getMessage()));
+            throw new ApiException(String.format("InterruptedException: %s", e.getMessage()));
         } catch (ExecutionException e) {
             logger.error("ExecutionException: {}", e.getMessage());
-            throw new ApiException(String.format("TimeoutException: %s", e.getMessage()));
+            this.token = "";
+            throw new ApiException(String.format("ExecutionException: %s", e.getMessage()));
         }
         return result;
     }
@@ -208,12 +210,14 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                 return new ApiResponse();
             }
         } catch (TimeoutException e) {
+            this.token = "";
             logger.error("TimeoutException: {}", e.getMessage());
             return null;
         } catch (InterruptedException e) {
             logger.error("InterruptedException: {}", e.getMessage());
             return null;
         } catch (ExecutionException e) {
+            this.token = "";
             logger.error("ExecutionException: {}", e.getMessage());
             return null;
         }
@@ -237,12 +241,14 @@ public class TapoCameraApiImpl implements TapoCameraApi {
             }
         } catch (TimeoutException e) {
             logger.error("TimeoutException: {}", e.getMessage());
+            this.token = "";
             return null;
         } catch (InterruptedException e) {
             logger.error("InterruptedException: {}", e.getMessage());
             return null;
         } catch (ExecutionException e) {
             logger.error("ExecutionException: {}", e.getMessage());
+            this.token = "";
             return null;
         }
     }

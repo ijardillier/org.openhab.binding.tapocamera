@@ -447,12 +447,9 @@ public class TapoCameraHandler extends BaseThingHandler {
     private void processAllResults(ApiMethodResult object) {
          // ApiMethodTypes.getClassByModuleAndSection()
         Optional<ApiMethodTypes> apipMethod = Arrays.asList(ApiMethodTypes.values()).stream()
-                .filter(m -> {
-                    return object.method.equals(m.getMethod()) &&
-                            object.result.has(m.getModule()) &&
-                            object.result.getAsJsonObject(m.getModule()).has(m.getSection());
-                })
-                //.map(ApiMethodTypes::getClazz)
+                .filter(m -> object.method.equals(m.getMethod()) &&
+                        object.result.has(m.getModule()) &&
+                        object.result.getAsJsonObject(m.getModule()).has(m.getSection()))
                 .findFirst();
       if ( !apipMethod.isPresent() ) {
           return;
