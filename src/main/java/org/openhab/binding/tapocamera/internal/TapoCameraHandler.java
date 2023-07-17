@@ -319,19 +319,27 @@ public class TapoCameraHandler extends BaseThingHandler implements DynamicStateD
         }
     }
 
-    @Override
-    public void dispose() {
-        super.dispose();
+    private void cancelPollingJob() {
+        Future<?> job = pollingJob;
+        if (job != null) {
+            job.cancel(true);
+            pollingJob = null;
+        }
+    }
+
+    private void cancelInitJob() {
         Future<?> job = initJob;
         if (job != null) {
             job.cancel(true);
             initJob = null;
         }
-        job = pollingJob;
-        if (job != null) {
-            job.cancel(true);
-            pollingJob = null;
-        }
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        cancelInitJob();
+        cancelPollingJob();
     }
 
     private void getSupportedFeatures(ModuleSpec moduleSpec) {
@@ -373,11 +381,9 @@ public class TapoCameraHandler extends BaseThingHandler implements DynamicStateD
 
     private void reconnect() {
         logger.debug("Try to reconnect");
-        Future<?> job = initJob;
-        if (job != null) {
-            job.cancel(true);
-            initJob = null;
-        }
+        cancelInitJob();
+        cancelPollingJob();
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
         initJob = connectCamera(config.reconnectInterval);
     }
 
@@ -425,12 +431,13 @@ public class TapoCameraHandler extends BaseThingHandler implements DynamicStateD
                 reconnect();
             } else {
                 updateStatus(ThingStatus.ONLINE);
+                List<ApiMethodResult> apiMethodsResultList = api.getChangebleParameters();
+                apiMethodsResultList.forEach(param -> {
+                    processAllResults(param);
+                });
             }
 
-            List<ApiMethodResult> apiMethodsResultList = api.getChangebleParameters();
-            apiMethodsResultList.forEach(param -> {
-                processAllResults(param);
-            });
+
 
         } catch (Exception e) {
             logger.error(e.getMessage());

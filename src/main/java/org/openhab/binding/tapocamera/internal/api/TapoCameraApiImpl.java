@@ -162,7 +162,12 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                 }
             } else {
                 // TODO: log.error && throw new Exception
-                logger.error("Error in response or Invalid token, error code: {}", response.errorCode);
+                if (response.errorCode == ApiErrorCodes.ERROR_40401.getCode()) {
+                    logger.error("Invalid token, error code: {}", response.errorCode);
+                    this.token = "";
+                } else {
+                    logger.error("Error in response, error code: {}", response.errorCode);
+                }
             }
         } catch (TimeoutException e) {
             logger.error("TimeoutException: {}", e.getMessage());
@@ -208,6 +213,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
             } else {
                 // TODO: log.error && throw new Exception
                 logger.error("Error in response, error code: {}", response.errorCode);
+                this.token = "";
                 return new ApiResponse();
             }
         } catch (TimeoutException e) {
@@ -238,6 +244,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
             } else {
                 // TODO: log.error && throw new Exception
                 logger.error("Error in response, error code: {}", response.get("error_code").getAsInt());
+                this.token = "";
                 return new Object();
             }
         } catch (TimeoutException e) {
@@ -699,13 +706,15 @@ public class TapoCameraApiImpl implements TapoCameraApi {
 
         String multipleCommand = ApiUtils.createMultipleCommand(listCommands);
         ApiResponse response = sendMultipleRequest(token, multipleCommand);
-        if (response.errorCode == 0) {
+        if (response.errorCode == 0 && response.result != null) {
             return processMultipleResponses(response);
-        } else if (response.errorCode == -40401) {
+        } else if (response.errorCode == ApiErrorCodes.ERROR_40401.getCode()) {
             // TODO: invalid token
-            logger.error("Error in response or Invalid token, error code: {}", response.errorCode);
+            logger.error("Invalid token, error code: {}", response.errorCode);
+            this.token = "";
         } else {
             logger.error("Error in response, error code: {}", response.errorCode);
+            this.token = "";
         }
         return result;
     }
