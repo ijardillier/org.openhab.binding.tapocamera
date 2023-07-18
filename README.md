@@ -1,94 +1,75 @@
 # TapoCamera Binding
 
-_Give some details about what this binding is meant for - a protocol, system, specific device._
+![Tapo.png](docs%2Fimg%2FTapo.png)
 
-_If possible, provide some resources like pictures (only PNG is supported currently), a video, etc. to give an impression of what can be done with this binding._
-_You can place such resources into a `doc` folder next to this README.md._
+The binding allows you to control Tapo Camera settings and manually turn on/off siren.
 
-_Put each sentence in a separate line to improve readability of diffs._
+At the moment not all functions are supported.
+
+The binding not repeat an IP Camera binding functionality.
+
+My main goal was to get manual control of the siren (like HomeAssistant do) in automations.
+
+Tested on Tapo C200 and C310.
+
+The Binding uses local API. More info is here https://md.depau.eu/s/r1Ys_oWoP#Tapo-C200
 
 ## Supported Things
 
-_Please describe the different supported things / devices including their ThingTypeUID within this section._
-_Which different types are supported, which models were tested etc.?_
-_Note that it is planned to generate some part of this based on the XML files within ```src/main/resources/OH-INF/thing``` of your binding._
+First, you should create a bridge with cloud username (email) and password.
 
-- `bridge`: Short description of the Bridge, if any
-- `sample`: Short description of the Thing with the ThingTypeUID `sample`
+Then you can use discovery or manual add a camera.
+
 
 ## Discovery
 
-_Describe the available auto-discovery features here._
-_Mention for what it works and what needs to be kept in mind when using it._
+Discovery uses cloud api to get information about available cameras from your Tapo account (Mobile App).
 
-## Binding Configuration
+This information doesn't have information about camera IP address that needed to connect ot camera.
 
-_If your binding requires or supports general configuration settings, please create a folder ```cfg``` and place the configuration file ```<bindingId>.cfg``` inside it._
-_In this section, you should link to this file and provide some information about the options._
-_The file could e.g. look like:_
+On Linux the discovery uses an arp-table to get camera IP address automatically.
 
-```
-# Configuration for the TapoCamera Binding
-#
-# Default secret key for the pairing of the TapoCamera Thing.
-# It has to be between 10-40 (alphanumeric) characters.
-# This may be changed by the user for security reasons.
-secret=openHABSecret
-```
-
-_Note that it is planned to generate some part of this based on the information that is available within ```src/main/resources/OH-INF/binding``` of your binding._
-
-_If your binding does not offer any generic configurations, you can remove this section completely._
+![discovery-0.png](docs%2Fimg%2Fdiscovery-0.png)
 
 ## Thing Configuration
 
-_Describe what is needed to manually configure a thing, either through the UI or via a thing-file._
-_This should be mainly about its mandatory and optional configuration parameters._
+To connect the camera you should fill requirement fields:
+- `Hostname` - camera IP address
+- `Username` - for C200 and C310 and may be other, you should put `admin` username, in other case - camera username created in `Mobile App -> Additional Setting -> Camera account`
+- `Password` - password created in `Mobile App -> Additional Setting -> Camera account`
+- `Cloud password` - password for your cloud account (the same is in Bridge), uses to access via local api
 
-_Note that it is planned to generate some part of this based on the XML files within ```src/main/resources/OH-INF/thing``` of your binding._
+![settings-1.png](docs%2Fimg%2Fsettings-1.png)
 
-### `sample` Thing Configuration
+After connecting to the camera some information will available:
 
-| Name            | Type    | Description                           | Default | Required | Advanced |
-|-----------------|---------|---------------------------------------|---------|----------|----------|
-| hostname        | text    | Hostname or IP address of the device  | N/A     | yes      | no       |
-| password        | text    | Password to access the device         | N/A     | yes      | no       |
-| refreshInterval | integer | Interval the device is polled in sec. | 600     | no       | yes      |
+![thing-info-0.png](docs%2Fimg%2Fthing-info-0.png)
 
 ## Channels
 
-_Here you should provide information about available channel types, what their meaning is and how they can be used._
+At the moment list of channels contains all channels even if channel not available on specific camera model.
 
-_Note that it is planned to generate some part of this based on the XML files within ```src/main/resources/OH-INF/thing``` of your binding._
+For example, C310 doesn't have motor (PTZ), but channel Preset is shown.
+C200 doesn't have line-crossing and intrusion detections, but these channels will be shown.
 
-| Channel | Type   | Read/Write | Description                 |
-|---------|--------|------------|-----------------------------|
-| control | Switch | RW         | This is the control channel |
+![channels-0.png](docs%2Fimg%2Fchannels-0.png)
+![channels-1.png](docs%2Fimg%2Fchannels-1.png)
+![channels-2.png](docs%2Fimg%2Fchannels-2.png)
 
-## Full Example
+For example:
+- `Manual Alarm` - send ON/OFF to item to turn on/off siren
+- `Preset` - for camera with motor you can send command with preset id to move camera to target position.
+   
+   You can find available preset id and name in Thing Info (see above picture with yellow selection).
+   
+   Just copy that text and put it to the state description of item to control preset from UI or use preset id to control from automation.
 
-_Provide a full usage example based on textual configuration files._
-_*.things, *.items examples are mandatory as textual configuration is well used by many users._
-_*.sitemap examples are optional._
+## Thank you
+- Juraj Nyíri - PyTapo - https://github.com/JurajNyiri/pytapo
+- Davide Depau - https://md.depau.eu/s/r1Ys_oWoP
 
-### Thing Configuration
+## Disclaimer
 
-```java
-Example thing configuration goes here.
-```
-### Item Configuration
+Author does not guarantee functionality of this binding and is not responsible for any damage.
 
-```java
-Example item configuration goes here.
-```
-
-### Sitemap Configuration
-
-```perl
-Optional Sitemap configuration goes here.
-Remove this section, if not needed.
-```
-
-## Any custom content here!
-
-_Feel free to add additional sections for whatever you think should also be mentioned about your binding!_
+All product names, trademarks and registered trademarks in this repository, are property of their respective owners.
