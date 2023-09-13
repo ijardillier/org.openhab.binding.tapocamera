@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -8,30 +8,32 @@
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0
  *
- *  SPDX-License-Identifier: EPL-2.0
+ * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.openhab.binding.tapocamera.internal.api.ssl;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 /**
  * The type Ssl utils.
+ *
+ * @author "Dmintry P (d51x)" - Initial contribution
  */
 public class SslUtils {
     /**
-     * Create ssl context ssl context factory.
+     * Create ssl context factory.
      *
      * @return the ssl context factory
      */
@@ -73,9 +75,8 @@ public class SslUtils {
         }
     }
 
-    private static final KeyManager[] trustAllKeys = new KeyManager[] {
-            new KeyManager() {}
-    };
+    private static final KeyManager[] trustAllKeys = new KeyManager[] { new KeyManager() {
+    } };
 
     private static final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
         @Override
@@ -97,5 +98,4 @@ public class SslUtils {
     private static final HostnameVerifier allowAllHostNames() {
         return (hostname, sslSession) -> true;
     }
-
 }

@@ -1,62 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <thing:thing-descriptions bindingId="tapocamera"
-                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                          xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
-                          xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
 
-    <channel-type id="flip">
-        <item-type>Switch</item-type>
-        <label>Flip Image</label>
-        <description>Flip Image</description>
-        <category>if:mdi:flip-vertical</category>
-    </channel-type>
-    <channel-type id="ldc">
-        <item-type>Switch</item-type>
-        <label>Lens Distortion Correction</label>
-        <description>Lens Distortion Correction</description>
-        <category>if:mdi:google-lens</category>
-    </channel-type>
+	<channel-type id="flip">
+		<item-type>Switch</item-type>
+		<label>Flip Image</label>
+		<description>Flip Image</description>
+		<category>if:mdi:flip-vertical</category>
+	</channel-type>
+	<channel-type id="ldc">
+		<item-type>Switch</item-type>
+		<label>Lens Distortion Correction</label>
+		<description>Lens Distortion Correction</description>
+		<category>if:mdi:google-lens</category>
+	</channel-type>
 
-    <channel-type id="night-vision">
-        <item-type>String</item-type>
-        <label>Night Vision</label>
-        <description>Night Vision</description>
-        <category>if:mdi:theme-light-dark</category>
-        <state>
-            <options>
-                <option value="auto">Auto</option>
-                <option value="on">Night</option>
-                <option value="off">Day</option>
-            </options>
-        </state>
-    </channel-type>
-    <channel-type id="contrast" advanced="true">
-        <item-type>Dimmer</item-type>
-        <label>Image Contrast</label>
-        <description>Contrast Level</description>
-        <category>if:mdi:contrast-box</category>
-        <state pattern="%d %unit%" min="0" max="100" step="1"/>
-    </channel-type>
-    <channel-type id="saturation" advanced="true">
-        <item-type>Dimmer</item-type>
-        <label>Image Saturation</label>
-        <description>Saturation Level</description>
-        <category>if:mdi:brightness-7</category>
-        <state pattern="%d %unit%" min="0" max="100" step="1"/>
-    </channel-type>
-    <channel-type id="sharpness" advanced="true">
-        <item-type>Dimmer</item-type>
-        <label>Image Sharpness</label>
-        <description>Sharpness Level</description>
-        <category>if:mdi:square-opacity</category>
-        <state pattern="%d %unit%" min="0" max="100" step="1"/>
-    </channel-type>
-    <channel-type id="luma" advanced="true">
-        <item-type>Dimmer</item-type>
-        <label>Image Luma</label>
-        <description>Luma Level</description>
-        <category>if:mdi:square-opacity</category>
-        <state pattern="%d %unit%" min="0" max="100" step="1"/>
-    </channel-type>
+	<channel-type id="night-vision">
+		<item-type>String</item-type>
+		<label>Night Vision</label>
+		<description>Night Vision</description>
+		<category>if:mdi:theme-light-dark</category>
+		<state>
+			<options>
+				<option value="auto">Auto</option>
+				<option value="on">Night</option>
+				<option value="off">Day</option>
+			</options>
+		</state>
+	</channel-type>
+	<channel-type id="contrast" advanced="true">
+		<item-type>Dimmer</item-type>
+		<label>Image Contrast</label>
+		<description>Contrast Level</description>
+		<category>if:mdi:contrast-box</category>
+		<state pattern="%d %unit%" min="0" max="100" step="1"/>
+	</channel-type>
+	<channel-type id="saturation" advanced="true">
+		<item-type>Dimmer</item-type>
+		<label>Image Saturation</label>
+		<description>Saturation Level</description>
+		<category>if:mdi:brightness-7</category>
+		<state pattern="%d %unit%" min="0" max="100" step="1"/>
+	</channel-type>
+	<channel-type id="sharpness" advanced="true">
+		<item-type>Dimmer</item-type>
+		<label>Image Sharpness</label>
+		<description>Sharpness Level</description>
+		<category>if:mdi:square-opacity</category>
+		<state pattern="%d %unit%" min="0" max="100" step="1"/>
+	</channel-type>
+	<channel-type id="luma" advanced="true">
+		<item-type>Dimmer</item-type>
+		<label>Image Luma</label>
+		<description>Luma Level</description>
+		<category>if:mdi:square-opacity</category>
+		<state pattern="%d %unit%" min="0" max="100" step="1"/>
+	</channel-type>
 </thing:thing-descriptions>

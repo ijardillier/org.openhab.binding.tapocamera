@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -8,9 +8,8 @@
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0
  *
- *  SPDX-License-Identifier: EPL-2.0
+ * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.openhab.binding.tapocamera.internal.api;
 
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.CLOCK_STATUS;
@@ -18,6 +17,7 @@ import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.CONNECT
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.DEVICE_INFO_BASIC;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.DEVICE_INFO_FULL;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.GOTO_PRESETS;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.IMAGE_ROTATION_STATUS;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.INTRUSION_DETECTION;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.LAST_ALARM_INFO;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.LED_STATUS;
@@ -30,7 +30,6 @@ import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MOTION_
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MSG_ALARM_INFO;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MSG_ALARM_MANUAL;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MSG_PUSH_INFO;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.IMAGE_ROTATION_STATUS;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.PERSON_DETECTION;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.PRESETS;
 import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.SPEAKER_INFO;
@@ -55,14 +54,7 @@ import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
 import org.openhab.binding.tapocamera.internal.api.dto.PresetInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.detection.TargetAutoTrackInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.LastAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgPushInfo;
@@ -73,6 +65,7 @@ import org.openhab.binding.tapocamera.internal.api.dto.detection.LineCrossingDet
 import org.openhab.binding.tapocamera.internal.api.dto.detection.MotionDetection;
 import org.openhab.binding.tapocamera.internal.api.dto.detection.PersonDetectionInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.detection.TamperDetectionInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.TargetAutoTrackInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.image.ImageCommon;
 import org.openhab.binding.tapocamera.internal.api.dto.image.ImageSwitch;
 import org.openhab.binding.tapocamera.internal.api.dto.image.LensMaskInfo;
@@ -88,8 +81,16 @@ import org.openhab.binding.tapocamera.internal.api.utils.ApiUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
+
 /**
  * The type Tapo camera api.
+ *
+ * @author "Dmintry P (d51x)" - Initial contribution
  */
 public class TapoCameraApiImpl implements TapoCameraApi {
     private final Logger logger = LoggerFactory.getLogger(TapoCameraApiImpl.class);
@@ -130,6 +131,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     public Boolean isAuth() {
         return !token.isEmpty();
     }
+
     @Override
     public Boolean auth(String username, String password) throws ApiException {
         Boolean result = false;
@@ -264,9 +266,9 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     /**
      * Execute set method boolean.
      *
-     * @param type      the type
+     * @param type the type
      * @param paramName the param name
-     * @param value     the value
+     * @param value the value
      * @return the boolean
      */
     public boolean executeSetMethod(ApiMethodTypes type, String paramName, Object value) {
@@ -283,7 +285,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String command = ApiUtils.createSingleCommand(method, module, section, paramName, value);
         JsonObject obj = (JsonObject) sendSingleRequest(token, command);
         ApiResponse response = gson.fromJson(obj, ApiResponse.class);
-        return  response.errorCode == 0;
+        return response.errorCode == 0;
     }
 
     @Override
@@ -295,7 +297,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                 return gson.fromJson(obj, getClassByModuleAndSection(moduleName, section));
             }
         } else {
-            logger.error("Module " + moduleName + " not found in response");
+            logger.error("Module {} not found in response", moduleName);
         }
         return null;
     }
@@ -313,7 +315,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                 }
             });
         } else {
-            logger.error("Module " + moduleName + " not found in response");
+            logger.error("Module {} not found in response", moduleName);
         }
         return result;
     }
@@ -324,7 +326,8 @@ public class TapoCameraApiImpl implements TapoCameraApi {
             if (t.getMethod().equals(method)) {
                 Object data;
                 if (t.getSection() != null && obj.getAsJsonObject().has(t.getModule())) {
-                    data = gson.fromJson(obj.getAsJsonObject(t.getModule()).getAsJsonObject(t.getSection()), t.getClazz());
+                    data = gson.fromJson(obj.getAsJsonObject(t.getModule()).getAsJsonObject(t.getSection()),
+                            t.getClazz());
                 } else {
                     data = gson.fromJson(obj.getAsJsonPrimitive(t.getModule()), t.getClazz());
                 }
@@ -338,14 +341,15 @@ public class TapoCameraApiImpl implements TapoCameraApi {
 
     private List<ApiMethodResult> processMultipleResponses(ApiResponse response) {
         List<ApiMethodResult> results = new ArrayList<>();
-        if (response.errorCode == 0 ) {
-            Type listType = new TypeToken<ArrayList<ApiMethodResult>>() {}.getType();
+        if (response.errorCode == 0) {
+            Type listType = new TypeToken<ArrayList<ApiMethodResult>>() {
+            }.getType();
             List<ApiMethodResult> responses = gson.fromJson(response.result.getAsJsonArray("responses"), listType);
             if (responses != null && !responses.isEmpty()) {
                 responses.forEach(resp -> {
                     if (resp.errorCode == 0) {
-                        //JsonObject obj = resp.result;
-                        //String method = resp.method;
+                        // JsonObject obj = resp.result;
+                        // String method = resp.method;
                         // processMethodResult(method, obj);
                         results.add(resp);
                     }
@@ -386,7 +390,8 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String command = ApiUtils.createSingleCommand("get", module, List.of(section));
         JsonObject response = (JsonObject) sendSingleRequest(token, command);
         if (response.get("error_code").getAsInt() == 0) {
-            result = (NetworkInfo) gson.fromJson(response.get(module).getAsJsonObject().get(section), WAN_INFO.getClazz());
+            result = (NetworkInfo) gson.fromJson(response.get(module).getAsJsonObject().get(section),
+                    WAN_INFO.getClazz());
 
             command = createMultipleCommand(List.of(CONNECTION_TYPE));
             ApiResponse response1 = sendMultipleRequest(token, command);
@@ -474,30 +479,37 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     public void setImageFlip(String state) {
         executeSetMethod(IMAGE_ROTATION_STATUS, "flip_type", state);
     }
+
     @Override
     public void setImageLdc(String state) {
         executeSetMethod(IMAGE_ROTATION_STATUS, "ldc", state);
     }
+
     @Override
     public void setImageNightVision(String state) {
         executeSetMethod(LIGHT_FREQUENCY_INFO, "inf_type", state);
     }
+
     @Override
     public void setImageContrast(Integer state) {
         executeSetMethod(LIGHT_FREQUENCY_INFO, "contrast", String.valueOf(state));
     }
+
     @Override
     public void setImageSaturation(Integer state) {
         executeSetMethod(LIGHT_FREQUENCY_INFO, "saturation", String.valueOf(state));
     }
+
     @Override
     public void setImageSharpness(Integer state) {
         executeSetMethod(LIGHT_FREQUENCY_INFO, "sharpness", String.valueOf(state));
     }
+
     @Override
     public void setImageLuma(Integer state) {
         executeSetMethod(LIGHT_FREQUENCY_INFO, "luma", String.valueOf(state));
     }
+
     @Override
     public LensMaskInfo getLensMaskInfo() {
         String module = LENS_MASK.getModule();
@@ -512,6 +524,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     public void setLensMaskEnabled(String state) {
         executeSetMethod(LENS_MASK, "enabled", state);
     }
+
     @Override
     public LedStatus getLedStatus() {
         String module = LED_STATUS.getModule();
@@ -536,22 +549,27 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         Object result = processSingleResponse(singleResponse, module, section);
         return (MsgAlarmInfo) result;
     }
+
     @Override
     public void setAlarmInfoEnabled(String status) {
         executeSetMethod(MSG_ALARM_INFO, "enabled", status);
     }
+
     @Override
     public void setAlarmInfoMode(List<String> modes) {
         executeSetMethod(MSG_ALARM_INFO, "alarm_mode", modes);
     }
+
     @Override
     public void setAlarmInfoType(String type) {
         executeSetMethod(MSG_ALARM_INFO, "alarm_type", type);
     }
+
     @Override
     public void setManualAlarm(String state) {
         executeDoMethod(MSG_ALARM_MANUAL, "action", state);
     }
+
     @Override
     public MsgPushInfo getMsgPushInfo() {
         String module = MSG_PUSH_INFO.getModule();
@@ -581,6 +599,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         Object result = processSingleResponse(singleResponse, module, section);
         return (IntrusionDetectionInfo) result;
     }
+
     @Override
     public void setIntrusionDetectEnabled(String state) {
         executeSetMethod(INTRUSION_DETECTION, "enabled", state);
@@ -600,10 +619,12 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         Object result = processSingleResponse(singleResponse, module, section);
         return (LineCrossingDetectionInfo) result;
     }
+
     @Override
     public void setLineCrossingDetectEnabled(String state) {
         executeSetMethod(LINECROSSING_DETECTION, "enabled", state);
     }
+
     @Override
     public MotionDetection getMotionDetectionInfo() {
         String module = MOTION_DETECTION.getModule();
@@ -613,14 +634,17 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         Object result = processSingleResponse(singleResponse, module, section);
         return (MotionDetection) result;
     }
+
     @Override
     public void setMotionDetectEnabled(String state) {
         executeSetMethod(MOTION_DETECTION, "enabled", state);
     }
+
     @Override
     public void setMotionDetectSensitivity(String state) {
         executeSetMethod(MOTION_DETECTION, "sensitivity", state);
     }
+
     @Override
     public void setMotionDetectSensitivity(Integer state) {
         executeSetMethod(MOTION_DETECTION, "digital_sensitivity", String.valueOf(state));
@@ -630,6 +654,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     public void setMotionDetectEnhanced(String state) {
         executeSetMethod(MOTION_DETECTION, "enhanced", state);
     }
+
     @Override
     public PersonDetectionInfo getPersonDetectionInfo() {
         String module = PERSON_DETECTION.getModule();
@@ -639,14 +664,17 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         Object result = processSingleResponse(singleResponse, module, section);
         return (PersonDetectionInfo) result;
     }
+
     @Override
     public void setPersonDetectEnabled(String state) {
         executeSetMethod(PERSON_DETECTION, "enabled", state);
     }
+
     @Override
     public void setPersonDetectSensitivity(Integer state) {
         executeSetMethod(PERSON_DETECTION, "sensitivity", String.valueOf(state));
     }
+
     @Override
     public TamperDetectionInfo getTamperDetectionInfo() {
         String module = TAMPER_DETECTION.getModule();
@@ -656,10 +684,12 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         Object result = processSingleResponse(singleResponse, module, section);
         return (TamperDetectionInfo) result;
     }
+
     @Override
     public void setTamperDetectEnabled(String state) {
         executeSetMethod(TAMPER_DETECTION, "enabled", state);
     }
+
     @Override
     public PresetInfo getPresetInfo() {
         String module = PRESETS.getModule();
@@ -689,20 +719,16 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         Object result = processSingleResponse(singleResponse, module, section);
         return (TargetAutoTrackInfo) result;
     }
+
     @Override
     public List<ApiMethodResult> getChangebleParameters() {
         List<ApiMethodResult> result = new ArrayList<>();
-        List<ApiMethodTypes> listCommands = List.of(
-                ApiMethodTypes.MOTION_DETECTION, ApiMethodTypes.INTRUSION_DETECTION,
-                ApiMethodTypes.LINECROSSING_DETECTION, ApiMethodTypes.PERSON_DETECTION,
-                ApiMethodTypes.TAMPER_DETECTION,
+        List<ApiMethodTypes> listCommands = List.of(ApiMethodTypes.MOTION_DETECTION, ApiMethodTypes.INTRUSION_DETECTION,
+                ApiMethodTypes.LINECROSSING_DETECTION, ApiMethodTypes.PERSON_DETECTION, ApiMethodTypes.TAMPER_DETECTION,
                 ApiMethodTypes.MSG_ALARM_INFO, ApiMethodTypes.LAST_ALARM_INFO, ApiMethodTypes.MSG_PUSH_INFO,
-                ApiMethodTypes.IMAGE_ROTATION_STATUS,
-                ApiMethodTypes.LENS_MASK, ApiMethodTypes.LIGHT_FREQUENCY_INFO,
-                ApiMethodTypes.LED_STATUS,
-                ApiMethodTypes.TARGET_TRACK, ApiMethodTypes.PRESETS,
-                ApiMethodTypes.SPEAKER_INFO, ApiMethodTypes.MICROPHONE_INFO
-        );
+                ApiMethodTypes.IMAGE_ROTATION_STATUS, ApiMethodTypes.LENS_MASK, ApiMethodTypes.LIGHT_FREQUENCY_INFO,
+                ApiMethodTypes.LED_STATUS, ApiMethodTypes.TARGET_TRACK, ApiMethodTypes.PRESETS,
+                ApiMethodTypes.SPEAKER_INFO, ApiMethodTypes.MICROPHONE_INFO);
 
         String multipleCommand = ApiUtils.createMultipleCommand(listCommands);
         ApiResponse response = sendMultipleRequest(token, multipleCommand);

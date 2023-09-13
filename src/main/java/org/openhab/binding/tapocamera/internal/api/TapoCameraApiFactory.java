@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -8,27 +8,28 @@
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0
  *
- *  SPDX-License-Identifier: EPL-2.0
+ * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.openhab.binding.tapocamera.internal.api;
+
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 
 import org.eclipse.jetty.client.HttpClient;
+import org.openhab.binding.tapocamera.internal.api.ssl.SslUtils;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-
-import org.openhab.binding.tapocamera.internal.api.ssl.SslUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * The type Tapo camera api factory.
+ *
+ * @author "Dmintry P (d51x)" - Initial contribution
  */
 @Component(service = TapoCameraApiFactory.class)
 public class TapoCameraApiFactory {
@@ -41,16 +42,14 @@ public class TapoCameraApiFactory {
     /**
      * Ssl context ssl context.
      *
-     * @param keyManagers   the key managers
+     * @param keyManagers the key managers
      * @param trustManagers the trust managers
      * @return the ssl context
      */
     public static SSLContext sslContext(KeyManager[] keyManagers, TrustManager[] trustManagers) {
         try {
             SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(keyManagers,
-                    trustManagers,
-                    null);
+            sslContext.init(keyManagers, trustManagers, null);
             return sslContext;
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
             throw new IllegalStateException("Couldn't init TLS context", e);

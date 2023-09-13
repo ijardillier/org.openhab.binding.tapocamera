@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -8,13 +8,14 @@
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0
  *
- *  SPDX-License-Identifier: EPL-2.0
+ * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.openhab.binding.tapocamera.internal.api.dto.system;
 
 /**
  * The type Network info.
+ *
+ * @author "Dmintry P (d51x)" - Initial contribution
  */
 public class NetworkInfo {
     /**
@@ -75,21 +76,10 @@ public class NetworkInfo {
 
     @Override
     public String toString() {
-        return "NetworkInfo{" +
-                "ifname='" + ifname + '\'' +
-                ", type='" + type + '\'' +
-                ", wan_type='" + wan_type + '\'' +
-                ", speed_duplex='" + speed_duplex + '\'' +
-                ", proto='" + proto + '\'' +
-                ", mtu=" + mtu +
-                ", auto='" + auto + '\'' +
-                ", netmask='" + netmask + '\'' +
-                ", macaddr='" + macaddr + '\'' +
-                ", fac_macaddr='" + fac_macaddr + '\'' +
-                ", ipaddr='" + ipaddr + '\'' +
-                ", gateway='" + gateway + '\'' +
-                ", dns='" + dns + '\'' +
-                ", connectionType=" + connectionType +
-                '}';
+        return "NetworkInfo{" + "ifname='" + ifname + '\'' + ", type='" + type + '\'' + ", wan_type='" + wan_type + '\''
+                + ", speed_duplex='" + speed_duplex + '\'' + ", proto='" + proto + '\'' + ", mtu=" + mtu + ", auto='"
+                + auto + '\'' + ", netmask='" + netmask + '\'' + ", macaddr='" + macaddr + '\'' + ", fac_macaddr='"
+                + fac_macaddr + '\'' + ", ipaddr='" + ipaddr + '\'' + ", gateway='" + gateway + '\'' + ", dns='" + dns
+                + '\'' + ", connectionType=" + connectionType + '}';
     }
 }

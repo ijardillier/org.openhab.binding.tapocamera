@@ -1,16 +1,15 @@
-/*
+/**
  * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
- *  See the NOTICE file(s) distributed with this work for additional
- *  information.
+ * See the NOTICE file(s) distributed with this work for additional
+ * information.
  *
  * This program and the accompanying materials are made available under the
- *  terms of the Eclipse Public License 2.0 which is available at
- *  http://www.eclipse.org/legal/epl-2.0
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.openhab.binding.tapocamera.internal.dto;
 
 import java.util.HashMap;
@@ -24,6 +23,8 @@ import org.openhab.binding.tapocamera.internal.api.dto.detection.PersonDetection
 
 /**
  * The type Camera state.
+ *
+ * @author "Dmintry P (d51x)" - Initial contribution
  */
 public class CameraState {
     private String friendlyName;
@@ -268,9 +269,8 @@ public class CameraState {
     }
 
     public Integer getPresetId(String name) {
-        return presets.entrySet().stream()
-                .filter(entry -> entry.getValue().equals(name))
-                .findFirst().orElse(null).getKey();
+        return presets.entrySet().stream().filter(entry -> entry.getValue().equals(name)).findFirst().orElse(null)
+                .getKey();
     }
 
     public void setPreset(Integer id, String name) {

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -8,9 +8,8 @@
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0
  *
- *  SPDX-License-Identifier: EPL-2.0
+ * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.openhab.binding.tapocamera.internal.api;
 
 import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.TAPO_CLOUD_URL;
@@ -30,17 +29,22 @@ import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
+import org.openhab.binding.tapocamera.internal.api.response.ApiDeviceResponse;
+import org.openhab.binding.tapocamera.internal.api.response.ApiResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
-import org.openhab.binding.tapocamera.internal.api.response.ApiDeviceResponse;
-import org.openhab.binding.tapocamera.internal.api.response.ApiResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+/**
+ * The type Tapo camera cloud api.
+ *
+ * @author "Dmintry P (d51x)" - Initial contribution
+ */
 public class TapoCameraCloudApiImpl implements TapoCameraCloudApi {
 
     private final Logger logger = LoggerFactory.getLogger(TapoCameraCloudApiImpl.class);
@@ -48,9 +52,15 @@ public class TapoCameraCloudApiImpl implements TapoCameraCloudApi {
     private static Gson gson = new Gson();
     private final HttpClient httpClient;
 
+    /**
+     * Instantiates a new Tapo camera cloud api.
+     *
+     * @param httpClient the http client
+     */
     public TapoCameraCloudApiImpl(HttpClient httpClient) {
         this.httpClient = httpClient;
     }
+
     @Override
     public String getCloudToken(String username, String password) {
         Request request = httpClient.newRequest(TAPO_CLOUD_URL);
@@ -98,9 +108,10 @@ public class TapoCameraCloudApiImpl implements TapoCameraCloudApi {
             JsonElement json = JsonParser.parseString(contentResponse.getContentAsString());
             ApiResponse response = gson.fromJson(json, ApiResponse.class);
             if (response.errorCode == 0) {
-                Type listType = new TypeToken<ArrayList<ApiDeviceResponse>>() {}.getType();
-                List<ApiDeviceResponse> deviceResponseList = gson.fromJson(response.result
-                        .getAsJsonArray("deviceList"), listType);
+                Type listType = new TypeToken<ArrayList<ApiDeviceResponse>>() {
+                }.getType();
+                List<ApiDeviceResponse> deviceResponseList = gson.fromJson(response.result.getAsJsonArray("deviceList"),
+                        listType);
                 logger.debug("Cloud devices: {}", deviceResponseList.toString());
                 return deviceResponseList;
             } else {
@@ -119,5 +130,4 @@ public class TapoCameraCloudApiImpl implements TapoCameraCloudApi {
         request.header(HttpHeader.CONTENT_TYPE, "application/json");
         request.header(HttpHeader.ACCEPT, "application/json");
     }
-
 }

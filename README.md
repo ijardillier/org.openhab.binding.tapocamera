@@ -1,6 +1,6 @@
 # TapoCamera Binding
 
-![Tapo.png](docs%2Fimg%2FTapo.png)
+![Tapo.png](doc/Tapo.png)
 
 The binding allows you to control Tapo Camera settings and manually turn on/off siren.
 
@@ -29,21 +29,23 @@ This information doesn't have information about camera IP address that needed to
 
 On Linux the discovery uses an arp-table to get camera IP address automatically.
 
-![discovery-0.png](docs%2Fimg%2Fdiscovery-0.png)
+![discovery-0.png](doc/discovery-0.png)
 
 ## Thing Configuration
 
 To connect the camera you should fill requirement fields:
+
 - `Hostname` - camera IP address
 - `Username` - for C200 and C310 and may be other, you should put `admin` username, in other case - camera username created in `Mobile App -> Additional Setting -> Camera account`
 - `Password` - password created in `Mobile App -> Additional Setting -> Camera account`
 - `Cloud password` - password for your cloud account (the same is in Bridge), uses to access via local api
 
-![settings-1.png](docs%2Fimg%2Fsettings-1.png)
+
+![settings-1.png](doc/settings-1.png)
 
 After connecting to the camera some information will available:
 
-![thing-info-0.png](docs%2Fimg%2Fthing-info-0.png)
+![thing-info-0.png](doc/thing-info-0.png)
 
 ## Channels
 
@@ -52,11 +54,12 @@ At the moment list of channels contains all channels even if channel not availab
 For example, C310 doesn't have motor (PTZ), but channel Preset is shown.
 C200 doesn't have line-crossing and intrusion detections, but these channels will be shown.
 
-![channels-0.png](docs%2Fimg%2Fchannels-0.png)
-![channels-1.png](docs%2Fimg%2Fchannels-1.png)
-![channels-2.png](docs%2Fimg%2Fchannels-2.png)
+![channels-0.png](doc/channels-0.png)
+![channels-1.png](doc/channels-1.png)
+![channels-2.png](doc/channels-2.png)
 
 For example:
+
 - `Manual Alarm` - send ON/OFF to item to turn on/off siren
 - `Preset` - for camera with motor you can send command with preset id to move camera to target position.
    
@@ -65,6 +68,7 @@ For example:
    Just copy that text and put it to the state description of item to control preset from UI or use preset id to control from automation.
 
 ## Thank you
+
 - Juraj Nyíri - PyTapo - https://github.com/JurajNyiri/pytapo
 - Davide Depau - https://md.depau.eu/s/r1Ys_oWoP
 

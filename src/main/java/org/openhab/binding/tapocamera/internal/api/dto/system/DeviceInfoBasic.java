@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -8,52 +8,39 @@
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0
  *
- *  SPDX-License-Identifier: EPL-2.0
+ * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.openhab.binding.tapocamera.internal.api.dto.system;
 
 import com.google.gson.annotations.SerializedName;
 
 /**
  * The type Device info basic.
+ *
+ * @author "Dmintry P (d51x)" - Initial contribution
  */
 public class DeviceInfoBasic {
     /**
      * The Ffs.
      */
-    public Boolean ffs;  // ??? C200 - no, C310 - false
+    public Boolean ffs; // ??? C200 - no, C310 - false
 
     @Override
     public String toString() {
-        return "DeviceInfoBasic{" +
-                "ffs=" + ffs +
-                ", deviceType='" + deviceType + '\'' +
-                ", deviceModel='" + deviceModel + '\'' +
-                ", deviceName='" + deviceName + '\'' +
-                ", deviceInfo='" + deviceInfo + '\'' +
-                ", hwVersion='" + hwVersion + '\'' +
-                ", swVersion='" + swVersion + '\'' +
-                ", deviceAlias='" + deviceAlias + '\'' +
-                ", avatar='" + avatar + '\'' +
-                ", longitude=" + longitude +
-                ", latitude=" + latitude +
-                ", hasSetLocationInfo=" + hasSetLocationInfo +
-                ", features=" + features +
-                ", barcode='" + barcode + '\'' +
-                ", mac='" + mac + '\'' +
-                ", devId='" + devId + '\'' +
-                ", oemId='" + oemId + '\'' +
-                ", hwDesc='" + hwDesc + '\'' +
-                ", isCal=" + isCal +
-                '}';
+        return "DeviceInfoBasic{" + "ffs=" + ffs + ", deviceType='" + deviceType + '\'' + ", deviceModel='"
+                + deviceModel + '\'' + ", deviceName='" + deviceName + '\'' + ", deviceInfo='" + deviceInfo + '\''
+                + ", hwVersion='" + hwVersion + '\'' + ", swVersion='" + swVersion + '\'' + ", deviceAlias='"
+                + deviceAlias + '\'' + ", avatar='" + avatar + '\'' + ", longitude=" + longitude + ", latitude="
+                + latitude + ", hasSetLocationInfo=" + hasSetLocationInfo + ", features=" + features + ", barcode='"
+                + barcode + '\'' + ", mac='" + mac + '\'' + ", devId='" + devId + '\'' + ", oemId='" + oemId + '\''
+                + ", hwDesc='" + hwDesc + '\'' + ", isCal=" + isCal + '}';
     }
 
     /**
      * The Device type.
      */
     @SerializedName("device_type")
-    public String deviceType; //  SMART.IPCAMERA
+    public String deviceType; // SMART.IPCAMERA
     /**
      * The Device model.
      */
@@ -132,6 +119,5 @@ public class DeviceInfoBasic {
      * The Is cal.
      */
     @SerializedName("is_cal")
-    public Boolean isCal; // true  C310 - support, C200 - not support, but has call function
-
+    public Boolean isCal; // true C310 - support, C200 - not support, but has call function
 }

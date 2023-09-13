@@ -1,78 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <thing:thing-descriptions bindingId="tapocamera"
-                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                          xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
-                          xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
-<!--
-    <channel-group-type id="device">
-        <label>Device information</label>
-        <description>Device information</description>
-        <channels>
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
+	<!--
+		<channel-group-type id="device">
+		<label>Device information</label>
+		<description>Device information</description>
+		<channels>
 
-        </channels>
-    </channel-group-type>
--->
-    <channel-group-type id="system">
-        <label>General parameters</label>
-        <description>General parameters</description>
-        <channels>
-            <channel id="led-status" typeId="led-status" />
-            <channel id="manual-alarm" typeId="manual-alarm" />
-            <channel id="privacy-mode" typeId="privacy-mode" />
-            <channel id="speaker-volume" typeId="speaker-volume" />
-            <channel id="microphone-volume" typeId="microphone-volume" />
-        </channels>
-    </channel-group-type>
+		</channels>
+		</channel-group-type>
+	-->
+	<channel-group-type id="system">
+		<label>General parameters</label>
+		<description>General parameters</description>
+		<channels>
+			<channel id="led-status" typeId="led-status"/>
+			<channel id="manual-alarm" typeId="manual-alarm"/>
+			<channel id="privacy-mode" typeId="privacy-mode"/>
+			<channel id="speaker-volume" typeId="speaker-volume"/>
+			<channel id="microphone-volume" typeId="microphone-volume"/>
+		</channels>
+	</channel-group-type>
 
 
-    <channel-group-type id="image">
-        <label>Image parameters</label>
-        <description>Image parameters</description>
-        <channels>
-            <channel id="flip" typeId="flip" />
-            <channel id="ldc" typeId="ldc" />
-            <channel id="night-vision" typeId="night-vision" />
-            <channel id="contrast" typeId="contrast" />
-            <channel id="saturation" typeId="saturation" />
-            <channel id="sharpness" typeId="sharpness" />
-            <channel id="luma" typeId="luma" />
-        </channels>
-    </channel-group-type>
+	<channel-group-type id="image">
+		<label>Image parameters</label>
+		<description>Image parameters</description>
+		<channels>
+			<channel id="flip" typeId="flip"/>
+			<channel id="ldc" typeId="ldc"/>
+			<channel id="night-vision" typeId="night-vision"/>
+			<channel id="contrast" typeId="contrast"/>
+			<channel id="saturation" typeId="saturation"/>
+			<channel id="sharpness" typeId="sharpness"/>
+			<channel id="luma" typeId="luma"/>
+		</channels>
+	</channel-group-type>
 
-    <channel-group-type id="alarm-control">
-        <label>Alarm control</label>
-        <description>Alarm control</description>
-        <channels>
-            <channel id="alarm-enabled" typeId="alarm-enabled" />
-            <channel id="alarm-type" typeId="alarm-type" />
-            <channel id="alarm-mode" typeId="alarm-mode" />
-            <channel id="alarm-light-type" typeId="alarm-light-type" />
-            <channel id="last-alarm-type" typeId="last-alarm-type" />
-            <channel id="last-alarm-time" typeId="last-alarm-time" />
-        </channels>
-    </channel-group-type>
+	<channel-group-type id="alarm-control">
+		<label>Alarm control</label>
+		<description>Alarm control</description>
+		<channels>
+			<channel id="alarm-enabled" typeId="alarm-enabled"/>
+			<channel id="alarm-type" typeId="alarm-type"/>
+			<channel id="alarm-mode" typeId="alarm-mode"/>
+			<channel id="alarm-light-type" typeId="alarm-light-type"/>
+			<channel id="last-alarm-type" typeId="last-alarm-type"/>
+			<channel id="last-alarm-time" typeId="last-alarm-time"/>
+		</channels>
+	</channel-group-type>
 
-    <channel-group-type id="detections">
-        <label>Detections</label>
-        <description>Detections</description>
-        <channels>
-            <channel id="motion-detection-enabled" typeId="motion-detection-enabled" />
-            <channel id="motion-detection-sensitivity" typeId="motion-detection-sensitivity" />
-            <channel id="motion-detection-digital-sensitivity" typeId="motion-detection-digital-sensitivity" />
-            <channel id="person-detection-enabled" typeId="person-detection-enabled" />
-            <channel id="person-detection-sensitivity" typeId="person-detection-sensitivity" />
-            <channel id="line-crossing-detection-enabled" typeId="line-crossing-detection-enabled" />
-            <channel id="intrusion-detection-enabled" typeId="intrusion-detection-enabled" />
-            <channel id="target-track-detection-enabled" typeId="target-track-detection-enabled" />
-        </channels>
-    </channel-group-type>
+	<channel-group-type id="detections">
+		<label>Detections</label>
+		<description>Detections</description>
+		<channels>
+			<channel id="motion-detection-enabled" typeId="motion-detection-enabled"/>
+			<channel id="motion-detection-sensitivity" typeId="motion-detection-sensitivity"/>
+			<channel id="motion-detection-digital-sensitivity" typeId="motion-detection-digital-sensitivity"/>
+			<channel id="person-detection-enabled" typeId="person-detection-enabled"/>
+			<channel id="person-detection-sensitivity" typeId="person-detection-sensitivity"/>
+			<channel id="line-crossing-detection-enabled" typeId="line-crossing-detection-enabled"/>
+			<channel id="intrusion-detection-enabled" typeId="intrusion-detection-enabled"/>
+			<channel id="target-track-detection-enabled" typeId="target-track-detection-enabled"/>
+		</channels>
+	</channel-group-type>
 
-    <channel-group-type id="presets">
-        <label>Presets</label>
-        <description>Presets</description>
-        <channels>
-            <channel id="preset" typeId="preset" />
-        </channels>
-    </channel-group-type>
+	<channel-group-type id="presets">
+		<label>Presets</label>
+		<description>Presets</description>
+		<channels>
+			<channel id="preset" typeId="preset"/>
+		</channels>
+	</channel-group-type>
 </thing:thing-descriptions>

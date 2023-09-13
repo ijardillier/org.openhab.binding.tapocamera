@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -8,13 +8,14 @@
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0
  *
- *  SPDX-License-Identifier: EPL-2.0
+ * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.openhab.binding.tapocamera.internal.api.dto.system;
 
 /**
  * The type Hard disk info.
+ *
+ * @author "Dmintry P (d51x)" - Initial contribution
  */
 public class HardDiskInfo {
     /**
@@ -32,27 +33,16 @@ public class HardDiskInfo {
 
     @Override
     public String toString() {
-        return "HardDiskInfo{" +
-                "disk_name='" + disk_name + '\'' +
-                ", rw_attr='" + rw_attr + '\'' +
-                ", detect_status='" + detect_status + '\'' +
-                ", write_protect=" + write_protect +
-                ", msg_push_free_space='" + msg_push_free_space + '\'' +
-                ", picture_free_space='" + picture_free_space + '\'' +
-                ", free_space='" + free_space + '\'' +
-                ", video_free_space='" + video_free_space + '\'' +
-                ", percent=" + percent +
-                ", record_duration=" + record_duration +
-                ", record_free_duration=" + record_free_duration +
-                ", record_start_time='" + record_start_time + '\'' +
-                ", status='" + status + '\'' +
-                ", msg_push_total_space='" + msg_push_total_space + '\'' +
-                ", picture_total_space='" + picture_total_space + '\'' +
-                ", total_space='" + total_space + '\'' +
-                ", video_total_space='" + video_total_space + '\'' +
-                ", type='" + type + '\'' +
-                ", loop_record_status=" + loop_record_status +
-                '}';
+        return "HardDiskInfo{" + "disk_name='" + disk_name + '\'' + ", rw_attr='" + rw_attr + '\'' + ", detect_status='"
+                + detect_status + '\'' + ", write_protect=" + write_protect + ", msg_push_free_space='"
+                + msg_push_free_space + '\'' + ", picture_free_space='" + picture_free_space + '\'' + ", free_space='"
+                + free_space + '\'' + ", video_free_space='" + video_free_space + '\'' + ", percent=" + percent
+                + ", record_duration=" + record_duration + ", record_free_duration=" + record_free_duration
+                + ", record_start_time='" + record_start_time + '\'' + ", status='" + status + '\''
+                + ", msg_push_total_space='" + msg_push_total_space + '\'' + ", picture_total_space='"
+                + picture_total_space + '\'' + ", total_space='" + total_space + '\'' + ", video_total_space='"
+                + video_total_space + '\'' + ", type='" + type + '\'' + ", loop_record_status=" + loop_record_status
+                + '}';
     }
 
     /**

@@ -34,7 +34,7 @@ public class TapoCameraBindingConstants {
     /**
      * The constant THING_TYPE_CAMERA.
      */
-// List of all Thing Type UIDs
+    // List of all Thing Type UIDs
     public static final ThingTypeUID THING_TYPE_CAMERA = new ThingTypeUID(BINDING_ID, THING_TYPE_ID);
     public static final ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, BRIDGE_TYPE_ID);
 

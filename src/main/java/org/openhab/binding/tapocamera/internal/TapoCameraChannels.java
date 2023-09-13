@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -8,9 +8,8 @@
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0
  *
- *  SPDX-License-Identifier: EPL-2.0
+ * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.openhab.binding.tapocamera.internal;
 
 import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_GROUP_ALARM_CONTROL;
@@ -21,12 +20,14 @@ import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants
 
 /**
  * The enum Tapo camera channels.
+ *
+ * @author "Dmintry P (d51x)" - Initial contribution
  */
 public enum TapoCameraChannels {
     /**
      * The Channel led status.
      */
-// system group
+    // system group
     CHANNEL_LED_STATUS("led-status", CHANNEL_GROUP_SYSTEM),
     CHANNEL_PRIVACY_MODE("privacy-mode", CHANNEL_GROUP_SYSTEM),
     /**
@@ -45,7 +46,7 @@ public enum TapoCameraChannels {
     /**
      * The Channel alarm enabled.
      */
-// alarm control group
+    // alarm control group
     CHANNEL_ALARM_ENABLED("alarm-enabled", CHANNEL_GROUP_ALARM_CONTROL),
     /**
      * Channel alarm type tapo camera channels.
@@ -65,7 +66,7 @@ public enum TapoCameraChannels {
     /**
      * The Channel motion detection enabled.
      */
-// detections group
+    // detections group
     CHANNEL_MOTION_DETECTION_ENABLED("motion-detection-enabled", CHANNEL_GROUP_DETECTIONS),
     /**
      * Channel motion detection sensitivity tapo camera channels.
@@ -100,8 +101,7 @@ public enum TapoCameraChannels {
     CHANNEL_IMAGE_CONTRAST("contrast", CHANNEL_GROUP_IMAGE),
     CHANNEL_IMAGE_SATURATION("saturation", CHANNEL_GROUP_IMAGE),
     CHANNEL_IMAGE_SHARPNESS("sharpness", CHANNEL_GROUP_IMAGE),
-    CHANNEL_IMAGE_LUMA("luma", CHANNEL_GROUP_IMAGE),
-    ;
+    CHANNEL_IMAGE_LUMA("luma", CHANNEL_GROUP_IMAGE),;
 
     private String channelId;
     private String groupId;

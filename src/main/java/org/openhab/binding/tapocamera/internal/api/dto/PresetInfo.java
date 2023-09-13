@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -8,9 +8,8 @@
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0
  *
- *  SPDX-License-Identifier: EPL-2.0
+ * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.openhab.binding.tapocamera.internal.api.dto;
 
 import java.util.List;
@@ -19,6 +18,8 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * The type Preset info.
+ *
+ * @author "Dmintry P (d51x)" - Initial contribution
  */
 public class PresetInfo {
     /**
@@ -49,15 +50,12 @@ public class PresetInfo {
 
     @Override
     public String toString() {
-        return "PresetInfo{" +
-                "ids=" + ids +
-                ", names=" + names +
-                ", pansPosition=" + pansPosition +
-                ", tiltsPosition=" + tiltsPosition +
-                ", readOnly=" + readOnly +
-                '}';
+        return "PresetInfo{" + "ids=" + ids + ", names=" + names + ", pansPosition=" + pansPosition + ", tiltsPosition="
+                + tiltsPosition + ", readOnly=" + readOnly + '}';
     }
 }
 /*
-{method='getPresetConfig', errorCode=0, result={"preset":{"preset":{"id":["1","2"],"name":["Отмеченная зона 1","Отмеченная зона 2"],"read_only":["0","0"],"position_pan":["0.940538","0.355739"],"position_tilt":["1.000000","-0.391960"]}}}}
+ * {method='getPresetConfig', errorCode=0,
+ * result={"preset":{"preset":{"id":["1","2"],"name":["Отмеченная зона 1","Отмеченная зона 2"],"read_only":["0","0"],
+ * "position_pan":["0.940538","0.355739"],"position_tilt":["1.000000","-0.391960"]}}}}
  */

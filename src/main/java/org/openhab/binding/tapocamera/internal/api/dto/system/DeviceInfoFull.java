@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -8,15 +8,16 @@
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0
  *
- *  SPDX-License-Identifier: EPL-2.0
+ * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.openhab.binding.tapocamera.internal.api.dto.system;
 
 import com.google.gson.annotations.SerializedName;
 
 /**
  * The type Device info full.
+ *
+ * @author "Dmintry P (d51x)" - Initial contribution
  */
 public class DeviceInfoFull {
     /**
@@ -27,47 +28,22 @@ public class DeviceInfoFull {
 
     @Override
     public String toString() {
-        return "DeviceInfoFull{" +
-                "deviceModel='" + deviceModel + '\'' +
-                ", hwVersion='" + hwVersion + '\'' +
-                ", fwDescription='" + fwDescription + '\'' +
-                ", productId='" + productId + '\'' +
-                ", deviceName='" + deviceName + '\'' +
-                ", deviceInfo='" + deviceInfo + '\'' +
-                ", devId='" + devId + '\'' +
-                ", hwId='" + hwId + '\'' +
-                ", mac='" + mac + '\'' +
-                ", curIspVersion='" + curIspVersion + '\'' +
-                ", sensor='" + sensor + '\'' +
-                ", fwCurId='" + fwCurId + '\'' +
-                ", swVersion='" + swVersion + '\'' +
-                ", sysSoftwareRevision='" + sysSoftwareRevision + '\'' +
-                ", sysSoftwareRevisionMinor='" + sysSoftwareRevisionMinor + '\'' +
-                ", deviceBase='" + deviceBase + '\'' +
-                ", lensName='" + lensName + '\'' +
-                ", deviceType='" + deviceType + '\'' +
-                ", features=" + features +
-                ", domainName='" + domainName + '\'' +
-                ", language='" + language + '\'' +
-                ", enableDns=" + enableDns +
-                ", manufacturerName='" + manufacturerName + '\'' +
-                ", friendlyName='" + friendlyName + '\'' +
-                ", modelDescription='" + modelDescription + '\'' +
-                ", manufacturerUrl='" + manufacturerUrl + '\'' +
-                ", vendorId='" + vendorId + '\'' +
-                ", zoneCode='" + zoneCode + '\'' +
-                ", roiRegNum=" + roiRegNum +
-                ", coverRegNum=" + coverRegNum +
-                ", mdRegNum=" + mdRegNum +
-                ", tdRegNum=" + tdRegNum +
-                ", idRegNum=" + idRegNum +
-                ", cdRegNum=" + cdRegNum +
-                ", acRegNum=" + acRegNum +
-                ", pluginObtainWay='" + pluginObtainWay + '\'' +
-                ", productType='" + productType + '\'' +
-                ", fwSharedPrefix='" + fwSharedPrefix + '\'' +
-                ", extFwUpgrade=" + extFwUpgrade +
-                '}';
+        return "DeviceInfoFull{" + "deviceModel='" + deviceModel + '\'' + ", hwVersion='" + hwVersion + '\''
+                + ", fwDescription='" + fwDescription + '\'' + ", productId='" + productId + '\'' + ", deviceName='"
+                + deviceName + '\'' + ", deviceInfo='" + deviceInfo + '\'' + ", devId='" + devId + '\'' + ", hwId='"
+                + hwId + '\'' + ", mac='" + mac + '\'' + ", curIspVersion='" + curIspVersion + '\'' + ", sensor='"
+                + sensor + '\'' + ", fwCurId='" + fwCurId + '\'' + ", swVersion='" + swVersion + '\''
+                + ", sysSoftwareRevision='" + sysSoftwareRevision + '\'' + ", sysSoftwareRevisionMinor='"
+                + sysSoftwareRevisionMinor + '\'' + ", deviceBase='" + deviceBase + '\'' + ", lensName='" + lensName
+                + '\'' + ", deviceType='" + deviceType + '\'' + ", features=" + features + ", domainName='" + domainName
+                + '\'' + ", language='" + language + '\'' + ", enableDns=" + enableDns + ", manufacturerName='"
+                + manufacturerName + '\'' + ", friendlyName='" + friendlyName + '\'' + ", modelDescription='"
+                + modelDescription + '\'' + ", manufacturerUrl='" + manufacturerUrl + '\'' + ", vendorId='" + vendorId
+                + '\'' + ", zoneCode='" + zoneCode + '\'' + ", roiRegNum=" + roiRegNum + ", coverRegNum=" + coverRegNum
+                + ", mdRegNum=" + mdRegNum + ", tdRegNum=" + tdRegNum + ", idRegNum=" + idRegNum + ", cdRegNum="
+                + cdRegNum + ", acRegNum=" + acRegNum + ", pluginObtainWay='" + pluginObtainWay + '\''
+                + ", productType='" + productType + '\'' + ", fwSharedPrefix='" + fwSharedPrefix + '\''
+                + ", extFwUpgrade=" + extFwUpgrade + '}';
     }
 
     /**
@@ -256,5 +232,4 @@ public class DeviceInfoFull {
      */
     @SerializedName("ext_fw_upgrade")
     public Integer extFwUpgrade; // "1"
-
 }

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -8,9 +8,8 @@
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0
  *
- *  SPDX-License-Identifier: EPL-2.0
+ * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.openhab.binding.tapocamera.internal.api.dto.alarm;
 
 import java.util.List;
@@ -19,6 +18,8 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * The type Msg alarm info.
+ *
+ * @author "Dmintry P (d51x)" - Initial contribution
  */
 public class MsgAlarmInfo {
     /**
@@ -39,12 +40,12 @@ public class MsgAlarmInfo {
      * The Sound alarm enabled.
      */
     @SerializedName("sound_alarm_enabled")
-    public String soundAlarmEnabled; // "off", "on"  // C200 - no, C310 - yes?
+    public String soundAlarmEnabled; // "off", "on" // C200 - no, C310 - yes?
     /**
      * The Light alarm enabled.
      */
     @SerializedName("light_alarm_enabled")
-    public String lightAlarmEnabled; // "off", "on"  // C200 - no, C310 - yes?
+    public String lightAlarmEnabled; // "off", "on" // C200 - no, C310 - yes?
     /**
      * The Light type.
      */
@@ -53,13 +54,8 @@ public class MsgAlarmInfo {
 
     @Override
     public String toString() {
-        return "MsgAlarmInfo{" +
-                "enabled='" + enabled + '\'' +
-                ", alarmType=" + alarmType +
-                ", alarmMode=" + alarmMode +
-                ", soundAlarmEnabled='" + soundAlarmEnabled + '\'' +
-                ", lightAlarmEnabled='" + lightAlarmEnabled + '\'' +
-                ", lightType=" + lightType +
-                '}';
+        return "MsgAlarmInfo{" + "enabled='" + enabled + '\'' + ", alarmType=" + alarmType + ", alarmMode=" + alarmMode
+                + ", soundAlarmEnabled='" + soundAlarmEnabled + '\'' + ", lightAlarmEnabled='" + lightAlarmEnabled
+                + '\'' + ", lightType=" + lightType + '}';
     }
 }

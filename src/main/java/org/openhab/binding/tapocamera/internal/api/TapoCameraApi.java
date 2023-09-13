@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -8,15 +8,13 @@
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0
  *
- *  SPDX-License-Identifier: EPL-2.0
+ * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.openhab.binding.tapocamera.internal.api;
 
 import java.util.List;
 
 import org.openhab.binding.tapocamera.internal.api.dto.PresetInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.detection.TargetAutoTrackInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.LastAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgPushInfo;
@@ -27,6 +25,7 @@ import org.openhab.binding.tapocamera.internal.api.dto.detection.LineCrossingDet
 import org.openhab.binding.tapocamera.internal.api.dto.detection.MotionDetection;
 import org.openhab.binding.tapocamera.internal.api.dto.detection.PersonDetectionInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.detection.TamperDetectionInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.TargetAutoTrackInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.image.ImageCommon;
 import org.openhab.binding.tapocamera.internal.api.dto.image.ImageSwitch;
 import org.openhab.binding.tapocamera.internal.api.dto.image.LensMaskInfo;
@@ -40,6 +39,8 @@ import org.openhab.binding.tapocamera.internal.api.response.ApiResponse;
 
 /**
  * The interface Tapo camera api.
+ *
+ * @author "Dmintry P (d51x)" - Initial contribution
  */
 public interface TapoCameraApi {
     /**
@@ -70,7 +71,7 @@ public interface TapoCameraApi {
      * Send multiple request api response.
      *
      * @param token the token
-     * @param data  the data
+     * @param data the data
      * @return the api response
      */
     ApiResponse sendMultipleRequest(String token, String data);
@@ -79,7 +80,7 @@ public interface TapoCameraApi {
      * Send single request object.
      *
      * @param token the token
-     * @param data  the data
+     * @param data the data
      * @return the object
      */
     Object sendSingleRequest(String token, String data);
@@ -87,9 +88,9 @@ public interface TapoCameraApi {
     /**
      * Process single response object.
      *
-     * @param data       the data
+     * @param data the data
      * @param moduleName the module name
-     * @param section    the section
+     * @param section the section
      * @return the object
      */
     Object processSingleResponse(Object data, String moduleName, String section);
@@ -97,9 +98,9 @@ public interface TapoCameraApi {
     /**
      * Process single response list.
      *
-     * @param data       the data
+     * @param data the data
      * @param moduleName the module name
-     * @param sections   the sections
+     * @param sections the sections
      * @return the list
      */
     List<Object> processSingleResponse(Object data, String moduleName, List<String> sections);
@@ -127,6 +128,7 @@ public interface TapoCameraApi {
     NetworkInfo getNetworkInfo();
 
     ModuleSpec getModuleSpec();
+
     /**
      * Gets speaker info.
      *
@@ -177,19 +179,28 @@ public interface TapoCameraApi {
     ImageSwitch getImageSwitchInfo();
 
     void setImageFlip(String state);
+
     void setImageLdc(String state);
+
     void setImageNightVision(String state);
+
     void setImageContrast(Integer state);
+
     void setImageSaturation(Integer state);
+
     void setImageSharpness(Integer state);
+
     void setImageLuma(Integer state);
+
     /**
      * Gets lens mask info.
      *
      * @return the lens mask info
      */
     LensMaskInfo getLensMaskInfo();
+
     void setLensMaskEnabled(String state);
+
     /**
      * Gets led status.
      *
@@ -312,6 +323,7 @@ public interface TapoCameraApi {
     void setMotionDetectSensitivity(Integer state);
 
     void setMotionDetectEnhanced(String state);
+
     /**
      * Gets person detection info.
      *
@@ -353,7 +365,9 @@ public interface TapoCameraApi {
      * @return the preset info
      */
     PresetInfo getPresetInfo();
+
     void gotoPreset(String id);
+
     /**
      * Gets target auto track info.
      *
@@ -367,6 +381,4 @@ public interface TapoCameraApi {
      * @return the changeble parameters
      */
     List<ApiMethodResult> getChangebleParameters();
-
-
 }

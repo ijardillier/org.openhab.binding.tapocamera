@@ -6,7 +6,7 @@
 
 	<thing-type id="camera">
 		<supported-bridge-type-refs>
-			<bridge-type-ref id="bridge" />
+			<bridge-type-ref id="bridge"/>
 		</supported-bridge-type-refs>
 
 		<label>TapoCamera</label>
@@ -18,7 +18,7 @@
 			<channel-group id="image" typeId="image"/>
 			<channel-group id="alarm-control" typeId="alarm-control"/>
 			<channel-group id="detections" typeId="detections"/>
-<!--			<channel-group id="motor" typeId="motor"/>-->
+			<!-- <channel-group id="motor" typeId="motor"/> -->
 			<channel-group id="presets" typeId="presets"/>
 		</channel-groups>
 

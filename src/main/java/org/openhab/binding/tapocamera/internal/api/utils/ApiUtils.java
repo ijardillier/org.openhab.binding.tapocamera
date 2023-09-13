@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -8,9 +8,8 @@
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0
  *
- *  SPDX-License-Identifier: EPL-2.0
+ * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.openhab.binding.tapocamera.internal.api.utils;
 
 import java.math.BigInteger;
@@ -18,14 +17,17 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import org.openhab.binding.tapocamera.internal.api.ApiMethodTypes;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.openhab.binding.tapocamera.internal.api.ApiMethodTypes;
 
 /**
  * The type Api utils.
+ *
+ * @author "Dmintry P (d51x)" - Initial contribution
  */
 public class ApiUtils {
     /**
@@ -88,12 +90,12 @@ public class ApiUtils {
     /**
      * Create single command string.
      *
-     * @param method       the method
-     * @param moduleName   the module name
+     * @param method the method
+     * @param moduleName the module name
      * @param sectionsName the sections name
      * @return the string
      */
-    public static String createSingleCommand(String method, String moduleName, List<String> sectionsName ) {
+    public static String createSingleCommand(String method, String moduleName, List<String> sectionsName) {
         JsonObject json = new JsonObject();
         json.addProperty("method", method);
         JsonObject section = new JsonObject();
@@ -106,14 +108,15 @@ public class ApiUtils {
     /**
      * Create single command string.
      *
-     * @param method      the method
-     * @param moduleName  the module name
+     * @param method the method
+     * @param moduleName the module name
      * @param sectionName the section name
-     * @param paramName   the param name
-     * @param value       the value
+     * @param paramName the param name
+     * @param value the value
      * @return the string
      */
-    public static String createSingleCommand(String method, String moduleName, String sectionName, String paramName, Object value ) {
+    public static String createSingleCommand(String method, String moduleName, String sectionName, String paramName,
+            Object value) {
         JsonObject json = new JsonObject();
         json.addProperty("method", method);
         JsonObject section = new JsonObject();
@@ -130,7 +133,8 @@ public class ApiUtils {
         return json.toString();
     }
 
-    public static String createSingleCommandAsParam(String method, String moduleName, String sectionName, String paramName, Object value ) {
+    public static String createSingleCommandAsParam(String method, String moduleName, String sectionName,
+            String paramName, Object value) {
         JsonObject json = new JsonObject();
         json.addProperty("method", method);
         JsonObject section = new JsonObject();
@@ -148,6 +152,7 @@ public class ApiUtils {
         }
         return json.toString();
     }
+
     public static String singleToMulti(String command) {
         JsonObject json = new JsonObject();
         json.addProperty("method", "multipleRequest");

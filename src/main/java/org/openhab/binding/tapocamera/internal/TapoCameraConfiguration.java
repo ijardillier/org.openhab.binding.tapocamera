@@ -49,5 +49,4 @@ public class TapoCameraConfiguration {
 
     public String cloudToken = "";
     public String cloudUsername = "";
-
 }

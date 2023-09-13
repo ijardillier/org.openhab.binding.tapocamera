@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -8,15 +8,14 @@
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0
  *
- *  SPDX-License-Identifier: EPL-2.0
+ * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.openhab.binding.tapocamera.internal.api;
 
 import java.util.Arrays;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.tapocamera.internal.api.dto.PresetInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.detection.TargetAutoTrackInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.LastAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgPushInfo;
@@ -27,6 +26,7 @@ import org.openhab.binding.tapocamera.internal.api.dto.detection.LineCrossingDet
 import org.openhab.binding.tapocamera.internal.api.dto.detection.MotionDetection;
 import org.openhab.binding.tapocamera.internal.api.dto.detection.PersonDetectionInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.detection.TamperDetectionInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.TargetAutoTrackInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.firmware.FirmwareUpdateInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.firmware.FirmwareUpdateStatus;
 import org.openhab.binding.tapocamera.internal.api.dto.image.ImageCommon;
@@ -42,7 +42,10 @@ import org.openhab.binding.tapocamera.internal.api.dto.system.NetworkInfo;
 
 /**
  * The enum Api method types.
+ *
+ * @author "Dmintry P (d51x)" - Initial contribution
  */
+@NonNullByDefault
 public enum ApiMethodTypes {
     /**
      * Device info basic api method types.
@@ -59,7 +62,7 @@ public enum ApiMethodTypes {
     /**
      * Connection type api method types.
      */
-    CONNECTION_TYPE("getConnectionType", "network", "get_connection_type", String/*ConnectionType*/.class),
+    CONNECTION_TYPE("getConnectionType", "network", "get_connection_type", String/* ConnectionType */.class),
     /**
      * Motion detection api method types.
      */
@@ -132,11 +135,13 @@ public enum ApiMethodTypes {
     /**
      * Intrusion detection api method types.
      */
-    INTRUSION_DETECTION("getIntrusionDetectionConfig", "intrusion_detection", "detection", IntrusionDetectionInfo.class),
+    INTRUSION_DETECTION("getIntrusionDetectionConfig", "intrusion_detection", "detection",
+            IntrusionDetectionInfo.class),
     /**
      * Linecrossing detection api method types.
      */
-    LINECROSSING_DETECTION("getLinecrossingDetectionConfig", "linecrossing_detection", "detection", LineCrossingDetectionInfo.class),
+    LINECROSSING_DETECTION("getLinecrossingDetectionConfig", "linecrossing_detection", "detection",
+            LineCrossingDetectionInfo.class),
     /**
      * Person detection api method types.
      */
@@ -157,13 +162,13 @@ public enum ApiMethodTypes {
     /**
      * Unknown api method types.
      */
-    UNKNOWN("unknown", "unknown", "unknown", String.class),
-    ;
+    UNKNOWN("unknown", "unknown", "unknown", String.class),;
 
     private String method;
     private String module;
     private String section;
     private Class<?> clazz;
+
     ApiMethodTypes(String method, String module, String section, Class<?> clazz) {
         this.method = method;
         this.module = module;
@@ -246,13 +251,12 @@ public enum ApiMethodTypes {
     /**
      * Gets class by module and section.
      *
-     * @param module  the module
+     * @param module the module
      * @param section the section
      * @return the class by module and section
      */
     public static Class<?> getClassByModuleAndSection(String module, String section) {
-        return Arrays.stream(ApiMethodTypes.values())
-                .filter(v -> v.module.equals(module) && v.section.equals(section))
+        return Arrays.stream(ApiMethodTypes.values()).filter(v -> v.module.equals(module) && v.section.equals(section))
                 .findFirst().orElse(UNKNOWN).getClazz();
     }
 }

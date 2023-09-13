@@ -22,6 +22,8 @@ import java.util.Set;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.tapocamera.internal.api.TapoCameraApi;
+import org.openhab.binding.tapocamera.internal.api.TapoCameraApiFactory;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingTypeUID;
@@ -32,9 +34,6 @@ import org.openhab.core.thing.binding.ThingHandlerFactory;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import org.openhab.binding.tapocamera.internal.api.TapoCameraApi;
-import org.openhab.binding.tapocamera.internal.api.TapoCameraApiFactory;
 
 /**
  * The {@link TapoCameraHandlerFactory} is responsible for creating things and thing
@@ -49,6 +48,7 @@ public class TapoCameraHandlerFactory extends BaseThingHandlerFactory {
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_CAMERA, THING_TYPE_BRIDGE);
     private final TapoCameraApiFactory apiFactory;
     private static final Map<ThingUID, @NonNull TapoCameraHandler> handlerMap = new HashMap<>();
+
     /**
      * Instantiates a new Tapo camera handler factory.
      *

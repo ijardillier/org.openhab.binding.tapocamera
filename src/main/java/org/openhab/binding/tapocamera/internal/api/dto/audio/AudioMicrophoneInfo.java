@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -8,25 +8,21 @@
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0
  *
- *  SPDX-License-Identifier: EPL-2.0
+ * SPDX-License-Identifier: EPL-2.0
  */
-
 package org.openhab.binding.tapocamera.internal.api.dto.audio;
 
 /**
  * The type Audio microphone info.
+ *
+ * @author "Dmintry P (d51x)" - Initial contribution
  */
 public class AudioMicrophoneInfo {
     @Override
     public String toString() {
-        return "AudioMicrophoneInfo{" +
-                "sampling_rate=" + sampling_rate +
-                ", channels=" + channels +
-                ", encode_type='" + encode_type + '\'' +
-                ", mute='" + mute + '\'' +
-                ", noise_cancelling='" + noise_cancelling + '\'' +
-                ", volume=" + volume +
-                '}';
+        return "AudioMicrophoneInfo{" + "sampling_rate=" + sampling_rate + ", channels=" + channels + ", encode_type='"
+                + encode_type + '\'' + ", mute='" + mute + '\'' + ", noise_cancelling='" + noise_cancelling + '\''
+                + ", volume=" + volume + '}';
     }
 
     /**
@@ -52,5 +48,5 @@ public class AudioMicrophoneInfo {
     /**
      * The Volume.
      */
-    public Integer volume; //  "100"
+    public Integer volume; // "100"
 }

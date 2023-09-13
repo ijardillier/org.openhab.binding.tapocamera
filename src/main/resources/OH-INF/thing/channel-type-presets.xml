@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <thing:thing-descriptions bindingId="tapocamera"
-                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                          xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
-                          xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
 
-    <channel-type id="preset">
-        <item-type>String</item-type>
-        <label>Preset</label>
-        <description>Select a preset</description>
-    </channel-type>
+	<channel-type id="preset">
+		<item-type>String</item-type>
+		<label>Preset</label>
+		<description>Select a preset</description>
+	</channel-type>
 </thing:thing-descriptions>
