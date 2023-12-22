@@ -382,10 +382,11 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         request.method(HttpMethod.POST);
         if (isSecureConnection) {
             logger.info("data: {}", data);
-            String escapedData = '"' + data.replace("\"", "\\\"") + '"';
-            logger.info("escapedData: {}", escapedData);
-            // String encrypted = ApiUtils.encryptRequest(data, lsk, ivb);
-            String encrypted = ApiUtils.encryptRequest(escapedData, lsk, ivb);
+            // String escapedData = '"' + data.replace("\"", "\\\"") + '"';
+            // String escapedData = data.replace("\"", "\\\"");
+            // logger.info("escapedData: {}", escapedData);
+            String encrypted = ApiUtils.encryptRequest(data, lsk, ivb);
+            // String encrypted = ApiUtils.encryptRequest(escapedData, lsk, ivb);
             logger.info("encrypted: {}", encrypted);
 
             JsonObject jsonParams = new JsonObject();
