@@ -21,24 +21,13 @@ import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgPushInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.audio.AudioMicrophoneInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.audio.AudioSpeakerInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.detection.IntrusionDetectionInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.detection.LineCrossingDetectionInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.detection.MotionDetection;
-import org.openhab.binding.tapocamera.internal.api.dto.detection.PersonDetectionInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.detection.TamperDetectionInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.detection.TargetAutoTrackInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.*;
 import org.openhab.binding.tapocamera.internal.api.dto.firmware.FirmwareUpdateInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.firmware.FirmwareUpdateStatus;
 import org.openhab.binding.tapocamera.internal.api.dto.image.ImageCommon;
 import org.openhab.binding.tapocamera.internal.api.dto.image.ImageSwitch;
 import org.openhab.binding.tapocamera.internal.api.dto.image.LensMaskInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.system.ClockStatus;
-import org.openhab.binding.tapocamera.internal.api.dto.system.DeviceInfoBasic;
-import org.openhab.binding.tapocamera.internal.api.dto.system.DeviceInfoFull;
-import org.openhab.binding.tapocamera.internal.api.dto.system.HardDiskInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.system.LedStatus;
-import org.openhab.binding.tapocamera.internal.api.dto.system.ModuleSpec;
-import org.openhab.binding.tapocamera.internal.api.dto.system.NetworkInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.system.*;
 
 /**
  * The enum Api method types.

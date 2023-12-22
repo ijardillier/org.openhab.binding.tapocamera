@@ -47,6 +47,7 @@ public enum ApiErrorCodes {
      * The Error 40210.
      */
     ERROR_40210(-40210, "Function not supported"),
+    ERROR_40413(-40413, "Secure connection required"),
     /**
      * The Error 64303.
      */

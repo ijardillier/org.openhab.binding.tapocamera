@@ -12,11 +12,7 @@
  */
 package org.openhab.binding.tapocamera.internal;
 
-import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_GROUP_ALARM_CONTROL;
-import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_GROUP_DETECTIONS;
-import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_GROUP_IMAGE;
-import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_GROUP_PRESET;
-import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.CHANNEL_GROUP_SYSTEM;
+import static org.openhab.binding.tapocamera.internal.TapoCameraBindingConstants.*;
 
 /**
  * The enum Tapo camera channels.

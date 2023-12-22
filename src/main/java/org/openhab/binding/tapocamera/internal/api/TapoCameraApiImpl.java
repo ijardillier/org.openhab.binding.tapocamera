@@ -12,33 +12,9 @@
  */
 package org.openhab.binding.tapocamera.internal.api;
 
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.CLOCK_STATUS;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.CONNECTION_TYPE;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.DEVICE_INFO_BASIC;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.DEVICE_INFO_FULL;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.GOTO_PRESETS;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.IMAGE_ROTATION_STATUS;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.INTRUSION_DETECTION;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.LAST_ALARM_INFO;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.LED_STATUS;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.LENS_MASK;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.LIGHT_FREQUENCY_INFO;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.LINECROSSING_DETECTION;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MICROPHONE_INFO;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MODULES_SPEC;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MOTION_DETECTION;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MSG_ALARM_INFO;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MSG_ALARM_MANUAL;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MSG_PUSH_INFO;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.PERSON_DETECTION;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.PRESETS;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.SPEAKER_INFO;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.TAMPER_DETECTION;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.TARGET_TRACK;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.USER_ID;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.WAN_INFO;
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.getClassByModuleAndSection;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.*;
 import static org.openhab.binding.tapocamera.internal.api.utils.ApiUtils.createMultipleCommand;
+import static org.openhab.binding.tapocamera.internal.api.utils.ApiUtils.singleToMulti;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -60,21 +36,11 @@ import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgPushInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.audio.AudioMicrophoneInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.audio.AudioSpeakerInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.detection.IntrusionDetectionInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.detection.LineCrossingDetectionInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.detection.MotionDetection;
-import org.openhab.binding.tapocamera.internal.api.dto.detection.PersonDetectionInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.detection.TamperDetectionInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.detection.TargetAutoTrackInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.*;
 import org.openhab.binding.tapocamera.internal.api.dto.image.ImageCommon;
 import org.openhab.binding.tapocamera.internal.api.dto.image.ImageSwitch;
 import org.openhab.binding.tapocamera.internal.api.dto.image.LensMaskInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.system.ClockStatus;
-import org.openhab.binding.tapocamera.internal.api.dto.system.ConnectionType;
-import org.openhab.binding.tapocamera.internal.api.dto.system.DeviceInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.system.LedStatus;
-import org.openhab.binding.tapocamera.internal.api.dto.system.ModuleSpec;
-import org.openhab.binding.tapocamera.internal.api.dto.system.NetworkInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.system.*;
 import org.openhab.binding.tapocamera.internal.api.response.ApiMethodResult;
 import org.openhab.binding.tapocamera.internal.api.response.ApiResponse;
 import org.openhab.binding.tapocamera.internal.api.utils.ApiUtils;
@@ -97,7 +63,14 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     private static final String TAPO_USER_AGENT = "Tapo CameraClient Android";
     private String hostname = "";
     private String token = "";
+    private String lsk = "";
+    private String ivb = "";
+    private String passwordHash = "";
+    private Long startSeq = -1L;
     private Integer userId = -1;
+    private Boolean isSecureConnection = false;
+    private String nonce = "";
+    private String cnonce = "C167F0A5";
     private static Gson gson = new Gson();
     private final HttpClient httpClient;
 
@@ -119,12 +92,12 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         request.timeout(60, TimeUnit.SECONDS);
         request.header(HttpHeader.USER_AGENT, null);
         request.header(HttpHeader.USER_AGENT, TAPO_USER_AGENT);
-        request.header(HttpHeader.CONTENT_TYPE, "application/json");
+        request.header(HttpHeader.CONTENT_TYPE, "application/json; charset=UTF-8");
         request.header(HttpHeader.CONNECTION, "close");
+        request.header("requestByApp", "true");
         request.header(HttpHeader.ACCEPT, "application/json");
         request.header(HttpHeader.ACCEPT_ENCODING, null);
         request.header(HttpHeader.ACCEPT_ENCODING, "gzip, deflate");
-        request.header("rejectUnauthorized", "false");
     }
 
     @Override
@@ -132,45 +105,205 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         return !token.isEmpty();
     }
 
-    @Override
-    public Boolean auth(String username, String password) throws ApiException {
+    private Boolean getIsSecureConnection(String username) throws ApiException {
         Boolean result = false;
         Request request = httpClient.newRequest(hostname);
         setHeaders(request);
         request.method(HttpMethod.POST);
-        String passwordHash = ApiUtils.getPasswordHash(password);
+        JsonObject jsonParams = new JsonObject();
+        jsonParams.addProperty("encrypt_type", "3");
+        jsonParams.addProperty("username", username);
+        JsonObject jsonAuth = new JsonObject();
+        jsonAuth.addProperty("method", "login");
+        jsonAuth.add("params", jsonParams);
+        String body = jsonAuth.toString();
+        request.content(new StringContentProvider(body));
+        try {
+            ContentResponse contentResponse = request.send();
+            JsonElement json = JsonParser.parseString(contentResponse.getContentAsString());
+            ApiResponse response = gson.fromJson(json, ApiResponse.class);
+            logger.info("response: {}", response);
+
+            if (response.errorCode == ApiErrorCodes.ERROR_40413.getCode()) {
+                JsonObject data = (JsonObject) response.result.get("data");
+                if (data.has("encrypt_type")) {
+                    List<String> list = new ArrayList<>();
+                    logger.info("data: {}", data);
+                    return true;
+                }
+            }
+        } catch (TimeoutException e) {
+            logger.error("TimeoutException: {}", e.getMessage());
+            throw new ApiException(String.format("TimeoutException: %s", e.getMessage()));
+        } catch (InterruptedException e) {
+            logger.error("InterruptedException: {}", e.getMessage());
+            throw new ApiException(String.format("InterruptedException: %s", e.getMessage()));
+        } catch (ExecutionException e) {
+            logger.error("ExecutionException: {}", e.getMessage());
+            throw new ApiException(String.format("ExecutionException: %s", e.getMessage()));
+        }
+        return false;
+    }
+
+    private Boolean validateDeviceConfirm(String passwordHash, String nonce, String deviceConfirm) {
+        String hashedNoncesWithSHA256 = ApiUtils.getPasswordHashSHA256(cnonce + passwordHash + nonce);
+        return (deviceConfirm.equals(hashedNoncesWithSHA256 + nonce + cnonce));
+    }
+
+    @Override
+    public Boolean auth(String username, String password) throws ApiException {
+        Boolean result = false;
+
+        isSecureConnection = getIsSecureConnection(username);
+
+        Request request = httpClient.newRequest(hostname);
+        logger.info("hostname: {}", hostname);
+        setHeaders(request);
+        request.method(HttpMethod.POST);
+
+        //
 
         JsonObject jsonParams = new JsonObject();
-        jsonParams.addProperty("hashed", Boolean.TRUE);
-        jsonParams.addProperty("password", passwordHash);
-        jsonParams.addProperty("username", username);
+
+        if (isSecureConnection) {
+            logger.info("Connection is secure");
+            // SecureRandom csprng = new SecureRandom();
+            // byte[] randomBytes = new byte[8];
+            // csprng.nextBytes(randomBytes);
+            // cnonce = "9B5F6CE8";
+            // nonce = "18D1CD86D1AE9934";
+
+            passwordHash = ApiUtils.getPasswordHashSHA256(password);
+
+            jsonParams.addProperty("cnonce", cnonce);
+            jsonParams.addProperty("encrypt_type", "3");
+            // jsonParams.addProperty("digest_passwd", digestPassword2);
+            jsonParams.addProperty("username", username);
+        } else {
+            logger.info("Connection is insecure");
+            passwordHash = ApiUtils.getPasswordHash(password);
+            jsonParams.addProperty("hashed", Boolean.TRUE);
+            jsonParams.addProperty("password", passwordHash);
+            jsonParams.addProperty("username", username);
+        }
 
         JsonObject jsonAuth = new JsonObject();
         jsonAuth.addProperty("method", "login");
         jsonAuth.add("params", jsonParams);
 
         String body = jsonAuth.toString();
+        logger.info("body: {}", body);
         request.content(new StringContentProvider(body));
         try {
             ContentResponse contentResponse = request.send();
             JsonElement json = JsonParser.parseString(contentResponse.getContentAsString());
 
             ApiResponse response = gson.fromJson(json, ApiResponse.class);
-            if (response.errorCode == 0 && response.result.has("stok")) {
-                token = response.result.get("stok").getAsString();
-                if (isAuth()) {
-                    userId = getUserId();
-                    result = true;
-                }
-            } else {
-                // TODO: log.error && throw new Exception
-                if (response.errorCode == ApiErrorCodes.ERROR_40401.getCode()) {
+            logger.info("response: {}", response);
+
+            if (isSecureConnection) {
+                // get nonce and make new request
+                logger.info("Processing secure response");
+                if (response.result.has("data")) {
+                    JsonObject data = response.result.getAsJsonObject("data");
+                    if (data.has("nonce") && data.has("device_confirm")) {
+                        nonce = data.get("nonce").getAsString();
+                        logger.info("received nonce: {}", nonce);
+                        String deviceConfirm = data.get("device_confirm").getAsString();
+                        Boolean validated = validateDeviceConfirm(passwordHash, nonce, deviceConfirm);
+                        if (validated) {
+                            logger.info("sha256: {}", passwordHash);
+                            logger.info("cnonce: {}", cnonce);
+                            logger.info("nonce: {}", nonce);
+
+                            String toNewPass = passwordHash + cnonce + nonce;
+                            logger.info("sha256 + cnonce + nonce: {}", toNewPass);
+
+                            String digestPassword = ApiUtils.getPasswordHashSHA256(toNewPass);
+                            logger.info("sha256-2: {}", digestPassword);
+
+                            String digestPassword2 = digestPassword + cnonce + nonce;
+                            logger.info("sha256-2 + cnonce + nonce: {}", digestPassword2);
+
+                            // jsonParams.addProperty("cnonce", ApiUtils.bytesToHex(randomBytes));
+                            jsonParams.addProperty("cnonce", cnonce);
+                            jsonParams.addProperty("encrypt_type", "3");
+                            jsonParams.addProperty("digest_passwd", digestPassword2);
+                            jsonParams.addProperty("username", username);
+
+                            jsonAuth = new JsonObject();
+                            jsonAuth.addProperty("method", "login");
+                            jsonAuth.add("params", jsonParams);
+
+                            body = jsonAuth.toString();
+                            logger.info("body: {}", body);
+                            Request request2 = httpClient.newRequest(hostname);
+                            setHeaders(request2);
+                            request2.method(HttpMethod.POST);
+                            request2.content(new StringContentProvider(body));
+                            try {
+                                ContentResponse contentResponse2 = request2.send();
+                                JsonElement json2 = JsonParser.parseString(contentResponse2.getContentAsString());
+
+                                ApiResponse response2 = gson.fromJson(json2, ApiResponse.class);
+                                logger.info("response2: {}", response2);
+                                // response: ApiResponse{errorCode=0,
+                                // result={"stok":"4b67dc6f7035104ff9922edef174164f","user_group":"root","start_seq":535}}
+                                if (response2.errorCode == 0 && response2.result.has("stok")
+                                        && response2.result.has("start_seq")) {
+                                    token = response2.result.get("stok").getAsString();
+                                    logger.info("token: {}", token);
+                                    startSeq = response2.result.get("start_seq").getAsLong();
+                                    logger.info("start_seq: {}", startSeq);
+                                    lsk = generateEncryptionToken("lsk", passwordHash, nonce);
+                                    logger.info("lsk: {}", lsk);
+                                    ivb = generateEncryptionToken("ivb", passwordHash, nonce);
+                                    logger.info("ivb: {}", ivb);
+                                    result = true;
+                                }
+
+                            } catch (TimeoutException e) {
+                                logger.error("TimeoutException: {}", e.getMessage());
+                                this.token = "";
+                                throw new ApiException(String.format("TimeoutException: %s", e.getMessage()));
+                            } catch (InterruptedException e) {
+                                logger.error("InterruptedException: {}", e.getMessage());
+                                throw new ApiException(String.format("InterruptedException: %s", e.getMessage()));
+                            } catch (ExecutionException e) {
+                                logger.error("ExecutionException: {}", e.getMessage());
+                                this.token = "";
+                                throw new ApiException(String.format("ExecutionException: %s", e.getMessage()));
+                            }
+                        }
+                    } else {
+                        logger.error("Empty nonce or device_confirm, error code: {}", response.errorCode);
+                        this.token = "";
+                        throw new ApiException(String.format("error code: %d", response.errorCode));
+                    }
+                } else {
                     logger.error("Invalid token, error code: {}", response.errorCode);
                     this.token = "";
+                    throw new ApiException(String.format("error code: %d", response.errorCode));
+                }
+            } else {
+                if (response.errorCode == 0 && response.result.has("stok")) {
+                    token = response.result.get("stok").getAsString();
+                    if (isAuth()) {
+                        userId = getUserId();
+                        result = true;
+                    }
                 } else {
-                    logger.error("Error in response, error code: {}", response.errorCode);
+                    // TODO: log.error && throw new Exception
+                    if (response.errorCode == ApiErrorCodes.ERROR_40401.getCode()) {
+                        logger.error("Invalid token, error code: {}", response.errorCode);
+                        this.token = "";
+                    } else {
+                        logger.error("Error in response, error code: {}", response.errorCode);
+                        throw new ApiException(String.format("error code: %d", response.errorCode));
+                    }
                 }
             }
+
         } catch (TimeoutException e) {
             logger.error("TimeoutException: {}", e.getMessage());
             this.token = "";
@@ -184,6 +317,16 @@ public class TapoCameraApiImpl implements TapoCameraApi {
             throw new ApiException(String.format("ExecutionException: %s", e.getMessage()));
         }
         return result;
+    }
+
+    private String generateEncryptionToken(String typeToken, String hashedPassword, String nonce) {
+        String hashedKey = ApiUtils.getPasswordHashSHA256(cnonce + hashedPassword + nonce);
+        return ApiUtils.getPasswordHashSHA256(typeToken + cnonce + nonce + hashedKey, 32);
+    }
+
+    private String generateTag(String data, String hashedPassword, String cnonce) {
+        String hashedKey = ApiUtils.getPasswordHashSHA256(hashedPassword + cnonce);
+        return ApiUtils.getPasswordHashSHA256(hashedKey + data + startSeq.toString());
     }
 
     private Integer getUserId() {
@@ -237,11 +380,62 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         Request request = httpClient.newRequest(hostname + "/stok=" + token + "/ds");
         setHeaders(request);
         request.method(HttpMethod.POST);
-        request.content(new StringContentProvider(data));
+        if (isSecureConnection) {
+            logger.info("data: {}", data);
+            String escapedData = '"' + data.replace("\"", "\\\"") + '"';
+            logger.info("escapedData: {}", escapedData);
+            // String encrypted = ApiUtils.encryptRequest(data, lsk, ivb);
+            String encrypted = ApiUtils.encryptRequest(escapedData, lsk, ivb);
+            logger.info("encrypted: {}", encrypted);
+
+            JsonObject jsonParams = new JsonObject();
+            jsonParams.addProperty("request", encrypted);
+            JsonObject encryptedRequest = new JsonObject();
+            encryptedRequest.addProperty("method", "securePassthrough");
+            encryptedRequest.add("params", jsonParams);
+
+            // String encReq = '"' + encryptedRequest.toString().replace("\"", "\\\"") + '"';
+            // String encReq = encryptedRequest.toString().replace("\"", "\\\"");
+            logger.info("encrypted request: {}", encryptedRequest.toString());
+            // logger.info("encrypted request: {}", encReq);
+            request.content(new StringContentProvider(encryptedRequest.toString()));
+            // request.content(new StringContentProvider(encReq));
+
+            request.header("Seq", startSeq.toString());
+
+            // String tag = generateTag(escapedData, passwordHash, cnonce);
+            String tag = generateTag(encryptedRequest.toString(), passwordHash, cnonce);
+            // String tag = generateTag(encReq, passwordHash, cnonce);
+            logger.info("Tapo passwordHash: {}", passwordHash);
+            logger.info("Tapo nonce: {}", nonce);
+            logger.info("Tapo tag: {}", tag);
+
+            request.header("Tapo_tag", tag);
+
+            startSeq += 1;
+        } else {
+            request.content(new StringContentProvider(data));
+        }
+
         try {
             ContentResponse contentResponse = request.send();
             JsonObject response = JsonParser.parseString(contentResponse.getContentAsString()).getAsJsonObject();
             if (response.has("error_code") && response.get("error_code").getAsInt() == 0) {
+                if (isSecureConnection) {
+                    String result = response.get("result").getAsJsonObject().get("response").getAsString();
+                    result = ApiUtils.decryptResponse(result, lsk, ivb);
+                    logger.info("decripted response: {}", result);
+                    JsonObject json = JsonParser.parseString(result).getAsJsonObject();
+                    if (json.has("error_code") && json.get("error_code").getAsInt() == 0) {
+                        response.get("result").getAsJsonObject().remove("response");
+                        response.get("result").getAsJsonObject().addProperty("response", result);
+                    } else {
+                        logger.error("Error in response, error code: {}, {}", json.get("error_code").getAsInt(),
+                                ApiErrorCodes.getErrorByCode(json.get("error_code").getAsInt()).getMessage());
+                        response.addProperty("error_code", json.get("error_code").getAsInt());
+                        // return new Object();
+                    }
+                }
                 return response;
             } else {
                 // TODO: log.error && throw new Exception
@@ -374,7 +568,9 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     public DeviceInfo getDeviceInfo() {
         String module = DEVICE_INFO_FULL.getModule();
         List<String> sections = List.of(DEVICE_INFO_FULL.getSection(), DEVICE_INFO_BASIC.getSection());
-        String command = ApiUtils.createSingleCommand("get", module, sections);
+        // String command = ApiUtils.createSingleCommand("get", module, sections);
+        String command = "{\"method\":\"getDeviceInfo\", \"params\":{\"device_info\": {\"name\": [\"basic_info\"]}}}";
+        command = singleToMulti(command);
         JsonObject response = (JsonObject) sendSingleRequest(token, command);
         if (response.get("error_code").getAsInt() == 0) {
             return gson.fromJson(response.get("device_info").getAsJsonObject(), DeviceInfo.class);
@@ -409,7 +605,11 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     public ModuleSpec getModuleSpec() {
         String module = MODULES_SPEC.getModule();
         String section = MODULES_SPEC.getSection();
+        String command = "{\"method\": \"get\", \"function\": {\"name\": [\"module_spec\"]}}";
+        command = singleToMulti(command);
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
+
+        Object singleResponse2 = sendSingleRequest(token, command);
         Object singleResponse = sendSingleRequest(token, singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (ModuleSpec) result;
@@ -706,7 +906,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String section = GOTO_PRESETS.getSection();
         String method = GOTO_PRESETS.getMethod();
         String command = ApiUtils.createSingleCommandAsParam(method, module, section, "id", id);
-        command = ApiUtils.singleToMulti(command);
+        command = singleToMulti(command);
         sendSingleRequest(token, command);
     }
 
