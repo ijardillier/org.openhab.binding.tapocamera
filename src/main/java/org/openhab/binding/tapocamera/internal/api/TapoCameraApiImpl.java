@@ -349,11 +349,44 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         Request request = httpClient.newRequest(hostname + "/stok=" + token + "/ds");
         setHeaders(request);
         request.method(HttpMethod.POST);
-        request.content(new StringContentProvider(data));
+        if (isSecureConnection) {
+            logger.info("data: {}", data);
+            String encrypted = ApiUtils.encryptRequest(data, lsk, ivb);
+            logger.info("encrypted: {}", encrypted);
+
+            JsonObject jsonParams = new JsonObject();
+            jsonParams.addProperty("request", encrypted);
+            JsonObject encryptedRequest = new JsonObject();
+            encryptedRequest.addProperty("method", "securePassthrough");
+            encryptedRequest.add("params", jsonParams);
+
+            logger.info("encrypted request: {}", encryptedRequest.toString());
+            request.content(new StringContentProvider(encryptedRequest.toString()));
+            request.header("Seq", startSeq.toString());
+
+            String tag = generateTag(encryptedRequest.toString(), passwordHash, cnonce);
+            logger.info("Tapo passwordHash: {}", passwordHash);
+            logger.info("Tapo nonce: {}", nonce);
+            logger.info("Tapo tag: {}", tag);
+
+            request.header("Tapo_tag", tag);
+
+            startSeq += 1;
+        } else {
+            request.content(new StringContentProvider(data));
+        }
         try {
             ContentResponse contentResponse = request.send();
             ApiResponse response = gson.fromJson(contentResponse.getContentAsString(), ApiResponse.class);
             if (response.errorCode == 0) {
+                if (isSecureConnection) {
+                    String result = response.result.get("response").getAsString();
+                    result = ApiUtils.decryptResponse(result, lsk, ivb);
+                    logger.info("decrypted response: {}", result);
+                    JsonObject json = JsonParser.parseString(result).getAsJsonObject();
+                    response.result = json.getAsJsonObject("result"); // .getAsJsonArray("responses")
+                    // .getAsJsonObject();
+                }
                 return response;
             } else {
                 // TODO: log.error && throw new Exception
@@ -382,11 +415,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         request.method(HttpMethod.POST);
         if (isSecureConnection) {
             logger.info("data: {}", data);
-            // String escapedData = '"' + data.replace("\"", "\\\"") + '"';
-            // String escapedData = data.replace("\"", "\\\"");
-            // logger.info("escapedData: {}", escapedData);
             String encrypted = ApiUtils.encryptRequest(data, lsk, ivb);
-            // String encrypted = ApiUtils.encryptRequest(escapedData, lsk, ivb);
             logger.info("encrypted: {}", encrypted);
 
             JsonObject jsonParams = new JsonObject();
@@ -395,18 +424,11 @@ public class TapoCameraApiImpl implements TapoCameraApi {
             encryptedRequest.addProperty("method", "securePassthrough");
             encryptedRequest.add("params", jsonParams);
 
-            // String encReq = '"' + encryptedRequest.toString().replace("\"", "\\\"") + '"';
-            // String encReq = encryptedRequest.toString().replace("\"", "\\\"");
             logger.info("encrypted request: {}", encryptedRequest.toString());
-            // logger.info("encrypted request: {}", encReq);
             request.content(new StringContentProvider(encryptedRequest.toString()));
-            // request.content(new StringContentProvider(encReq));
-
             request.header("Seq", startSeq.toString());
 
-            // String tag = generateTag(escapedData, passwordHash, cnonce);
             String tag = generateTag(encryptedRequest.toString(), passwordHash, cnonce);
-            // String tag = generateTag(encReq, passwordHash, cnonce);
             logger.info("Tapo passwordHash: {}", passwordHash);
             logger.info("Tapo nonce: {}", nonce);
             logger.info("Tapo tag: {}", tag);
@@ -425,11 +447,14 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                 if (isSecureConnection) {
                     String result = response.get("result").getAsJsonObject().get("response").getAsString();
                     result = ApiUtils.decryptResponse(result, lsk, ivb);
-                    logger.info("decripted response: {}", result);
+                    logger.info("decrypted response: {}", result);
                     JsonObject json = JsonParser.parseString(result).getAsJsonObject();
                     if (json.has("error_code") && json.get("error_code").getAsInt() == 0) {
-                        response.get("result").getAsJsonObject().remove("response");
-                        response.get("result").getAsJsonObject().addProperty("response", result);
+                        // response =
+                        // json.getAsJsonObject("result").getAsJsonArray("responses").get(0).getAsJsonObject();
+                        response = json;
+                        // response.get("result").getAsJsonObject().remove("response");
+                        // response.get("result").getAsJsonObject().addProperty("response", result);
                     } else {
                         logger.error("Error in response, error code: {}, {}", json.get("error_code").getAsInt(),
                                 ApiErrorCodes.getErrorByCode(json.get("error_code").getAsInt()).getMessage());
@@ -569,9 +594,10 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     public DeviceInfo getDeviceInfo() {
         String module = DEVICE_INFO_FULL.getModule();
         List<String> sections = List.of(DEVICE_INFO_FULL.getSection(), DEVICE_INFO_BASIC.getSection());
-        // String command = ApiUtils.createSingleCommand("get", module, sections);
-        String command = "{\"method\":\"getDeviceInfo\", \"params\":{\"device_info\": {\"name\": [\"basic_info\"]}}}";
-        command = singleToMulti(command);
+        String command = ApiUtils.createSingleCommand("get", module, sections);
+        // String command = "{\"method\":\"getDeviceInfo\", \"params\":{\"device_info\": {\"name\":
+        // [\"basic_info\"]}}}";
+        // command = singleToMulti(command);
         JsonObject response = (JsonObject) sendSingleRequest(token, command);
         if (response.get("error_code").getAsInt() == 0) {
             return gson.fromJson(response.get("device_info").getAsJsonObject(), DeviceInfo.class);
@@ -606,11 +632,11 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     public ModuleSpec getModuleSpec() {
         String module = MODULES_SPEC.getModule();
         String section = MODULES_SPEC.getSection();
-        String command = "{\"method\": \"get\", \"function\": {\"name\": [\"module_spec\"]}}";
-        command = singleToMulti(command);
+        // String command = "{\"method\": \"get\", \"function\": {\"name\": [\"module_spec\"]}}";
+        // command = singleToMulti(command);
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
 
-        Object singleResponse2 = sendSingleRequest(token, command);
+        // Object singleResponse2 = sendSingleRequest(token, command);
         Object singleResponse = sendSingleRequest(token, singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (ModuleSpec) result;

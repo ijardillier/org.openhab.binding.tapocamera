@@ -299,18 +299,18 @@ public class TapoCameraHandler extends BaseThingHandler implements DynamicStateD
             boolean thingReachable = deviceAuth();
             if (thingReachable) {
                 updateStatus(ThingStatus.ONLINE);
-                // DeviceInfo deviceInfo = api.getDeviceInfo();
-                // cameraState.setFriendlyName(deviceInfo.basic.deviceAlias);
-                // logger.debug("{}: received: {}", cameraState.getFriendlyName(), deviceInfo);
-                // NetworkInfo networkInfo = api.getNetworkInfo();
-                // logger.debug("{}: received: {}", cameraState.getFriendlyName(), networkInfo.toString());
+                DeviceInfo deviceInfo = api.getDeviceInfo();
+                cameraState.setFriendlyName(deviceInfo.basic.deviceAlias);
+                logger.debug("{}: received: {}", cameraState.getFriendlyName(), deviceInfo);
+                NetworkInfo networkInfo = api.getNetworkInfo();
+                logger.debug("{}: received: {}", cameraState.getFriendlyName(), networkInfo.toString());
                 ModuleSpec moduleSpec = api.getModuleSpec();
-                // logger.debug("{}: received: {}", cameraState.getFriendlyName(), moduleSpec.toString());
-                // getSupportedFeatures(moduleSpec);
+                logger.debug("{}: received: {}", cameraState.getFriendlyName(), moduleSpec.toString());
+                getSupportedFeatures(moduleSpec);
 
-                // setThingProperties(deviceInfo);
-                // updateThingProperties(networkInfo);
-                // pollingJob = getCameraParameters(config.pollingInterval);
+                setThingProperties(deviceInfo);
+                updateThingProperties(networkInfo);
+                pollingJob = getCameraParameters(config.pollingInterval);
             } else {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
                 reconnect();
