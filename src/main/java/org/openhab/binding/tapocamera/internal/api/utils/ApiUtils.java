@@ -13,9 +13,13 @@
 package org.openhab.binding.tapocamera.internal.api.utils;
 
 import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
+import java.util.Base64;
 import java.util.List;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.openhab.binding.tapocamera.internal.api.ApiMethodTypes;
 
@@ -54,6 +58,45 @@ public class ApiUtils {
         }
 
         return hash.toUpperCase();
+    }
+
+    public static String getPasswordHashSHA256(String password) {
+        String hash = "";
+        try {
+            MessageDigest m = MessageDigest.getInstance("SHA256");
+            m.reset();
+            m.update(password.getBytes());
+            byte[] digest = m.digest();
+            BigInteger bigInt = new BigInteger(1, digest);
+            hash = bigInt.toString(16);
+            // Now we need to zero pad it if you actually want the full 32 chars.
+            // while (hash.length() < 32) {
+            // hash = "0" + hash;
+            // }
+            if (hash.length() % 2 == 1) {
+                hash = "0" + hash;
+            }
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+
+        return hash.toUpperCase();
+    }
+
+    public static String getPasswordHashSHA256(String password, Integer bytes) {
+        String hash = getPasswordHashSHA256(password);
+        if (hash.length() > bytes) {
+            hash = hash.substring(0, bytes);
+        }
+        return hash.toUpperCase();
+    }
+
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02X ", b));
+        }
+        return sb.toString();
     }
 
     /**
@@ -162,5 +205,56 @@ public class ApiUtils {
         params.add("requests", requests);
         requests.add(JsonParser.parseString(command));
         return json.toString();
+    }
+
+    public static byte[] stringToByteArray(String s) {
+        byte[] byteArray = new byte[s.length() / 2];
+        String[] strBytes = new String[s.length() / 2];
+        int k = 0;
+        for (int i = 0; i < s.length(); i = i + 2) {
+            int j = i + 2;
+            strBytes[k] = s.substring(i, j);
+            byteArray[k] = (byte) Integer.parseInt(strBytes[k], 16);
+            k++;
+        }
+        return byteArray;
+    }
+
+    public static String base64encode(String str) {
+        return Base64.getEncoder().encodeToString(str.getBytes());
+    }
+
+    public static String base64decode(String str) {
+        return new String(Base64.getDecoder().decode(str));
+    }
+
+    public static String encryptRequest(String data, String lsk, String ivb) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(stringToByteArray(ivb));
+            SecretKeySpec skeySpec = new SecretKeySpec(stringToByteArray(lsk), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+            byte[] encrypted = cipher.doFinal(data.getBytes());
+
+            return new String(Base64.getEncoder().encode(encrypted));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String decryptResponse(String response, String lsk, String ivb) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(stringToByteArray(ivb));
+            SecretKeySpec skeySpec = new SecretKeySpec(stringToByteArray(lsk), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+            byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(response));
+            return new String(decrypted);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
