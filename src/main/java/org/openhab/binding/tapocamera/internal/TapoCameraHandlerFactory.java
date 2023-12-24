@@ -68,7 +68,7 @@ public class TapoCameraHandlerFactory extends BaseThingHandlerFactory {
     protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        TapoCameraApi api = apiFactory.getApi();
+        TapoCameraApi api = apiFactory.getApi(thing.getLabel());
         if (THING_TYPE_CAMERA.equals(thingTypeUID)) {
             return new TapoCameraHandler(thing, api);
         } else if (THING_TYPE_BRIDGE.equals(thingTypeUID)) {

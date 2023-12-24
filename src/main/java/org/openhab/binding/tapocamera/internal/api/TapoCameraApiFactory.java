@@ -77,8 +77,8 @@ public class TapoCameraApiFactory {
      *
      * @return the api
      */
-    public TapoCameraApi getApi() {
-        return new TapoCameraApiImpl(httpClient);
+    public TapoCameraApi getApi(String tag) {
+        return new TapoCameraApiImpl(httpClient, tag);
     }
 
     public TapoCameraCloudApi getCloudApi() {

@@ -73,14 +73,16 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     private String cnonce = "C167F0A5";
     private static Gson gson = new Gson();
     private final HttpClient httpClient;
+    private String tag = "";
 
     /**
      * Instantiates a new Tapo camera api.
      *
      * @param httpClient the http client
      */
-    public TapoCameraApiImpl(HttpClient httpClient) {
+    public TapoCameraApiImpl(HttpClient httpClient, String tag) {
         this.httpClient = httpClient;
+        this.tag = tag;
     }
 
     @Override
@@ -122,24 +124,24 @@ public class TapoCameraApiImpl implements TapoCameraApi {
             ContentResponse contentResponse = request.send();
             JsonElement json = JsonParser.parseString(contentResponse.getContentAsString());
             ApiResponse response = gson.fromJson(json, ApiResponse.class);
-            logger.info("response: {}", response);
+            logger.info("{}: response: {}", tag, response);
 
             if (response.errorCode == ApiErrorCodes.ERROR_40413.getCode()) {
                 JsonObject data = (JsonObject) response.result.get("data");
                 if (data.has("encrypt_type")) {
                     List<String> list = new ArrayList<>();
-                    logger.info("data: {}", data);
+                    logger.info("{}: data: {}", tag, data);
                     return true;
                 }
             }
         } catch (TimeoutException e) {
-            logger.error("TimeoutException: {}", e.getMessage());
+            logger.error("{}: TimeoutException: {}", tag, e.getMessage());
             throw new ApiException(String.format("TimeoutException: %s", e.getMessage()));
         } catch (InterruptedException e) {
-            logger.error("InterruptedException: {}", e.getMessage());
+            logger.error("{}: InterruptedException: {}", tag, e.getMessage());
             throw new ApiException(String.format("InterruptedException: %s", e.getMessage()));
         } catch (ExecutionException e) {
-            logger.error("ExecutionException: {}", e.getMessage());
+            logger.error("{}: ExecutionException: {}", tag, e.getMessage());
             throw new ApiException(String.format("ExecutionException: %s", e.getMessage()));
         }
         return false;
@@ -157,7 +159,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         isSecureConnection = getIsSecureConnection(username);
 
         Request request = httpClient.newRequest(hostname);
-        logger.info("hostname: {}", hostname);
+        logger.trace("{}: hostname: {}", tag, hostname);
         setHeaders(request);
         request.method(HttpMethod.POST);
 
@@ -166,7 +168,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         JsonObject jsonParams = new JsonObject();
 
         if (isSecureConnection) {
-            logger.info("Connection is secure");
+            logger.debug("{}: Connection is secure", tag);
             // SecureRandom csprng = new SecureRandom();
             // byte[] randomBytes = new byte[8];
             // csprng.nextBytes(randomBytes);
@@ -180,7 +182,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
             // jsonParams.addProperty("digest_passwd", digestPassword2);
             jsonParams.addProperty("username", username);
         } else {
-            logger.info("Connection is insecure");
+            logger.debug("{}: Connection is insecure", tag);
             passwordHash = ApiUtils.getPasswordHash(password);
             jsonParams.addProperty("hashed", Boolean.TRUE);
             jsonParams.addProperty("password", passwordHash);
@@ -192,38 +194,38 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         jsonAuth.add("params", jsonParams);
 
         String body = jsonAuth.toString();
-        logger.info("body: {}", body);
+        logger.trace("{}: body: {}", tag, body);
         request.content(new StringContentProvider(body));
         try {
             ContentResponse contentResponse = request.send();
             JsonElement json = JsonParser.parseString(contentResponse.getContentAsString());
 
             ApiResponse response = gson.fromJson(json, ApiResponse.class);
-            logger.info("response: {}", response);
+            logger.trace("{}: response: {}", tag, response);
 
             if (isSecureConnection) {
                 // get nonce and make new request
-                logger.info("Processing secure response");
+                logger.debug("{}: Processing secure response", tag);
                 if (response.result.has("data")) {
                     JsonObject data = response.result.getAsJsonObject("data");
                     if (data.has("nonce") && data.has("device_confirm")) {
                         nonce = data.get("nonce").getAsString();
-                        logger.info("received nonce: {}", nonce);
+                        logger.trace("{}: received nonce: {}", tag, nonce);
                         String deviceConfirm = data.get("device_confirm").getAsString();
                         Boolean validated = validateDeviceConfirm(passwordHash, nonce, deviceConfirm);
                         if (validated) {
-                            logger.info("sha256: {}", passwordHash);
-                            logger.info("cnonce: {}", cnonce);
-                            logger.info("nonce: {}", nonce);
+                            logger.trace("{}: sha256: {}", tag, passwordHash);
+                            logger.trace("{}: cnonce: {}", tag, cnonce);
+                            logger.trace("{}: nonce: {}", tag, nonce);
 
                             String toNewPass = passwordHash + cnonce + nonce;
-                            logger.info("sha256 + cnonce + nonce: {}", toNewPass);
+                            logger.trace("{}: sha256 + cnonce + nonce: {}", tag, toNewPass);
 
                             String digestPassword = ApiUtils.getPasswordHashSHA256(toNewPass);
-                            logger.info("sha256-2: {}", digestPassword);
+                            logger.trace("{}: sha256-2: {}", tag, digestPassword);
 
                             String digestPassword2 = digestPassword + cnonce + nonce;
-                            logger.info("sha256-2 + cnonce + nonce: {}", digestPassword2);
+                            logger.trace("{}: sha256-2 + cnonce + nonce: {}", tag, digestPassword2);
 
                             // jsonParams.addProperty("cnonce", ApiUtils.bytesToHex(randomBytes));
                             jsonParams.addProperty("cnonce", cnonce);
@@ -236,7 +238,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                             jsonAuth.add("params", jsonParams);
 
                             body = jsonAuth.toString();
-                            logger.info("body: {}", body);
+                            logger.debug("{}: body: {}", tag, body);
                             Request request2 = httpClient.newRequest(hostname);
                             setHeaders(request2);
                             request2.method(HttpMethod.POST);
@@ -246,42 +248,42 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                                 JsonElement json2 = JsonParser.parseString(contentResponse2.getContentAsString());
 
                                 ApiResponse response2 = gson.fromJson(json2, ApiResponse.class);
-                                logger.info("response2: {}", response2);
+                                logger.debug("{}: response2: {}", tag, response2);
                                 // response: ApiResponse{errorCode=0,
                                 // result={"stok":"4b67dc6f7035104ff9922edef174164f","user_group":"root","start_seq":535}}
                                 if (response2.errorCode == 0 && response2.result.has("stok")
                                         && response2.result.has("start_seq")) {
                                     token = response2.result.get("stok").getAsString();
-                                    logger.info("token: {}", token);
+                                    logger.debug("{}: token: {}", tag, token);
                                     startSeq = response2.result.get("start_seq").getAsLong();
-                                    logger.info("start_seq: {}", startSeq);
+                                    logger.debug("{}: start_seq: {}", tag, startSeq);
                                     lsk = generateEncryptionToken("lsk", passwordHash, nonce);
-                                    logger.info("lsk: {}", lsk);
+                                    logger.debug("{}: lsk: {}", tag, lsk);
                                     ivb = generateEncryptionToken("ivb", passwordHash, nonce);
-                                    logger.info("ivb: {}", ivb);
+                                    logger.debug("{}: ivb: {}", tag, ivb);
                                     result = true;
                                 }
 
                             } catch (TimeoutException e) {
-                                logger.error("TimeoutException: {}", e.getMessage());
+                                logger.error("{}: TimeoutException: {}", tag, e.getMessage());
                                 this.token = "";
                                 throw new ApiException(String.format("TimeoutException: %s", e.getMessage()));
                             } catch (InterruptedException e) {
-                                logger.error("InterruptedException: {}", e.getMessage());
+                                logger.error("{}: InterruptedException: {}", tag, e.getMessage());
                                 throw new ApiException(String.format("InterruptedException: %s", e.getMessage()));
                             } catch (ExecutionException e) {
-                                logger.error("ExecutionException: {}", e.getMessage());
+                                logger.error("{}: ExecutionException: {}", tag, e.getMessage());
                                 this.token = "";
                                 throw new ApiException(String.format("ExecutionException: %s", e.getMessage()));
                             }
                         }
                     } else {
-                        logger.error("Empty nonce or device_confirm, error code: {}", response.errorCode);
+                        logger.error("{}: Empty nonce or device_confirm, error code: {}", tag, response.errorCode);
                         this.token = "";
                         throw new ApiException(String.format("error code: %d", response.errorCode));
                     }
                 } else {
-                    logger.error("Invalid token, error code: {}", response.errorCode);
+                    logger.error("{}: Invalid token, error code: {}", tag, response.errorCode);
                     this.token = "";
                     throw new ApiException(String.format("error code: %d", response.errorCode));
                 }
@@ -295,24 +297,24 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                 } else {
                     // TODO: log.error && throw new Exception
                     if (response.errorCode == ApiErrorCodes.ERROR_40401.getCode()) {
-                        logger.error("Invalid token, error code: {}", response.errorCode);
+                        logger.error("{}: Invalid token, error code: {}", tag, response.errorCode);
                         this.token = "";
                     } else {
-                        logger.error("Error in response, error code: {}", response.errorCode);
+                        logger.error("{}: Error in response, error code: {}", tag, response.errorCode);
                         throw new ApiException(String.format("error code: %d", response.errorCode));
                     }
                 }
             }
 
         } catch (TimeoutException e) {
-            logger.error("TimeoutException: {}", e.getMessage());
+            logger.error("{}: TimeoutException: {}", tag, e.getMessage());
             this.token = "";
             throw new ApiException(String.format("TimeoutException: %s", e.getMessage()));
         } catch (InterruptedException e) {
-            logger.error("InterruptedException: {}", e.getMessage());
+            logger.error("{}: InterruptedException: {}", tag, e.getMessage());
             throw new ApiException(String.format("InterruptedException: %s", e.getMessage()));
         } catch (ExecutionException e) {
-            logger.error("ExecutionException: {}", e.getMessage());
+            logger.error("{}: ExecutionException: {}", tag, e.getMessage());
             this.token = "";
             throw new ApiException(String.format("ExecutionException: %s", e.getMessage()));
         }
@@ -339,7 +341,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                 result = multi.get(0).result.get("user_id").getAsInt();
             }
         } else {
-            logger.error("TapoCameraApi error {}", response.errorCode);
+            logger.error("{}: TapoCameraApi error {}", tag, response.errorCode);
         }
         return result;
     }
@@ -347,21 +349,21 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     private void makeEncryptedRequest(Request originRequest, String data, Long seq, String passwordHash, String lsk,
             String ivb) {
         String encrypted = ApiUtils.encryptRequest(data, lsk, ivb);
-        logger.trace("encrypted data: {}", encrypted);
+        logger.trace("{}: encrypted data: {}", tag, encrypted);
         JsonObject jsonParams = new JsonObject();
         jsonParams.addProperty("request", encrypted);
         JsonObject encryptedRequest = new JsonObject();
         encryptedRequest.addProperty("method", "securePassthrough");
         encryptedRequest.add("params", jsonParams);
 
-        logger.debug("encrypted request: {}", encryptedRequest);
+        logger.trace("{}: encrypted request: {}", tag, encryptedRequest);
         originRequest.content(new StringContentProvider(encryptedRequest.toString()));
         originRequest.header("Seq", seq.toString());
 
-        String tag = generateTag(encryptedRequest.toString(), passwordHash, cnonce);
-        logger.debug("Tapo tag: {}", tag);
+        String tapoTag = generateTag(encryptedRequest.toString(), passwordHash, cnonce);
+        logger.debug("{}: Tapo tag: {}", tag, tapoTag);
 
-        originRequest.header("Tapo_tag", tag);
+        originRequest.header("Tapo_tag", tapoTag);
 
         startSeq += 1;
     }
@@ -372,7 +374,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         setHeaders(request);
         request.method(HttpMethod.POST);
         if (isSecureConnection) {
-            logger.debug("sendMultipleRequest data: {}", data);
+            logger.debug("{}: sendMultipleRequest data: {}", tag, data);
             makeEncryptedRequest(request, data, startSeq, passwordHash, lsk, ivb);
         } else {
             request.content(new StringContentProvider(data));
@@ -384,27 +386,27 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                 if (isSecureConnection) {
                     String result = response.result.get("response").getAsString();
                     result = ApiUtils.decryptResponse(result, lsk, ivb);
-                    logger.debug("decrypted response: {}", result);
+                    logger.debug("{}: decrypted response: {}", tag, result);
                     JsonObject json = JsonParser.parseString(result).getAsJsonObject();
                     response.result = json.getAsJsonObject("result");
                 }
                 return response;
             } else {
                 // TODO: log.error && throw new Exception
-                logger.error("Error in response, error code: {}", response.errorCode);
+                logger.error("{}: Error in response, error code: {}", tag, response.errorCode);
                 this.token = "";
                 return new ApiResponse();
             }
         } catch (TimeoutException e) {
             this.token = "";
-            logger.error("TimeoutException: {}", e.getMessage());
+            logger.error("{}: TimeoutException: {}", tag, e.getMessage());
             return null;
         } catch (InterruptedException e) {
-            logger.error("InterruptedException: {}", e.getMessage());
+            logger.error("{}: InterruptedException: {}", tag, e.getMessage());
             return null;
         } catch (ExecutionException e) {
             this.token = "";
-            logger.error("ExecutionException: {}", e.getMessage());
+            logger.error("{}: ExecutionException: {}", tag, e.getMessage());
             return null;
         }
     }
@@ -415,7 +417,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         setHeaders(request);
         request.method(HttpMethod.POST);
         if (isSecureConnection) {
-            logger.debug("sendSingleRequest data: {}", data);
+            logger.debug("{}: sendSingleRequest data: {}", tag, data);
             makeEncryptedRequest(request, data, startSeq, passwordHash, lsk, ivb);
         } else {
             request.content(new StringContentProvider(data));
@@ -428,12 +430,13 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                 if (isSecureConnection) {
                     String result = response.get("result").getAsJsonObject().get("response").getAsString();
                     result = ApiUtils.decryptResponse(result, lsk, ivb);
-                    logger.debug("decrypted response: {}", result);
+                    logger.debug("{}: decrypted response: {}", tag, result);
                     JsonObject json = JsonParser.parseString(result).getAsJsonObject();
                     if (json.has("error_code") && json.get("error_code").getAsInt() == 0) {
                         response = json;
                     } else {
-                        logger.error("Error in response, error code: {}, {}", json.get("error_code").getAsInt(),
+                        logger.error("{}: Error in response, error code: {}, {}", tag,
+                                json.get("error_code").getAsInt(),
                                 ApiErrorCodes.getErrorByCode(json.get("error_code").getAsInt()).getMessage());
                         response.addProperty("error_code", json.get("error_code").getAsInt());
                     }
@@ -441,19 +444,19 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                 return response;
             } else {
                 // TODO: log.error && throw new Exception
-                logger.error("Error in response, error code: {}", response.get("error_code").getAsInt());
+                logger.error("{}: Error in response, error code: {}", tag, response.get("error_code").getAsInt());
                 this.token = "";
                 return new Object();
             }
         } catch (TimeoutException e) {
-            logger.error("TimeoutException: {}", e.getMessage());
+            logger.error("{}: TimeoutException: {}", tag, e.getMessage());
             this.token = "";
             return null;
         } catch (InterruptedException e) {
-            logger.error("InterruptedException: {}", e.getMessage());
+            logger.error("{}: InterruptedException: {}", tag, e.getMessage());
             return null;
         } catch (ExecutionException e) {
-            logger.error("ExecutionException: {}", e.getMessage());
+            logger.error("{}: ExecutionException: {}", tag, e.getMessage());
             this.token = "";
             return null;
         }
@@ -493,7 +496,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                 return gson.fromJson(obj, getClassByModuleAndSection(moduleName, section));
             }
         } else {
-            logger.error("Module {} not found in response", moduleName);
+            logger.error("{}: Module {} not found in response", tag, moduleName);
         }
         return null;
     }
@@ -511,7 +514,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                 }
             });
         } else {
-            logger.error("Module {} not found in response", moduleName);
+            logger.error("{}: Module {} not found in response", tag, moduleName);
         }
         return result;
     }
@@ -552,7 +555,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                 });
             }
         } else {
-            logger.error("TapoCameraApi error {}", response.errorCode);
+            logger.error("{}: TapoCameraApi error {}", tag, response.errorCode);
         }
         return results;
     }
@@ -932,10 +935,10 @@ public class TapoCameraApiImpl implements TapoCameraApi {
             return processMultipleResponses(response);
         } else if (response.errorCode == ApiErrorCodes.ERROR_40401.getCode()) {
             // TODO: invalid token
-            logger.error("Invalid token, error code: {}", response.errorCode);
+            logger.error("{}: Invalid token, error code: {}", tag, response.errorCode);
             this.token = "";
         } else {
-            logger.error("Error in response, error code: {}", response.errorCode);
+            logger.error("{}: Error in response, error code: {}", tag, response.errorCode);
             this.token = "";
         }
         return result;

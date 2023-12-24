@@ -293,7 +293,7 @@ public class TapoCameraHandler extends BaseThingHandler implements DynamicStateD
     }
 
     private Future<?> connectCamera(int wait) {
-        logger.warn("Try connect after: {} sec", wait);
+        logger.warn("{}: Try connect after: {} sec", thing.getLabel(), wait);
         return scheduler.schedule(() -> {
             updateStatus(ThingStatus.OFFLINE);
             boolean thingReachable = deviceAuth();
@@ -319,10 +319,14 @@ public class TapoCameraHandler extends BaseThingHandler implements DynamicStateD
     }
 
     private void reconnect() {
-        logger.debug("Try to reconnect");
+        reconnect("");
+    }
+
+    private void reconnect(@Nullable String message) {
+        logger.debug("{}: Try to reconnect", thing.getLabel());
         cancelInitJob();
         cancelPollingJob();
-        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, message);
         initJob = connectCamera(config.reconnectInterval);
     }
 
@@ -332,7 +336,7 @@ public class TapoCameraHandler extends BaseThingHandler implements DynamicStateD
             return api.auth(config.username, pass);
         } catch (ApiException e) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
-            reconnect();
+            reconnect(e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -368,7 +372,7 @@ public class TapoCameraHandler extends BaseThingHandler implements DynamicStateD
     }
 
     private void pollingCamera() {
-        logger.debug("get camera parameters");
+        logger.debug("{}: get camera parameters", thing.getLabel());
         try {
             if (!api.isAuth()) {
                 reconnect();
@@ -381,7 +385,9 @@ public class TapoCameraHandler extends BaseThingHandler implements DynamicStateD
             }
 
         } catch (Exception e) {
-            logger.error("Tapo Camera Exception: {}", e.getMessage());
+            logger.error("{}: Tapo Camera Exception: {}", thing.getLabel(), e.getMessage());
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
+            reconnect();
         }
     }
 
@@ -560,7 +566,7 @@ public class TapoCameraHandler extends BaseThingHandler implements DynamicStateD
     public @Nullable StateDescription getStateDescription(Channel channel, @Nullable StateDescription stateDescription,
             @Nullable Locale locale) {
         if (this.getThing().getChannel(CHANNEL_GOTO_PRESETS.getName()).equals(channel)) {
-            logger.debug("requested state for {}", channel.getUID());
+            logger.debug("{}: requested state for {}", thing.getLabel(), channel.getUID());
         }
         return null;
     }
