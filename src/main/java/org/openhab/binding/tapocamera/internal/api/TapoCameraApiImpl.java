@@ -471,20 +471,37 @@ public class TapoCameraApiImpl implements TapoCameraApi {
      * @return the boolean
      */
     public boolean executeSetMethod(ApiMethodTypes type, String paramName, Object value) {
-        return executeCommandMethod("set", type, paramName, value);
+        boolean res = false;
+        try {
+            res = executeCommandMethod("set", type, paramName, value);
+        } catch (Exception e) {
+            logger.error("{}: failed to executeSetMethod: {}", tag, paramName);
+        }
+        return res;
     }
 
     public boolean executeDoMethod(ApiMethodTypes type, String paramName, Object value) {
-        return executeCommandMethod("do", type, paramName, value);
+        boolean res = false;
+        try {
+            res = executeCommandMethod("do", type, paramName, value);
+        } catch (Exception e) {
+            logger.error("{}: failed to executeDoMethod: {}", tag, paramName);
+        }
+        return res;
     }
 
-    private boolean executeCommandMethod(String method, ApiMethodTypes type, String paramName, Object value) {
+    private boolean executeCommandMethod(String method, ApiMethodTypes type, String paramName, Object value)
+            throws ApiException {
         String module = type.getModule();
         String section = type.getSection();
         String command = ApiUtils.createSingleCommand(method, module, section, paramName, value);
-        JsonObject obj = (JsonObject) sendSingleRequest(token, command);
-        ApiResponse response = gson.fromJson(obj, ApiResponse.class);
-        return response.errorCode == 0;
+        try {
+            JsonObject obj = (JsonObject) sendSingleRequest(token, command);
+            ApiResponse response = gson.fromJson(obj, ApiResponse.class);
+            return response.errorCode == 0;
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage());
+        }
     }
 
     @Override

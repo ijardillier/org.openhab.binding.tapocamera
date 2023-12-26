@@ -13,6 +13,7 @@
 package org.openhab.binding.tapocamera.internal.api;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * The {@link ApiException} is responsible for handling api exceptions.
@@ -28,7 +29,7 @@ public class ApiException extends Exception {
      *
      * @param message the message
      */
-    public ApiException(String message) {
+    public ApiException(@Nullable String message) {
         super(message);
     }
 
