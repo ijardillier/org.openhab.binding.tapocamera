@@ -301,11 +301,11 @@ public class TapoCameraHandler extends BaseThingHandler implements DynamicStateD
                 updateStatus(ThingStatus.ONLINE);
                 DeviceInfo deviceInfo = api.getDeviceInfo();
                 cameraState.setFriendlyName(deviceInfo.basic.deviceAlias);
-                logger.debug("{}: received: {}", cameraState.getFriendlyName(), deviceInfo);
+                logger.debug("[{}] Received: {}", cameraState.getFriendlyName(), deviceInfo);
                 NetworkInfo networkInfo = api.getNetworkInfo();
-                logger.debug("{}: received: {}", cameraState.getFriendlyName(), networkInfo.toString());
+                logger.debug("[{}] Received: {}", cameraState.getFriendlyName(), networkInfo.toString());
                 ModuleSpec moduleSpec = api.getModuleSpec();
-                logger.debug("{}: received: {}", cameraState.getFriendlyName(), moduleSpec.toString());
+                logger.debug("[{}] Received: {}", cameraState.getFriendlyName(), moduleSpec.toString());
                 getSupportedFeatures(moduleSpec);
 
                 setThingProperties(deviceInfo);
@@ -374,7 +374,7 @@ public class TapoCameraHandler extends BaseThingHandler implements DynamicStateD
     private void pollingCamera() {
         logger.debug("{}: get camera parameters", thing.getLabel());
         try {
-            if (!api.isAuth()) {
+            if (!api.isAuthenticated()) {
                 reconnect();
             } else {
                 updateStatus(ThingStatus.ONLINE);

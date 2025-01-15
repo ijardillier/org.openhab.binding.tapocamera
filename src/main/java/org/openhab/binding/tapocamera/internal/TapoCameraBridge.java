@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2023 Contributors to the openHAB project
+ * Copyright (c) 2010-2024 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -14,7 +14,6 @@ package org.openhab.binding.tapocamera.internal;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.tapocamera.internal.api.ApiException;
@@ -31,37 +30,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The type Tapo camera bridge.
+ * The Tapo camera bridge.
  *
- * @author "Dmintry P (d51x)" - Initial contribution
+ * @author "Ingrid JARDILLIER"
  */
 public class TapoCameraBridge extends BaseBridgeHandler {
+
     private final Logger logger = LoggerFactory.getLogger(TapoCameraBridge.class);
+
     /**
-     * The Cloud api.
+     * The cloud api.
      */
     public TapoCameraCloudApiImpl cloudApi;
 
     /**
-     * The Devices list.
-     */
-    List<ApiDeviceResponse> devicesList;
-
-    /**
-     * The Devices.
-     */
-    public Map<String, ApiDeviceResponse> devices;
-
-    /**
-     * The Config.
+     * The config.
      */
     public @Nullable TapoCameraConfiguration config;
 
     /**
-     * Instantiates a new Tapo camera bridge.
+     * Initializes a new Tapo camera bridge.
      *
-     * @param bridge the bridge
-     * @param apiFactory the api factory
+     * @param bridge The bridge
+     * @param apiFactory The api factory
      */
     public TapoCameraBridge(Bridge bridge, TapoCameraApiFactory apiFactory) {
         super(bridge);
@@ -71,17 +62,19 @@ public class TapoCameraBridge extends BaseBridgeHandler {
     @Override
     public void initialize() {
         updateStatus(ThingStatus.UNKNOWN);
+
         TapoCameraDiscoveryService.tapoCameraBridgeBusList.add(this);
         config = getConfigAs(TapoCameraConfiguration.class);
         if (config != null) {
-            config.cloudToken = cloudApi.getCloudToken(config.cloudUsername, config.cloudPassword);
-            if (config.cloudToken.isEmpty()) {
+
+            String token = cloudApi.getCloudToken(config.cloudUsername, config.cloudPassword);
+            if (token == null || token.isEmpty()) {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
                         "Can not connect to Tapo Cloud");
             } else {
                 updateStatus(ThingStatus.ONLINE);
-                devicesList = getDevices();
             }
+
         } else {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Check bridge configuration");
         }
@@ -94,16 +87,18 @@ public class TapoCameraBridge extends BaseBridgeHandler {
     /**
      * Gets devices.
      *
-     * @return the devices
+     * @return The devices
      */
     public List<ApiDeviceResponse> getDevices() {
         try {
-            config.cloudToken = cloudApi.getCloudToken(config.cloudUsername, config.cloudPassword);
-            List<ApiDeviceResponse> devices = cloudApi.getCloudDevices(config.cloudToken);
-            return devices;
+            String token = cloudApi.getCloudToken(config.cloudUsername, config.cloudPassword);
+            if (token != null && !token.isEmpty()) {
+                return cloudApi.getCloudDevices(token);
+            }
         } catch (ApiException e) {
-            logger.error("Can not connect to Tapo Cloud");
+            logger.error("Can not get devices from Tapo Cloud");
         }
+
         return new ArrayList<>();
     }
 }

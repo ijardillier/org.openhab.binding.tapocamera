@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2023 Contributors to the openHAB project
+ * Copyright (c) 2010-2024 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -17,36 +17,40 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 /**
  * The {@link TapoCameraConfiguration} class contains fields mapping thing configuration parameters.
  *
- * @author "Dmintry P (d51x)" - Initial contribution
+ * @author "Ingrid JARDILLIER (ijardillier"
  */
 @NonNullByDefault
 public class TapoCameraConfiguration {
 
     /**
-     * The Hostname.
+     * The hostname.
      */
     public String hostname = "";
+
     /**
-     * The Username.
+     * The username.
      */
     public String username = "";
+
     /**
-     * The Password.
+     * The password.
      */
     public String password = "";
+
     /**
-     * The Cloud password.
+     * The cloud password.
      */
     public String cloudPassword = "";
+
     /**
-     * The Reconnect interval.
+     * The reconnect interval.
      */
     public int reconnectInterval = 60;
+
     /**
-     * The Polling interval.
+     * The polling interval.
      */
     public int pollingInterval = 5;
 
-    public String cloudToken = "";
     public String cloudUsername = "";
 }

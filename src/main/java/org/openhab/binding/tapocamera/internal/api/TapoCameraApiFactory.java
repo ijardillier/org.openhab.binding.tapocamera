@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2023 Contributors to the openHAB project
+ * Copyright (c) 2010-2024 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -12,61 +12,42 @@
  */
 package org.openhab.binding.tapocamera.internal.api;
 
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-
 import org.eclipse.jetty.client.HttpClient;
-import org.openhab.binding.tapocamera.internal.api.ssl.SslUtils;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The type Tapo camera api factory.
+ * The Tapo camera api factory.
  *
- * @author "Dmintry P (d51x)" - Initial contribution
+ * @author "Ingrid JARDILLIER (ijardillier)"
  */
 @Component(service = TapoCameraApiFactory.class)
 public class TapoCameraApiFactory {
+
     private final Logger logger = LoggerFactory.getLogger(TapoCameraApiFactory.class);
+
     /**
      * The Http client.
      */
-    public HttpClient httpClient = new HttpClient(SslUtils.createSslContext());;
+    public HttpClient httpClient;
 
     /**
-     * Ssl context ssl context.
-     *
-     * @param keyManagers the key managers
-     * @param trustManagers the trust managers
-     * @return the ssl context
-     */
-    public static SSLContext sslContext(KeyManager[] keyManagers, TrustManager[] trustManagers) {
-        try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(keyManagers, trustManagers, null);
-            return sslContext;
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            throw new IllegalStateException("Couldn't init TLS context", e);
-        }
-    }
-
-    /**
-     * Instantiates a new Tapo camera api factory.
+     * Initializes a new Tapo camera api factory.
      */
     @Activate
     public TapoCameraApiFactory() {
         try {
-            httpClient.getSslContextFactory().setSslContext(SslUtils.initSslContext());
-            httpClient.getSslContextFactory().setTrustAll(true);
+            SslContextFactory.Client sslContextFactory = new SslContextFactory.Client(true);
+            sslContextFactory.addExcludeProtocols("SSL", "SSLv2", "SSLv2Hello", "SSLv3", "TLSv1.3");
+            sslContextFactory.setExcludeCipherSuites("^.*_(MD5|SHA1)$");
+            httpClient = new HttpClient(sslContextFactory);
             httpClient.setConnectTimeout(60 * 1000);
             httpClient.setAddressResolutionTimeout(60 * 1000);
             httpClient.start();
+            httpClient.dump(System.out);
         } catch (Exception e) {
             logger.warn("Unable to start HttpClient!");
         }
@@ -75,12 +56,17 @@ public class TapoCameraApiFactory {
     /**
      * Gets api.
      *
-     * @return the api
+     * @return The api
      */
     public TapoCameraApi getApi(String tag) {
         return new TapoCameraApiImpl(httpClient, tag);
     }
 
+    /**
+     * Gets cloud api.
+     *
+     * @return The cloud api
+     */
     public TapoCameraCloudApi getCloudApi() {
         return new TapoCameraCloudApiImpl(httpClient);
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2023 Contributors to the openHAB project
+ * Copyright (c) 2010-2024 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -36,23 +36,22 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- * The {@link TapoCameraHandlerFactory} is responsible for creating things and thing
- * handlers.
+ * The {@link TapoCameraHandlerFactory} is responsible for creating things and thing handlers.
  *
- * @author "Dmintry P (d51x)" - Initial contribution
+ * @author "Ingrid JARDILLIER (ijardillier)"
  */
 @NonNullByDefault
 @Component(configurationPid = "binding.tapocamera", service = ThingHandlerFactory.class)
 public class TapoCameraHandlerFactory extends BaseThingHandlerFactory {
 
-    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_CAMERA, THING_TYPE_BRIDGE);
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_BRIDGE, THING_TYPE_CAMERA);
     private final TapoCameraApiFactory apiFactory;
     private static final Map<ThingUID, @NonNull TapoCameraHandler> handlerMap = new HashMap<>();
 
     /**
-     * Instantiates a new Tapo camera handler factory.
+     * Initializes a new Tapo camera handler factory.
      *
-     * @param apiFactory the api factory
+     * @param apiFactory The api factory
      */
     @Activate
     public TapoCameraHandlerFactory(@Reference TapoCameraApiFactory apiFactory) {
@@ -69,6 +68,7 @@ public class TapoCameraHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         TapoCameraApi api = apiFactory.getApi(thing.getLabel());
+
         if (THING_TYPE_CAMERA.equals(thingTypeUID)) {
             return new TapoCameraHandler(thing, api);
         } else if (THING_TYPE_BRIDGE.equals(thingTypeUID)) {
@@ -81,30 +81,36 @@ public class TapoCameraHandlerFactory extends BaseThingHandlerFactory {
     @Override
     public void unregisterHandler(Thing thing) {
         ThingUID uid = thing.getUID();
+
         if (!handlerMap.isEmpty()) {
             handlerMap.remove(uid);
         }
+
         super.unregisterHandler(thing);
     }
 
     @Override
     public ThingHandler registerHandler(Thing thing) {
         ThingHandler handler = super.registerHandler(thing);
+
         if (handler instanceof TapoCameraHandler) {
             ThingUID uid = handler.getThing().getUID();
             handlerMap.putIfAbsent(uid, (TapoCameraHandler) handler);
         }
+
         return handler;
     }
 
     public static TapoCameraHandler getThingHandlerByThingUID(ThingUID uid) {
         if (!handlerMap.isEmpty() && handlerMap.containsKey(uid)) {
             TapoCameraHandler handler = handlerMap.get(uid);
+
             if (handler != null) {
                 return handler;
             } else {
                 throw new RuntimeException("TapoCameraHandler is null");
             }
+
         } else {
             throw new RuntimeException(String.format("TapoCameraHandler with uid '%s' not found", uid));
         }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2023 Contributors to the openHAB project
+ * Copyright (c) 2010-2024 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -17,26 +17,27 @@ import java.util.List;
 import org.openhab.binding.tapocamera.internal.api.response.ApiDeviceResponse;
 
 /**
- * The interface Tapo camera cloud api.
+ * The Tapo camera cloud api interface.
  *
- * @author "Dmintry P (d51x)" - Initial contribution
+ * @author "Ingrid JARDILLIER (ijardillier)"
  */
 public interface TapoCameraCloudApi {
+
     /**
      * Gets cloud token.
      *
-     * @param username the username
+     * @param username The username
      * @param password the password
-     * @return the cloud token
+     * @return The cloud token
      */
     String getCloudToken(String username, String password);
 
     /**
      * Gets cloud devices.
      *
-     * @param token the token
-     * @return the cloud devices
-     * @throws ApiException the api exception
+     * @param token The token
+     * @return The cloud devices
+     * @throws ApiException The api exception
      */
     List<ApiDeviceResponse> getCloudDevices(String token) throws ApiException;
 }

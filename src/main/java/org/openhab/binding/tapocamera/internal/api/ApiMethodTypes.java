@@ -39,7 +39,8 @@ public enum ApiMethodTypes {
     /**
      * Device info basic api method types.
      */
-    DEVICE_INFO_BASIC("getDeviceInfo", "device_info", "basic_info", DeviceInfoBasic.class),
+    DEVICE_INFO("getDeviceInfo", "{'device_info': {'name': ['basic_info', 'info']}}", "basic_info",
+            DeviceInfoBasic.class),
     /**
      * Device info full api method types.
      */
@@ -47,7 +48,7 @@ public enum ApiMethodTypes {
     /**
      * Wan info api method types.
      */
-    WAN_INFO("get", "network", "wan", NetworkInfo.class),
+    WAN_INFO("get", "{'network': {'name': ['wan']}}", "wan", NetworkInfo.class),
     /**
      * Connection type api method types.
      */
@@ -156,12 +157,14 @@ public enum ApiMethodTypes {
     private String method;
     private String module;
     private String section;
+    private String params;
     private Class<?> clazz;
 
     ApiMethodTypes(String method, String module, String section, Class<?> clazz) {
         this.method = method;
         this.module = module;
         this.section = section;
+        this.params = module;
         this.clazz = clazz;
     }
 
@@ -217,6 +220,24 @@ public enum ApiMethodTypes {
      */
     public void setSection(String section) {
         this.section = section;
+    }
+
+    /**
+     * Gets params.
+     *
+     * @return the params.
+     */
+    public String getParams() {
+        return params;
+    }
+
+    /**
+     * Sets params.
+     *
+     * @param params the params
+     */
+    public void setParams(String params) {
+        this.params = params;
     }
 
     /**

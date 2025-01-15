@@ -34,6 +34,7 @@ import com.google.gson.JsonParser;
  * @author "Dmintry P (d51x)" - Initial contribution
  */
 public class ApiUtils {
+
     /**
      * Gets password hash.
      *

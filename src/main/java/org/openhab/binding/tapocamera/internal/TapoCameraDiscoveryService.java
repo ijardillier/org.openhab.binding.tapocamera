@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2023 Contributors to the openHAB project
+ * Copyright (c) 2010-2024 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -34,23 +34,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The type Tapo camera discovery service.
+ * The Tapo camera discovery service.
  *
- * @author "Dmintry P (d51x)" - Initial contribution
+ * @author "Ingrid JARDILLIER (ijardillier)"
  */
 @Component(service = DiscoveryService.class, configurationPid = "discovery.tapocamera")
 @NonNullByDefault
 public class TapoCameraDiscoveryService extends AbstractDiscoveryService {
+
     private final Logger logger = LoggerFactory.getLogger(TapoCameraDiscoveryService.class);
 
     private @Nullable ScheduledFuture<?> backgroundFuture;
+
     /**
-     * The constant tapoCameraBridgeBusList.
+     * The Tapo camera bridge bus list.
      */
     public static List<TapoCameraBridge> tapoCameraBridgeBusList = new ArrayList<TapoCameraBridge>();
 
     /**
-     * Instantiates a new Tapo camera discovery service.
+     * Initalizes a new Tapo camera discovery service.
      */
     public TapoCameraDiscoveryService() {
         super(Collections.singleton(TapoCameraBindingConstants.THING_TYPE_BRIDGE), 30, false);
@@ -63,12 +65,14 @@ public class TapoCameraDiscoveryService extends AbstractDiscoveryService {
 
     @Override
     protected synchronized void stopScan() {
+        logger.debug("Stop scan");
 
         ScheduledFuture<?> scan = backgroundFuture;
         if (scan != null) {
             scan.cancel(true);
             backgroundFuture = null;
         }
+
         super.stopScan();
     }
 
@@ -79,7 +83,6 @@ public class TapoCameraDiscoveryService extends AbstractDiscoveryService {
         for (TapoCameraBridge bridge : tapoCameraBridgeBusList) {
             List<ApiDeviceResponse> devices = bridge.getDevices();
             if (devices != null && !devices.isEmpty()) {
-
                 Map<String, String> ipMacs = getMacAddressFromArp();
                 for (ApiDeviceResponse device : devices) {
                     if (device.deviceType.equals(TAPO_DEVICE_TYPE)) {
@@ -101,9 +104,11 @@ public class TapoCameraDiscoveryService extends AbstractDiscoveryService {
     }
 
     private String getIpByMac(Map<String, String> map, String mac) {
+
         if (map.isEmpty()) {
             return "";
         }
+
         return map.getOrDefault(mac, "");
     }
 
@@ -121,10 +126,11 @@ public class TapoCameraDiscoveryService extends AbstractDiscoveryService {
     /**
      * Gets mac address from arp.
      *
-     * @return the mac address from arp
+     * @return The mac address from arp
      */
     public Map<String, String> getMacAddressFromArp() {
         Map<String, String> macs = new HashMap<>();
+
         File arp = new File("/proc/net/arp");
         if (!arp.exists()) {
             logger.warn("no arp available");
@@ -148,7 +154,6 @@ public class TapoCameraDiscoveryService extends AbstractDiscoveryService {
                     }
                 }
             }
-
         } catch (IOException e) {
             logger.error("Tapo Camera Exception: {}", e.getMessage());
         } finally {

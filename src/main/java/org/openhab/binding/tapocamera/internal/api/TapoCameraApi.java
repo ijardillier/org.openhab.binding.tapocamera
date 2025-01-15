@@ -52,29 +52,27 @@ public interface TapoCameraApi {
     Boolean auth(String username, String password) throws ApiException;
 
     /**
-     * Is auth boolean.
+     * Is authenticated boolean.
      *
      * @return the boolean
      */
-    Boolean isAuth();
+    Boolean isAuthenticated();
 
     /**
      * Send multiple request api response.
      *
-     * @param token the token
      * @param data the data
      * @return the api response
      */
-    ApiResponse sendMultipleRequest(String token, String data);
+    ApiResponse sendMultipleRequest(String data);
 
     /**
      * Send single request object.
      *
-     * @param token the token
      * @param data the data
      * @return the object
      */
-    Object sendSingleRequest(String token, String data);
+    Object sendSingleRequest(String data);
 
     /**
      * Process single response object.

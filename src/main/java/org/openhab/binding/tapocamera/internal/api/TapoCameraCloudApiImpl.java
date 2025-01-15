@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2023 Contributors to the openHAB project
+ * Copyright (c) 2010-2024 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -20,14 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.StringContentProvider;
-import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
 import org.openhab.binding.tapocamera.internal.api.response.ApiDeviceResponse;
 import org.openhab.binding.tapocamera.internal.api.response.ApiResponse;
@@ -41,19 +38,19 @@ import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
 /**
- * The type Tapo camera cloud api.
+ * The Tapo camera cloud api implementation.
  *
- * @author "Dmintry P (d51x)" - Initial contribution
+ * @author "Ingrid JARDILLIER (ijardillier)"
  */
 public class TapoCameraCloudApiImpl implements TapoCameraCloudApi {
 
     private final Logger logger = LoggerFactory.getLogger(TapoCameraCloudApiImpl.class);
-    private String token = "";
+
     private static Gson gson = new Gson();
     private final HttpClient httpClient;
 
     /**
-     * Instantiates a new Tapo camera cloud api.
+     * Initializes a new Tapo camera cloud api.
      *
      * @param httpClient the http client
      */
@@ -63,71 +60,74 @@ public class TapoCameraCloudApiImpl implements TapoCameraCloudApi {
 
     @Override
     public String getCloudToken(String username, String password) {
-        Request request = httpClient.newRequest(TAPO_CLOUD_URL);
-        setHeaders(request);
-        request.method(HttpMethod.POST);
+        Request request = httpClient.newRequest(TAPO_CLOUD_URL).method(HttpMethod.POST).accept("application/json");
 
-        JsonObject jsonParams = new JsonObject();
-        jsonParams.addProperty("appType", "Tapo_Ios");
-        jsonParams.addProperty("cloudUserName", username);
-        jsonParams.addProperty("cloudPassword", password);
-        jsonParams.addProperty("terminalUUID", UUID.randomUUID().toString());
+        JsonObject body = createMethod("login", createLoginParams(username, password));
+        request.content(new StringContentProvider("application/json", body.toString(), StandardCharsets.UTF_8));
 
-        JsonObject jsonAuth = new JsonObject();
-        jsonAuth.addProperty("method", "login");
-        jsonAuth.add("params", jsonParams);
-
-        request.content(new StringContentProvider(jsonAuth.toString(), StandardCharsets.UTF_8), "application/json");
         try {
-            ContentResponse contentResponse = request.send();
-            JsonElement json = JsonParser.parseString(contentResponse.getContentAsString());
-            ApiResponse response = gson.fromJson(json, ApiResponse.class);
+            JsonElement responseContent = JsonParser.parseString(request.send().getContentAsString());
+            ApiResponse response = gson.fromJson(responseContent, ApiResponse.class);
             if (response.errorCode == 0 && response.result.has("token")) {
-                token = response.result.get("token").getAsString();
-                return token;
+                return response.result.get("token").getAsString();
             } else {
-                // TODO: log.error && throw new Exception
                 logger.error("Cloud: Error in response or Invalid token, error code: {}", response.errorCode);
             }
         } catch (InterruptedException | TimeoutException | ExecutionException e) {
             logger.error("{}}: {}", e.getClass().getSimpleName(), e.getMessage());
         }
-        return "";
+
+        return null;
     }
 
     @Override
     public List<ApiDeviceResponse> getCloudDevices(String token) throws ApiException {
-        String url = TAPO_CLOUD_URL + "?token=" + token;
-        Request request = httpClient.newRequest(url);
-        setHeaders(request);
-        request.method(HttpMethod.POST);
-        String body = "{\"method\": \"getDeviceList\"}";
-        request.content(new StringContentProvider(body, StandardCharsets.UTF_8), "application/json");
+        Request request = httpClient.newRequest(TAPO_CLOUD_URL).method(HttpMethod.POST).accept("application/json");
+
+        JsonObject body = createMethod("getDeviceList", createTokenParams(token));
+        request.content(new StringContentProvider("application/json", body.toString(), StandardCharsets.UTF_8));
+
         try {
-            ContentResponse contentResponse = request.send();
-            JsonElement json = JsonParser.parseString(contentResponse.getContentAsString());
-            ApiResponse response = gson.fromJson(json, ApiResponse.class);
+            JsonElement responseContent = JsonParser.parseString(request.send().getContentAsString());
+            ApiResponse response = gson.fromJson(responseContent, ApiResponse.class);
             if (response.errorCode == 0) {
                 Type listType = new TypeToken<ArrayList<ApiDeviceResponse>>() {
                 }.getType();
-                List<ApiDeviceResponse> deviceResponseList = gson.fromJson(response.result.getAsJsonArray("deviceList"),
-                        listType);
-                logger.debug("Cloud devices: {}", deviceResponseList.toString());
-                return deviceResponseList;
+                return gson.fromJson(response.result.getAsJsonArray("deviceList"), listType);
             } else {
-                // TODO: log.error && throw new Exception
                 logger.error("Cloud: Error in response or Invalid token, error code: {}", response.errorCode);
             }
         } catch (InterruptedException | TimeoutException | ExecutionException e) {
             logger.error("{}}: {}", e.getClass().getSimpleName(), e.getMessage());
             throw new ApiException(String.format("%s %s", e.getClass().getSimpleName(), e.getMessage()));
         }
+
         return new ArrayList<>();
     }
 
-    private void setHeaders(Request request) {
-        request.timeout(60, TimeUnit.SECONDS);
-        request.header(HttpHeader.CONTENT_TYPE, "application/json");
-        request.header(HttpHeader.ACCEPT, "application/json");
+    private JsonObject createLoginParams(String username, String password) {
+        JsonObject json = new JsonObject();
+        json.addProperty("appType", "Tapo_Android");
+        json.addProperty("cloudUserName", username);
+        json.addProperty("cloudPassword", password);
+        json.addProperty("terminalUUID", UUID.randomUUID().toString());
+        return json;
+    }
+
+    private JsonObject createTokenParams(String token) {
+        JsonObject json = new JsonObject();
+        json.addProperty("token", token);
+        return json;
+    }
+
+    private JsonObject createMethod(String method, JsonObject params) {
+        JsonObject json = new JsonObject();
+        json.addProperty("method", method);
+
+        if (params != null) {
+            json.add("params", params);
+        }
+
+        return json;
     }
 }

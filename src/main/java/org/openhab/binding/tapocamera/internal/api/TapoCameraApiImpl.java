@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2023 Contributors to the openHAB project
+ * Copyright (c) 2010-2024 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -12,7 +12,28 @@
  */
 package org.openhab.binding.tapocamera.internal.api;
 
-import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.*;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.CLOCK_STATUS;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.GOTO_PRESETS;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.IMAGE_ROTATION_STATUS;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.INTRUSION_DETECTION;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.LAST_ALARM_INFO;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.LED_STATUS;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.LENS_MASK;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.LIGHT_FREQUENCY_INFO;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.LINECROSSING_DETECTION;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MICROPHONE_INFO;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MODULES_SPEC;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MOTION_DETECTION;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MSG_ALARM_INFO;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MSG_ALARM_MANUAL;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.MSG_PUSH_INFO;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.PERSON_DETECTION;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.PRESETS;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.SPEAKER_INFO;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.TAMPER_DETECTION;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.TARGET_TRACK;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.USER_ID;
+import static org.openhab.binding.tapocamera.internal.api.ApiMethodTypes.getClassByModuleAndSection;
 import static org.openhab.binding.tapocamera.internal.api.utils.ApiUtils.createMultipleCommand;
 import static org.openhab.binding.tapocamera.internal.api.utils.ApiUtils.singleToMulti;
 
@@ -21,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.eclipse.jetty.client.HttpClient;
@@ -36,14 +56,24 @@ import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgAlarmInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.alarm.MsgPushInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.audio.AudioMicrophoneInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.audio.AudioSpeakerInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.detection.*;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.IntrusionDetectionInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.LineCrossingDetectionInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.MotionDetection;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.PersonDetectionInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.TamperDetectionInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.detection.TargetAutoTrackInfo;
 import org.openhab.binding.tapocamera.internal.api.dto.image.ImageCommon;
 import org.openhab.binding.tapocamera.internal.api.dto.image.ImageSwitch;
 import org.openhab.binding.tapocamera.internal.api.dto.image.LensMaskInfo;
-import org.openhab.binding.tapocamera.internal.api.dto.system.*;
+import org.openhab.binding.tapocamera.internal.api.dto.system.ClockStatus;
+import org.openhab.binding.tapocamera.internal.api.dto.system.DeviceInfo;
+import org.openhab.binding.tapocamera.internal.api.dto.system.LedStatus;
+import org.openhab.binding.tapocamera.internal.api.dto.system.ModuleSpec;
+import org.openhab.binding.tapocamera.internal.api.dto.system.NetworkInfo;
 import org.openhab.binding.tapocamera.internal.api.response.ApiMethodResult;
 import org.openhab.binding.tapocamera.internal.api.response.ApiResponse;
 import org.openhab.binding.tapocamera.internal.api.utils.ApiUtils;
+import org.openhab.binding.tapocamera.internal.api.utils.HexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,15 +89,14 @@ import com.google.gson.reflect.TypeToken;
  * @author "Dmintry P (d51x)" - Initial contribution
  */
 public class TapoCameraApiImpl implements TapoCameraApi {
+
     private final Logger logger = LoggerFactory.getLogger(TapoCameraApiImpl.class);
-    private static final String TAPO_USER_AGENT = "Tapo CameraClient Android";
+
     private String hostname = "";
-    private String token = "";
-    private String lsk = "";
-    private String ivb = "";
+    private String url = "";
+    private ApiAuthData apiAuthData = null;
     private String passwordHash = "";
     private Long startSeq = -1L;
-    private Integer userId = -1;
     private Boolean isSecureConnection = false;
     private String nonce = "";
     private String cnonce = "C167F0A5";
@@ -85,265 +114,304 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         this.tag = tag;
     }
 
-    @Override
-    public void setHostname(String hostname) {
-        this.hostname = "https://" + hostname;
-    }
-
     private void setHeaders(Request request) {
-        request.timeout(60, TimeUnit.SECONDS);
-        request.header(HttpHeader.USER_AGENT, null);
-        request.header(HttpHeader.USER_AGENT, TAPO_USER_AGENT);
-        request.header(HttpHeader.CONTENT_TYPE, "application/json; charset=UTF-8");
-        request.header(HttpHeader.CONNECTION, "close");
-        request.header("requestByApp", "true");
+        request.header(HttpHeader.HOST, this.hostname);
+        request.header(HttpHeader.REFERER, this.url);
         request.header(HttpHeader.ACCEPT, "application/json");
-        request.header(HttpHeader.ACCEPT_ENCODING, null);
         request.header(HttpHeader.ACCEPT_ENCODING, "gzip, deflate");
-    }
-
-    @Override
-    public Boolean isAuth() {
-        return !token.isEmpty();
+        request.header(HttpHeader.USER_AGENT, "Tapo CameraClient Android");
+        request.header(HttpHeader.CONNECTION, "close");
+        request.header(HttpHeader.CONTENT_TYPE, "application/json; charset=UTF-8");
+        request.header("requestByApp", "true");
     }
 
     private Boolean getIsSecureConnection(String username) throws ApiException {
-        Boolean result = false;
-        Request request = httpClient.newRequest(hostname);
+        Request request = httpClient.newRequest(this.url).method(HttpMethod.POST);
         setHeaders(request);
-        request.method(HttpMethod.POST);
-        JsonObject jsonParams = new JsonObject();
-        jsonParams.addProperty("encrypt_type", "3");
-        jsonParams.addProperty("username", username);
-        JsonObject jsonAuth = new JsonObject();
-        jsonAuth.addProperty("method", "login");
-        jsonAuth.add("params", jsonParams);
-        String body = jsonAuth.toString();
-        request.content(new StringContentProvider(body));
+
+        JsonObject params = new JsonObject();
+        params.addProperty("encrypt_type", "3");
+        params.addProperty("username", username);
+
+        JsonObject method = new JsonObject();
+        method.addProperty("method", "login");
+        method.add("params", params);
+
+        logger.debug("[{}] body: {}", this.tag, method.toString());
+        request.content(new StringContentProvider(method.toString()));
+
         try {
-            ContentResponse contentResponse = request.send();
-            JsonElement json = JsonParser.parseString(contentResponse.getContentAsString());
+            JsonElement json = JsonParser.parseString(request.send().getContentAsString());
             ApiResponse response = gson.fromJson(json, ApiResponse.class);
-            logger.info("{}: response: {}", tag, response);
+            logger.debug("{}: response: {}", this.tag, response);
 
             if (response.errorCode == ApiErrorCodes.ERROR_40413.getCode()) {
                 JsonObject data = (JsonObject) response.result.get("data");
-                if (data.has("encrypt_type")) {
-                    List<String> list = new ArrayList<>();
-                    logger.info("{}: data: {}", tag, data);
+                if (data.has("encrypt_type") && data.get("encrypt_type").isJsonArray()
+                        && !data.get("encrypt_type").getAsJsonArray().isEmpty()
+                        && data.get("encrypt_type").getAsJsonArray().get(0).getAsInt() == 3) {
                     return true;
                 }
             }
-        } catch (TimeoutException e) {
-            logger.error("{}: TimeoutException: {}", tag, e.getMessage());
-            throw new ApiException(String.format("TimeoutException: %s", e.getMessage()));
-        } catch (InterruptedException e) {
-            logger.error("{}: InterruptedException: {}", tag, e.getMessage());
-            throw new ApiException(String.format("InterruptedException: %s", e.getMessage()));
-        } catch (ExecutionException e) {
-            logger.error("{}: ExecutionException: {}", tag, e.getMessage());
-            throw new ApiException(String.format("ExecutionException: %s", e.getMessage()));
+
+            return false;
+
+        } catch (TimeoutException | InterruptedException | ExecutionException e) {
+            throw new ApiException(String.format("[{}] {} when checking if connection is secured or not: {}", this.tag,
+                    e.getClass().getName(), e.getMessage()));
         }
-        return false;
     }
 
-    private Boolean validateDeviceConfirm(String passwordHash, String nonce, String deviceConfirm) {
-        String hashedNoncesWithSHA256 = ApiUtils.getPasswordHashSHA256(cnonce + passwordHash + nonce);
-        return (deviceConfirm.equals(hashedNoncesWithSHA256 + nonce + cnonce));
+    private JsonObject getFirstStepLoginMethod(String username, String password) {
+
+        JsonObject params = new JsonObject();
+        if (this.isSecureConnection) {
+            logger.debug("[{}] Connection is secure", this.tag);
+            this.cnonce = HexUtils.randomHexString(8);
+            this.passwordHash = ApiUtils.getPasswordHashSHA256(password);
+
+            params.addProperty("cnonce", this.cnonce);
+            params.addProperty("encrypt_type", "3");
+            params.addProperty("username", username);
+        } else {
+            logger.debug("[{}] Connection is insecure", this.tag);
+            this.passwordHash = ApiUtils.getPasswordHash(password);
+
+            params.addProperty("hashed", Boolean.TRUE);
+            params.addProperty("password", this.passwordHash);
+            params.addProperty("username", username);
+        }
+
+        JsonObject method = new JsonObject();
+        method.addProperty("method", "login");
+        method.add("params", params);
+
+        return method;
+    }
+
+    private void updateToSecondStepLoginMethod(JsonObject method, String username) {
+
+        String toNewPass = this.passwordHash + this.cnonce + this.nonce;
+        logger.trace("[{}] sha256 + cnonce + nonce: {}", this.tag, toNewPass);
+
+        String digestPassword = ApiUtils.getPasswordHashSHA256(toNewPass);
+        logger.trace("[{}] sha256-2: {}", this.tag, digestPassword);
+
+        String digestPassword2 = digestPassword + this.cnonce + this.nonce;
+        logger.trace("[{}] sha256-2 + cnonce + nonce: {}", this.tag, digestPassword2);
+
+        JsonObject params = method.get("params").getAsJsonObject();
+
+        params.addProperty("cnonce", this.cnonce);
+        params.addProperty("encrypt_type", "3");
+        params.addProperty("digest_passwd", digestPassword2);
+        params.addProperty("username", username);
+    }
+
+    private Boolean validateDeviceConfirm(String deviceConfirm) {
+        String hashedNoncesWithSHA256 = ApiUtils.getPasswordHashSHA256(this.cnonce + this.passwordHash + this.nonce);
+        return (deviceConfirm.equals(hashedNoncesWithSHA256 + this.nonce + this.cnonce));
+    }
+
+    private Integer getUserId() {
+        String command = createMultipleCommand(List.of(USER_ID));
+        ApiResponse response = sendMultipleRequest(command);
+
+        if (response.errorCode == 0) {
+            List<ApiMethodResult> multi = processMultipleResponses(response);
+            if (!multi.isEmpty()) {
+                return multi.get(0).result.get("user_id").getAsInt();
+            }
+            return -1;
+        } else {
+            logger.error("[{}] Unable to get user_id, error code: {}", this.tag, response.errorCode);
+            return -1;
+        }
+    }
+
+    private ApiAuthData processAuthResponse(ApiResponse response) throws ApiException {
+        logger.debug("[{}] Processing auth unsecure response", this.tag);
+
+        if (response.errorCode == 0 && response.result.has("stok")) {
+            ApiAuthData authData = new ApiAuthData();
+            authData.stok = response.result.get("stok").getAsString();
+            if (!authData.stok.isEmpty()) {
+                authData.userId = getUserId();
+            }
+            return authData;
+        } else {
+            if (response.errorCode == ApiErrorCodes.ERROR_40401.getCode()) {
+                throw new ApiException(
+                        String.format("[{}] Invalid token, error code: {}", this.tag, response.errorCode));
+            } else {
+                throw new ApiException(
+                        String.format("[{}] Error in auth response, error code: {}", this.tag, response.errorCode));
+            }
+        }
+    }
+
+    private String generateEncryptionToken(String tokenType) {
+        String hashedKey = ApiUtils.getPasswordHashSHA256(this.cnonce + this.passwordHash + this.nonce);
+        return ApiUtils.getPasswordHashSHA256(tokenType + this.cnonce + this.nonce + hashedKey, 32);
+    }
+
+    private ApiAuthData processAuthSecureResponse(ApiResponse response, String username, JsonObject method)
+            throws ApiException {
+        logger.debug("[{}] Processing auth secure response", this.tag);
+
+        if (response.result.has("data")) {
+            JsonObject data = response.result.getAsJsonObject("data");
+
+            if (data.has("nonce") && data.has("device_confirm")) {
+                this.nonce = data.get("nonce").getAsString();
+                logger.trace("[{}] Received nonce: {}", this.tag, this.nonce);
+
+                String deviceConfirm = data.get("device_confirm").getAsString();
+                Boolean validated = validateDeviceConfirm(deviceConfirm);
+
+                if (validated) {
+                    logger.trace("[{}] sha256: {}", this.tag, this.passwordHash);
+                    logger.trace("[{}] cnonce: {}", this.tag, this.cnonce);
+                    logger.trace("[{}] nonce: {}", this.tag, this.nonce);
+
+                    updateToSecondStepLoginMethod(method, username);
+
+                    Request request = httpClient.newRequest(this.url).method(HttpMethod.POST);
+                    setHeaders(request);
+
+                    logger.trace("[{}] Body: {}", this.tag, method.toString());
+                    request.content(new StringContentProvider(method.toString()));
+
+                    try {
+                        JsonElement json = JsonParser.parseString(request.send().getContentAsString());
+                        response = gson.fromJson(json, ApiResponse.class);
+                        logger.info("[{}] Response: {}", this.tag, response);
+
+                        if (response.errorCode == 0 && response.result.has("stok")
+                                && response.result.has("start_seq")) {
+                            ApiAuthData authData = new ApiAuthData();
+                            authData.stok = response.result.get("stok").getAsString();
+                            authData.startSeq = response.result.get("start_seq").getAsLong();
+                            authData.lsk = generateEncryptionToken("lsk");
+                            authData.ivb = generateEncryptionToken("ivb");
+                            return authData;
+                        } else {
+                            throw new ApiException(String.format("[{}] Error in auth response, error code: {}",
+                                    this.tag, response.errorCode));
+                        }
+
+                    } catch (TimeoutException | InterruptedException | ExecutionException e) {
+                        throw new ApiException(String.format("[{}] {} when processing auth secure response: {}", tag,
+                                e.getClass().getName(), e.getMessage()));
+                    }
+                } else {
+                    throw new ApiException(String.format(
+                            "[{}] Unable to validate device confirm in auth secure response, error code: {}", this.tag,
+                            response.errorCode));
+                }
+
+            } else {
+                throw new ApiException(String.format("[{}] Empty nonce or device_confirm, error code: {}", this.tag,
+                        response.errorCode));
+            }
+        } else {
+            throw new ApiException(String.format("[{}] Invalid token, error code: {}", this.tag, response.errorCode));
+        }
+    }
+
+    private String generateTag(String data) {
+        String hashedKey = ApiUtils.getPasswordHashSHA256(this.passwordHash + this.cnonce);
+        return ApiUtils.getPasswordHashSHA256(hashedKey + data + this.startSeq.toString());
+    }
+
+    @Override
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+        this.url = "https://" + hostname;
+    }
+
+    @Override
+    public Boolean isAuthenticated() {
+        return !apiAuthData.stok.isEmpty();
     }
 
     @Override
     public Boolean auth(String username, String password) throws ApiException {
-        Boolean result = false;
+        this.isSecureConnection = getIsSecureConnection(username);
 
-        isSecureConnection = getIsSecureConnection(username);
-
-        Request request = httpClient.newRequest(hostname);
-        logger.trace("{}: hostname: {}", tag, hostname);
+        Request request = httpClient.newRequest(this.url).method(HttpMethod.POST);
         setHeaders(request);
-        request.method(HttpMethod.POST);
 
-        //
+        JsonObject method = getFirstStepLoginMethod(username, password);
 
-        JsonObject jsonParams = new JsonObject();
+        logger.trace("[{}] Body: {}", this.tag, method.toString());
+        request.content(new StringContentProvider(method.toString()));
 
-        if (isSecureConnection) {
-            logger.debug("{}: Connection is secure", tag);
-            // SecureRandom csprng = new SecureRandom();
-            // byte[] randomBytes = new byte[8];
-            // csprng.nextBytes(randomBytes);
-            // cnonce = "9B5F6CE8";
-            // nonce = "18D1CD86D1AE9934";
-
-            passwordHash = ApiUtils.getPasswordHashSHA256(password);
-
-            jsonParams.addProperty("cnonce", cnonce);
-            jsonParams.addProperty("encrypt_type", "3");
-            // jsonParams.addProperty("digest_passwd", digestPassword2);
-            jsonParams.addProperty("username", username);
-        } else {
-            logger.debug("{}: Connection is insecure", tag);
-            passwordHash = ApiUtils.getPasswordHash(password);
-            jsonParams.addProperty("hashed", Boolean.TRUE);
-            jsonParams.addProperty("password", passwordHash);
-            jsonParams.addProperty("username", username);
-        }
-
-        JsonObject jsonAuth = new JsonObject();
-        jsonAuth.addProperty("method", "login");
-        jsonAuth.add("params", jsonParams);
-
-        String body = jsonAuth.toString();
-        logger.trace("{}: body: {}", tag, body);
-        request.content(new StringContentProvider(body));
         try {
-            ContentResponse contentResponse = request.send();
-            JsonElement json = JsonParser.parseString(contentResponse.getContentAsString());
-
+            JsonElement json = JsonParser.parseString(request.send().getContentAsString());
             ApiResponse response = gson.fromJson(json, ApiResponse.class);
-            logger.trace("{}: response: {}", tag, response);
+            logger.info("[{}] Response: {}", this.tag, response);
 
             if (isSecureConnection) {
-                // get nonce and make new request
-                logger.debug("{}: Processing secure response", tag);
-                if (response.result.has("data")) {
-                    JsonObject data = response.result.getAsJsonObject("data");
-                    if (data.has("nonce") && data.has("device_confirm")) {
-                        nonce = data.get("nonce").getAsString();
-                        logger.trace("{}: received nonce: {}", tag, nonce);
-                        String deviceConfirm = data.get("device_confirm").getAsString();
-                        Boolean validated = validateDeviceConfirm(passwordHash, nonce, deviceConfirm);
-                        if (validated) {
-                            logger.trace("{}: sha256: {}", tag, passwordHash);
-                            logger.trace("{}: cnonce: {}", tag, cnonce);
-                            logger.trace("{}: nonce: {}", tag, nonce);
-
-                            String toNewPass = passwordHash + cnonce + nonce;
-                            logger.trace("{}: sha256 + cnonce + nonce: {}", tag, toNewPass);
-
-                            String digestPassword = ApiUtils.getPasswordHashSHA256(toNewPass);
-                            logger.trace("{}: sha256-2: {}", tag, digestPassword);
-
-                            String digestPassword2 = digestPassword + cnonce + nonce;
-                            logger.trace("{}: sha256-2 + cnonce + nonce: {}", tag, digestPassword2);
-
-                            // jsonParams.addProperty("cnonce", ApiUtils.bytesToHex(randomBytes));
-                            jsonParams.addProperty("cnonce", cnonce);
-                            jsonParams.addProperty("encrypt_type", "3");
-                            jsonParams.addProperty("digest_passwd", digestPassword2);
-                            jsonParams.addProperty("username", username);
-
-                            jsonAuth = new JsonObject();
-                            jsonAuth.addProperty("method", "login");
-                            jsonAuth.add("params", jsonParams);
-
-                            body = jsonAuth.toString();
-                            logger.debug("{}: body: {}", tag, body);
-                            Request request2 = httpClient.newRequest(hostname);
-                            setHeaders(request2);
-                            request2.method(HttpMethod.POST);
-                            request2.content(new StringContentProvider(body));
-                            try {
-                                ContentResponse contentResponse2 = request2.send();
-                                JsonElement json2 = JsonParser.parseString(contentResponse2.getContentAsString());
-
-                                ApiResponse response2 = gson.fromJson(json2, ApiResponse.class);
-                                logger.debug("{}: response2: {}", tag, response2);
-                                // response: ApiResponse{errorCode=0,
-                                // result={"stok":"4b67dc6f7035104ff9922edef174164f","user_group":"root","start_seq":535}}
-                                if (response2.errorCode == 0 && response2.result.has("stok")
-                                        && response2.result.has("start_seq")) {
-                                    token = response2.result.get("stok").getAsString();
-                                    logger.debug("{}: token: {}", tag, token);
-                                    startSeq = response2.result.get("start_seq").getAsLong();
-                                    logger.debug("{}: start_seq: {}", tag, startSeq);
-                                    lsk = generateEncryptionToken("lsk", passwordHash, nonce);
-                                    logger.debug("{}: lsk: {}", tag, lsk);
-                                    ivb = generateEncryptionToken("ivb", passwordHash, nonce);
-                                    logger.debug("{}: ivb: {}", tag, ivb);
-                                    result = true;
-                                }
-
-                            } catch (TimeoutException e) {
-                                logger.error("{}: TimeoutException: {}", tag, e.getMessage());
-                                this.token = "";
-                                throw new ApiException(String.format("TimeoutException: %s", e.getMessage()));
-                            } catch (InterruptedException e) {
-                                logger.error("{}: InterruptedException: {}", tag, e.getMessage());
-                                throw new ApiException(String.format("InterruptedException: %s", e.getMessage()));
-                            } catch (ExecutionException e) {
-                                logger.error("{}: ExecutionException: {}", tag, e.getMessage());
-                                this.token = "";
-                                throw new ApiException(String.format("ExecutionException: %s", e.getMessage()));
-                            }
-                        }
-                    } else {
-                        logger.error("{}: Empty nonce or device_confirm, error code: {}", tag, response.errorCode);
-                        this.token = "";
-                        throw new ApiException(String.format("error code: %d", response.errorCode));
-                    }
-                } else {
-                    logger.error("{}: Invalid token, error code: {}", tag, response.errorCode);
-                    this.token = "";
-                    throw new ApiException(String.format("error code: %d", response.errorCode));
-                }
+                this.apiAuthData = processAuthSecureResponse(response, username, method);
             } else {
-                if (response.errorCode == 0 && response.result.has("stok")) {
-                    token = response.result.get("stok").getAsString();
-                    if (isAuth()) {
-                        userId = getUserId();
-                        result = true;
-                    }
-                } else {
-                    // TODO: log.error && throw new Exception
-                    if (response.errorCode == ApiErrorCodes.ERROR_40401.getCode()) {
-                        logger.error("{}: Invalid token, error code: {}", tag, response.errorCode);
-                        this.token = "";
-                    } else {
-                        logger.error("{}: Error in response, error code: {}", tag, response.errorCode);
-                        throw new ApiException(String.format("error code: %d", response.errorCode));
+                this.apiAuthData = processAuthResponse(response);
+            }
+
+        } catch (TimeoutException | InterruptedException | ExecutionException e) {
+            throw new ApiException(String.format("[{}] {} when checking if connection is secured or not: {}", tag,
+                    e.getClass().getName(), e.getMessage()));
+        }
+
+        return this.apiAuthData != null;
+    }
+
+    private ApiResponse executeRequest(String method, String params) throws ApiException {
+        Request request = httpClient.newRequest(this.url + "/stok=" + this.apiAuthData.stok + "/ds")
+                .method(HttpMethod.POST);
+
+        setHeaders(request);
+
+        String command = "{'method': '" + method + "', 'params': " + params + "}";
+        String data = "{'method': 'multipleRequest', 'params': {'requests': [" + command + "]}}";
+
+        logger.debug("[{}] Body: {}", this.tag, data);
+        request.content(new StringContentProvider(data));
+
+        try {
+            JsonElement json = JsonParser.parseString(request.send().getContentAsString());
+            ApiResponse response = gson.fromJson(json, ApiResponse.class);
+            logger.debug("[{}] response: {}", this.tag, response);
+
+            if (!isSecureConnection) {
+                return response;
+            }
+
+            if (response.errorCode == 0) {
+                String result = response.result.getAsJsonObject().get("response").getAsString();
+                result = ApiUtils.decryptResponse(result, apiAuthData.lsk, apiAuthData.ivb);
+                logger.debug("[{}] Decrypted response: {}", tag, result);
+                json = JsonParser.parseString(result);
+                response = gson.fromJson(json, ApiResponse.class);
+                if (response.errorCode == 0) {
+                    JsonObject responseJson = response.result.get("responses").getAsJsonArray().get(0)
+                            .getAsJsonObject();
+                    String responseMethod = responseJson.get("method").getAsString();
+                    if (method.equals(responseMethod)) {
+                        response.result = responseJson.get("result").getAsJsonObject();
+                        response.errorCode = responseJson.get("error_code").getAsInt();
                     }
                 }
+
+                return response;
+            } else {
+                throw new ApiException(String.format("[{}] Error in executeRequest response, error code: {}", this.tag,
+                        response.errorCode));
             }
-
-        } catch (TimeoutException e) {
-            logger.error("{}: TimeoutException: {}", tag, e.getMessage());
-            this.token = "";
-            throw new ApiException(String.format("TimeoutException: %s", e.getMessage()));
-        } catch (InterruptedException e) {
-            logger.error("{}: InterruptedException: {}", tag, e.getMessage());
-            throw new ApiException(String.format("InterruptedException: %s", e.getMessage()));
-        } catch (ExecutionException e) {
-            logger.error("{}: ExecutionException: {}", tag, e.getMessage());
-            this.token = "";
-            throw new ApiException(String.format("ExecutionException: %s", e.getMessage()));
+        } catch (TimeoutException | InterruptedException | ExecutionException e) {
+            throw new ApiException(String.format("[{}] {} when checking if connection is secured or not: {}", this.tag,
+                    e.getClass().getName(), e.getMessage()));
         }
-        return result;
-    }
-
-    private String generateEncryptionToken(String typeToken, String hashedPassword, String nonce) {
-        String hashedKey = ApiUtils.getPasswordHashSHA256(cnonce + hashedPassword + nonce);
-        return ApiUtils.getPasswordHashSHA256(typeToken + cnonce + nonce + hashedKey, 32);
-    }
-
-    private String generateTag(String data, String hashedPassword, String cnonce) {
-        String hashedKey = ApiUtils.getPasswordHashSHA256(hashedPassword + cnonce);
-        return ApiUtils.getPasswordHashSHA256(hashedKey + data + startSeq.toString());
-    }
-
-    private Integer getUserId() {
-        Integer result = -1;
-        String command = createMultipleCommand(List.of(USER_ID));
-        ApiResponse response = sendMultipleRequest(token, command);
-        if (response.errorCode == 0) {
-            List<ApiMethodResult> multi = processMultipleResponses(response);
-            if (!multi.isEmpty()) {
-                result = multi.get(0).result.get("user_id").getAsInt();
-            }
-        } else {
-            logger.error("{}: TapoCameraApi error {}", tag, response.errorCode);
-        }
-        return result;
     }
 
     private void makeEncryptedRequest(Request originRequest, String data, Long seq, String passwordHash, String lsk,
@@ -360,7 +428,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         originRequest.content(new StringContentProvider(encryptedRequest.toString()));
         originRequest.header("Seq", seq.toString());
 
-        String tapoTag = generateTag(encryptedRequest.toString(), passwordHash, cnonce);
+        String tapoTag = generateTag(encryptedRequest.toString());
         logger.debug("{}: Tapo tag: {}", tag, tapoTag);
 
         originRequest.header("Tapo_tag", tapoTag);
@@ -369,13 +437,15 @@ public class TapoCameraApiImpl implements TapoCameraApi {
     }
 
     @Override
-    public ApiResponse sendMultipleRequest(String token, String data) {
-        Request request = httpClient.newRequest(hostname + "/stok=" + token + "/ds");
+    public ApiResponse sendMultipleRequest(String data) {
+        Request request = httpClient.newRequest(this.url + "/stok=" + this.apiAuthData.stok + "/ds")
+                .method(HttpMethod.POST);
+
         setHeaders(request);
-        request.method(HttpMethod.POST);
+
         if (isSecureConnection) {
             logger.debug("{}: sendMultipleRequest data: {}", tag, data);
-            makeEncryptedRequest(request, data, startSeq, passwordHash, lsk, ivb);
+            makeEncryptedRequest(request, data, startSeq, passwordHash, apiAuthData.lsk, apiAuthData.ivb);
         } else {
             request.content(new StringContentProvider(data));
         }
@@ -385,7 +455,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
             if (response.errorCode == 0) {
                 if (isSecureConnection) {
                     String result = response.result.get("response").getAsString();
-                    result = ApiUtils.decryptResponse(result, lsk, ivb);
+                    result = ApiUtils.decryptResponse(result, apiAuthData.lsk, apiAuthData.ivb);
                     logger.debug("{}: decrypted response: {}", tag, result);
                     JsonObject json = JsonParser.parseString(result).getAsJsonObject();
                     response.result = json.getAsJsonObject("result");
@@ -394,42 +464,47 @@ public class TapoCameraApiImpl implements TapoCameraApi {
             } else {
                 // TODO: log.error && throw new Exception
                 logger.error("{}: Error in response, error code: {}", tag, response.errorCode);
-                this.token = "";
+                this.apiAuthData.stok = "";
                 return new ApiResponse();
             }
         } catch (TimeoutException e) {
-            this.token = "";
+            this.apiAuthData.stok = "";
             logger.error("{}: TimeoutException: {}", tag, e.getMessage());
             return null;
         } catch (InterruptedException e) {
             logger.error("{}: InterruptedException: {}", tag, e.getMessage());
             return null;
         } catch (ExecutionException e) {
-            this.token = "";
+            this.apiAuthData.stok = "";
             logger.error("{}: ExecutionException: {}", tag, e.getMessage());
             return null;
         }
     }
 
     @Override
-    public Object sendSingleRequest(String token, String data) {
-        Request request = httpClient.newRequest(hostname + "/stok=" + token + "/ds");
+    public Object sendSingleRequest(String data) {
+        Request request = httpClient.newRequest(this.url + "/stok=" + this.apiAuthData.stok + "/ds")
+                .method(HttpMethod.POST);
+
         setHeaders(request);
-        request.method(HttpMethod.POST);
+
         if (isSecureConnection) {
             logger.debug("{}: sendSingleRequest data: {}", tag, data);
-            makeEncryptedRequest(request, data, startSeq, passwordHash, lsk, ivb);
+            // makeEncryptedRequest(request, data, startSeq, passwordHash, this.apiAuthData.lsk, this.apiAuthData.ivb);
+            data = "{\"method\": \"multipleRequest\", \"params\": {\"requests\": [" + data + "]}}";
+            request.content(new StringContentProvider(data));
         } else {
             request.content(new StringContentProvider(data));
         }
 
         try {
             ContentResponse contentResponse = request.send();
+
             JsonObject response = JsonParser.parseString(contentResponse.getContentAsString()).getAsJsonObject();
             if (response.has("error_code") && response.get("error_code").getAsInt() == 0) {
                 if (isSecureConnection) {
                     String result = response.get("result").getAsJsonObject().get("response").getAsString();
-                    result = ApiUtils.decryptResponse(result, lsk, ivb);
+                    result = ApiUtils.decryptResponse(result, apiAuthData.lsk, apiAuthData.ivb);
                     logger.debug("{}: decrypted response: {}", tag, result);
                     JsonObject json = JsonParser.parseString(result).getAsJsonObject();
                     if (json.has("error_code") && json.get("error_code").getAsInt() == 0) {
@@ -445,19 +520,19 @@ public class TapoCameraApiImpl implements TapoCameraApi {
             } else {
                 // TODO: log.error && throw new Exception
                 logger.error("{}: Error in response, error code: {}", tag, response.get("error_code").getAsInt());
-                this.token = "";
+                this.apiAuthData.stok = "";
                 return new Object();
             }
         } catch (TimeoutException e) {
             logger.error("{}: TimeoutException: {}", tag, e.getMessage());
-            this.token = "";
+            this.apiAuthData.stok = "";
             return null;
         } catch (InterruptedException e) {
             logger.error("{}: InterruptedException: {}", tag, e.getMessage());
             return null;
         } catch (ExecutionException e) {
             logger.error("{}: ExecutionException: {}", tag, e.getMessage());
-            this.token = "";
+            this.apiAuthData.stok = "";
             return null;
         }
     }
@@ -496,7 +571,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String section = type.getSection();
         String command = ApiUtils.createSingleCommand(method, module, section, paramName, value);
         try {
-            JsonObject obj = (JsonObject) sendSingleRequest(token, command);
+            JsonObject obj = (JsonObject) sendSingleRequest(command);
             ApiResponse response = gson.fromJson(obj, ApiResponse.class);
             return response.errorCode == 0;
         } catch (Exception e) {
@@ -582,43 +657,54 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = type.getModule();
         String section = type.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         return (Class<?>) processSingleResponse(singleResponse, module, section);
     }
 
     @Override
     public DeviceInfo getDeviceInfo() {
-        String module = DEVICE_INFO_FULL.getModule();
-        List<String> sections = List.of(DEVICE_INFO_FULL.getSection(), DEVICE_INFO_BASIC.getSection());
-        String command = ApiUtils.createSingleCommand("get", module, sections);
-        JsonObject response = (JsonObject) sendSingleRequest(token, command);
-        if (response.get("error_code").getAsInt() == 0) {
-            return gson.fromJson(response.get("device_info").getAsJsonObject(), DeviceInfo.class);
+        try {
+            ApiResponse response = executeRequest(ApiMethodTypes.DEVICE_INFO.getMethod(),
+                    ApiMethodTypes.DEVICE_INFO.getParams());
+            return gson.fromJson(response.result.get("device_info").getAsJsonObject(), DeviceInfo.class);
+        } catch (ApiException e) {
+            logger.error(e.getMessage());
         }
+
         return new DeviceInfo();
     }
 
     @Override
     public NetworkInfo getNetworkInfo() {
-        NetworkInfo result;
-        String module = WAN_INFO.getModule();
-        String section = WAN_INFO.getSection();
-        String command = ApiUtils.createSingleCommand("get", module, List.of(section));
-        JsonObject response = (JsonObject) sendSingleRequest(token, command);
-        if (response.get("error_code").getAsInt() == 0) {
-            result = (NetworkInfo) gson.fromJson(response.get(module).getAsJsonObject().get(section),
-                    WAN_INFO.getClazz());
-
-            command = createMultipleCommand(List.of(CONNECTION_TYPE));
-            ApiResponse response1 = sendMultipleRequest(token, command);
-            if (response1.errorCode == 0) {
-                List<ApiMethodResult> methodResults = processMultipleResponses(response1);
-                result.connectionType = gson.fromJson(methodResults.get(0).result, ConnectionType.class);
-                // result.link_type = methodResults.get(0).result.get("link_type").getAsString();
-            }
-            return result;
+        try {
+            ApiResponse response = executeRequest(ApiMethodTypes.WAN_INFO.getMethod(),
+                    ApiMethodTypes.WAN_INFO.getParams());
+            return gson.fromJson(response.result.get("device_info").getAsJsonObject(), NetworkInfo.class);
+        } catch (ApiException e) {
+            logger.error(e.getMessage());
         }
+
         return new NetworkInfo();
+
+        // NetworkInfo result;
+        // String module = WAN_INFO.getModule();
+        // String section = WAN_INFO.getSection();
+        // String command = ApiUtils.createSingleCommand("get", module, List.of(section));
+        // JsonObject response = (JsonObject) sendSingleRequest(command);
+        // if (response.get("error_code").getAsInt() == 0) {
+        // result = (NetworkInfo) gson.fromJson(response.get(module).getAsJsonObject().get(section),
+        // WAN_INFO.getClazz());
+
+        // command = createMultipleCommand(List.of(CONNECTION_TYPE));
+        // ApiResponse response1 = sendMultipleRequest(command);
+        // if (response1.errorCode == 0) {
+        // List<ApiMethodResult> methodResults = processMultipleResponses(response1);
+        // result.connectionType = gson.fromJson(methodResults.get(0).result, ConnectionType.class);
+        // // result.link_type = methodResults.get(0).result.get("link_type").getAsString();
+        // }
+        // return result;
+        // }
+        // return new NetworkInfo();
     }
 
     @Override
@@ -626,7 +712,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = MODULES_SPEC.getModule();
         String section = MODULES_SPEC.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (ModuleSpec) result;
     }
@@ -636,7 +722,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = SPEAKER_INFO.getModule();
         String section = SPEAKER_INFO.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (AudioSpeakerInfo) result;
     }
@@ -651,7 +737,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = MICROPHONE_INFO.getModule();
         String section = MICROPHONE_INFO.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (AudioMicrophoneInfo) result;
     }
@@ -666,7 +752,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = CLOCK_STATUS.getModule();
         String section = CLOCK_STATUS.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (ClockStatus) result;
     }
@@ -676,7 +762,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = LIGHT_FREQUENCY_INFO.getModule();
         String section = LIGHT_FREQUENCY_INFO.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (ImageCommon) result;
     }
@@ -686,7 +772,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = IMAGE_ROTATION_STATUS.getModule();
         String section = IMAGE_ROTATION_STATUS.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (ImageSwitch) result;
     }
@@ -731,7 +817,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = LENS_MASK.getModule();
         String section = LENS_MASK.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (LensMaskInfo) result;
     }
@@ -746,7 +832,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = LED_STATUS.getModule();
         String section = LED_STATUS.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (LedStatus) result;
     }
@@ -761,7 +847,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = MSG_ALARM_INFO.getModule();
         String section = MSG_ALARM_INFO.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (MsgAlarmInfo) result;
     }
@@ -791,7 +877,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = MSG_PUSH_INFO.getModule();
         String section = MSG_PUSH_INFO.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (MsgPushInfo) result;
     }
@@ -801,7 +887,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = LAST_ALARM_INFO.getModule();
         String section = LAST_ALARM_INFO.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (LastAlarmInfo) result;
     }
@@ -811,7 +897,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = INTRUSION_DETECTION.getModule();
         String section = INTRUSION_DETECTION.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (IntrusionDetectionInfo) result;
     }
@@ -831,7 +917,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = LINECROSSING_DETECTION.getModule();
         String section = LINECROSSING_DETECTION.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (LineCrossingDetectionInfo) result;
     }
@@ -846,7 +932,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = MOTION_DETECTION.getModule();
         String section = MOTION_DETECTION.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (MotionDetection) result;
     }
@@ -876,7 +962,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = PERSON_DETECTION.getModule();
         String section = PERSON_DETECTION.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (PersonDetectionInfo) result;
     }
@@ -896,7 +982,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = TAMPER_DETECTION.getModule();
         String section = TAMPER_DETECTION.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (TamperDetectionInfo) result;
     }
@@ -911,7 +997,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = PRESETS.getModule();
         String section = PRESETS.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (PresetInfo) result;
     }
@@ -923,7 +1009,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String method = GOTO_PRESETS.getMethod();
         String command = ApiUtils.createSingleCommandAsParam(method, module, section, "id", id);
         command = singleToMulti(command);
-        sendSingleRequest(token, command);
+        sendSingleRequest(command);
     }
 
     @Override
@@ -931,7 +1017,7 @@ public class TapoCameraApiImpl implements TapoCameraApi {
         String module = TARGET_TRACK.getModule();
         String section = TARGET_TRACK.getSection();
         String singleCommand = ApiUtils.createSingleCommand("get", module, List.of(section));
-        Object singleResponse = sendSingleRequest(token, singleCommand);
+        Object singleResponse = sendSingleRequest(singleCommand);
         Object result = processSingleResponse(singleResponse, module, section);
         return (TargetAutoTrackInfo) result;
     }
@@ -947,16 +1033,16 @@ public class TapoCameraApiImpl implements TapoCameraApi {
                 ApiMethodTypes.SPEAKER_INFO, ApiMethodTypes.MICROPHONE_INFO);
 
         String multipleCommand = ApiUtils.createMultipleCommand(listCommands);
-        ApiResponse response = sendMultipleRequest(token, multipleCommand);
+        ApiResponse response = sendMultipleRequest(multipleCommand);
         if (response.errorCode == 0 && response.result != null) {
             return processMultipleResponses(response);
         } else if (response.errorCode == ApiErrorCodes.ERROR_40401.getCode()) {
             // TODO: invalid token
             logger.error("{}: Invalid token, error code: {}", tag, response.errorCode);
-            this.token = "";
+            this.apiAuthData.stok = "";
         } else {
             logger.error("{}: Error in response, error code: {}", tag, response.errorCode);
-            this.token = "";
+            this.apiAuthData.stok = "";
         }
         return result;
     }
